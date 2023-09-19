@@ -1,2 +1,2 @@
 # ft_transcendence
-github test
+test
