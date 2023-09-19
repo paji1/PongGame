@@ -7,8 +7,8 @@
 - [User Account](#user-account)
 - [Chat](#chat)
 - [Game](#game)
-- [Contributors](#contributors)
 - [Docker Deployment](#docker-deployment)
+- [Contributors](#contributors)
 
 ---
 
