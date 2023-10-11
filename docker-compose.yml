@@ -1,0 +1,56 @@
+version: '3'
+
+services:
+  frontend:
+    build: front
+    ports:
+      - 3000:3000
+    networks:
+      app:
+        ipv4_address: 10.10.10.2
+    volumes:
+      - frontlink:/front
+  backend:
+    build: back
+    ports:
+      - 3001:3001
+    networks:
+      app:
+        ipv4_address: 10.10.10.3
+    volumes:
+      - backlink:/back
+  database:
+    image: postgres:14
+    networks:
+      app:
+        ipv4_address: 10.10.10.4
+    environment:
+      - POSTGRES_DB=testdb
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=testpassword
+    volumes: 
+      - datalink:/var/lib/postgresql/data
+
+networks:
+  app:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "10.10.10.0/24"
+
+volumes:
+  frontlink:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "$HOME/workspace/handsonjs/front/app"
+  backlink:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "$HOME/workspace/handsonjs/back/api"
+  datalink:
+
+
