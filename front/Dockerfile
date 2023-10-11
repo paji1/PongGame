@@ -6,4 +6,4 @@ run curl -fsSL https://deb.nodesource.com/setup_20.x |  bash - &&  apt-get insta
 copy dockerconf/script.sh /
 
 ENTRYPOINT ["bash", "script.sh"]
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "dev"]
