@@ -2,23 +2,27 @@ version: '3'
 
 services:
   frontend:
-    build: front
+    image: node:20
     ports:
       - 3000:3000
     networks:
       app:
         ipv4_address: 10.10.10.2
+    working_dir: /app
     volumes:
-      - frontlink:/front
+      - frontlink:/app
+    command: bash -c "npm install && npm run dev"
   backend:
-    build: back
+    image: node:20
     ports:
       - 3001:3001
     networks:
       app:
         ipv4_address: 10.10.10.3
+    working_dir: /back
     volumes:
       - backlink:/back
+    command: bash -c "npm install && npm run start:dev"
   database:
     image: postgres:14
     networks:
@@ -50,7 +54,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: "$PWD/back/api"
+      device: "$PWD/back/app"
   datalink:
 
 
