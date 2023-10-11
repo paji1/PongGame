@@ -1,7 +1,4 @@
-from debian:buster
-
-run apt  update && apt install -y curl bash 
-run curl -fsSL https://deb.nodesource.com/setup_20.x |  bash - &&  apt-get install -y nodejs
+from node:20
 
 copy dockerconf/script.sh /
 
