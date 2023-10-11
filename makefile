@@ -1,0 +1,5 @@
+all:
+	docker-compose up 
+
+
+
