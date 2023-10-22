@@ -15,9 +15,13 @@ WORKDIR /code
 EXPOSE 8001
 
 COPY package.json /code/package.json
-COPY package-lock.json /code/package-lock.json
-RUN npm ci
+COPY --chmod=777 package-lock.json /code/package-lock.json
+RUN <<EOF
+npm ci
+npm install -g @nestjs/cli
+npm i --save-dev webpack webpack-cli webpack-node-externals ts-loader run-script-webpack-plugin
 
+EOF
 # check every 30s to ensure this service returns HTTP 200
 HEALTHCHECK --interval=30s \
   CMD node healthcheck.js
@@ -34,7 +38,6 @@ FROM development as dev-envs
 RUN <<EOF
 apt-get update
 apt-get install -y --no-install-recommends git
-npm install -g @nestjs/cli
 EOF
 CMD [ "npm", "run", "start:dev" ]
 
