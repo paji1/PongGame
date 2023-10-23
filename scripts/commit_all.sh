@@ -14,12 +14,18 @@ do
   git add --all  # Stage all changes
   if [ $? -ne 0 ]; then
     echo "Conflicts occurred on branch $branch. Please resolve them and continue the rebase."
-    exit 1
+    exit 3
   fi
-  git commit -m "Staging changes on branch $branch"
-  if [ $? -ne 0 ]; then
-    echo "Conflicts occurred on branch $branch. Please resolve them and continue the rebase."
-    exit 2
+  if git commit -m "Staging changes on branch $branch (with the script)"; then
+    echo "Commit successful"
+  else
+    exit_status=$?
+    if [ $exit_status -eq 1 ]; then
+      echo "Nothing to commit, working tree is clean."
+    else
+      echo "An error occurred during the commit."
+      exit 3
+    fi
   fi
 done
 
