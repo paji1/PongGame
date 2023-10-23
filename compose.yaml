@@ -1,4 +1,4 @@
-name: react-rust-postgres
+name: ft_transcendence
 services:
   frontend:
     build:
