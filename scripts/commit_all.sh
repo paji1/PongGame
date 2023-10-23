@@ -14,7 +14,7 @@ do
   git add --all  # Stage all changes
   if [ $? -ne 0 ]; then
     echo "Conflicts occurred on branch $branch. Please resolve them and continue the rebase."
-    exit 3
+    exit 1
   fi
   if git commit -m "Staging changes on branch $branch (with the script)"; then
     echo "Commit successful"
