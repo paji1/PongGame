@@ -9,7 +9,7 @@ export class StreamGateway implements OnModuleInit, OnModuleDestroy {
 
   @WebSocketServer()
    server: Server;
-
+  
   onModuleInit() {
     this.server.on('connection', (socket) => {
       console.log(socket.id);

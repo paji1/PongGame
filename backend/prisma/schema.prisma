@@ -23,8 +23,10 @@ model rooms {
   id Int @id @default(autoincrement())
   title  String
   messages messages?
+  type roomType
   room_particiants room_particiants?
 }
+
 model messages {
   id Int @id @default(autoincrement())
   room Int @unique
@@ -41,4 +43,11 @@ model room_particiants {
   user_id Int @unique
   user user @relation(fields: [user_id], references: [id])
   created DateTime @default(now())
+}
+
+enum  roomType {
+  chat
+  group_public
+  group_private
+  group_protected
 }
