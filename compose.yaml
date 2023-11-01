@@ -16,13 +16,14 @@ services:
       - NODE_ENV=development
       context: backend
       target: development
-    command: npm run start:dev
+    command: "npm run start:dev" 
     env_file:
     - .env
     ports:
       - 3001:8001
     volumes: 
       - ./backend:/code:rw
+      - back-notused:/code/prisma/migrations
       - back-notused:/opt/app/node_modules
     networks:
       - client-side
