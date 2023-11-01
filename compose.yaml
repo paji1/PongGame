@@ -21,10 +21,8 @@ services:
     - .env
     ports:
       - 3001:8001
-    volumes:
-      - ./backend/src:/code/src:ro
-      - ./backend/package.json:/code/package.json
-      - ./backend/package-lock.json:/code/package-lock.json
+    volumes: 
+      - ./backend:/code:rw
       - back-notused:/opt/app/node_modules
     networks:
       - client-side
