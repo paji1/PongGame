@@ -14,7 +14,7 @@ model user {
   id Int @id @default(autoincrement())
   name42 String @unique
   nick String? 
-  created DateTime
+  created DateTime  @default(now())
   messages messages[]
   room_particiants room_particiants[]
 }
@@ -42,12 +42,12 @@ model room_particiants {
 model rooms {
   id Int @id @default(autoincrement())
   title  String?
-  type roomType
+  room_type roomtype
   created DateTime @default(now())
   room_particiants room_particiants[]
   messages messages[]
 }
-enum  roomType {
+enum  roomtype {
   chat
   group_public
   group_private
