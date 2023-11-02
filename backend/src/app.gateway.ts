@@ -1,14 +1,15 @@
 import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import {Server} from 'socket.io'
-import { AppService } from './app.service';
+import { PrismaService } from './prisma/prisma.service';
+import { ChatService } from './chat/chat.service';
 
 
 
 
 @WebSocketGateway()
 export class AppGateway implements OnModuleInit, OnModuleDestroy {
-  constructor(private readonly appService: AppService)
+  constructor(private readonly prisma: PrismaService, private readonly chat : ChatService)
   {}
 
   @WebSocketServer()
@@ -23,7 +24,6 @@ export class AppGateway implements OnModuleInit, OnModuleDestroy {
   onModuleDestroy() {
     
   }
-
   @SubscribeMessage('chat')
   onMessage(@MessageBody() message: any){
 

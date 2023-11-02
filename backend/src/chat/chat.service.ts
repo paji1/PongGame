@@ -1,7 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 
 @Injectable()
-export class ChatService {
+export class ChatService implements OnModuleInit{
+  onModuleInit() {
+    console.log('hi')
+  }
     getHello(): string {
         return 'Hello  chat';
       }
