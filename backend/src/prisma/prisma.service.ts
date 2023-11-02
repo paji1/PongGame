@@ -7,5 +7,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     async onModuleInit() {
         await this.$connect();
         console.log("init")
+        // const messages = await this.user.update({
+
+        // });
+        // console.log(messages)
     }
 }
