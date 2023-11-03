@@ -16,11 +16,12 @@ services:
       - NODE_ENV=development
       context: backend
       target: development
-    command: "npm run start:dev" 
+    command: "npm run t:d" 
     env_file:
     - .env
     ports:
       - 3001:8001
+      - 5555:5555
     volumes: 
       - ./backend:/code:rw
       - back-notused:/code/prisma/migrations
