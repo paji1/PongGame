@@ -17,6 +17,7 @@ export class AppGateway implements OnModuleInit, OnModuleDestroy {
   
   onModuleInit() {
     this.server.on('connection', (socket) => {
+      console.log(socket.request.headers)
       console.log(socket.id);
       console.log('conected')
     })
@@ -26,7 +27,7 @@ export class AppGateway implements OnModuleInit, OnModuleDestroy {
   }
   @SubscribeMessage('chat')
   onMessage(@MessageBody() message: any){
-
+            
   }
 
 }

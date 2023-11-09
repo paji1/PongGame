@@ -1,0 +1,116 @@
+
+
+Table users {
+  id integer
+  user42 string
+  nickname string
+  avatar string
+  created_at timestamp
+}
+
+Table Friendship
+{
+    id      integer 
+    initiator integer
+    reciever integer
+    status friendship_status
+      created_at timestamp
+
+}
+
+Table Blocked {
+  id      integer 
+  initiator integer
+  reciever integer
+    created_at timestamp
+
+}
+Table matchHistory
+{
+  id integer
+  player1 integer
+  player2 integer
+  score1 integer
+  score2 integer
+  created_at timestamp
+}
+
+Table rooms{
+  id integer
+  name string
+  password string
+  type permition
+  created_at timestamp
+
+}
+
+table rooms_members
+{
+  id integer
+  userid integer
+  room_id integer
+  permition partisipant_type 
+  idmuted boolean
+  isblocked boolean
+  muted_at timestamp
+  muting_period int
+  user integer
+    created_at timestamp
+
+}
+table messages
+{
+  id integer
+  room_id integr
+  sender_id intger
+  messages string
+  created timestamp
+}
+Table achivments
+{
+  id integer
+  name string
+  icon string
+  description string
+  type achivemnt_type 
+  created_at timestamp
+}
+
+Table achieved {
+  id integer
+  userid integer
+}
+
+enum achivemnt_type {
+  game_played
+  game_won
+  win_strike
+  game_lost
+}
+
+enum permition{
+  chat
+  private
+  public
+  protected
+}
+enum friendship_status{
+  pending
+  acepted
+  refused
+}
+enum partisipant_type{
+  participant
+  admin
+  onber
+}
+REF: Friendship.initiator > users.id
+REF: Friendship.reciever > users.id
+REF: Blocked.initiator > users.id
+REF: Blocked.reciever > users.id
+REF: matchHistory.player1 > users.id
+REF: matchHistory.player2 > users.id
+REF: rooms_members.room_id > rooms.id
+REF: messages.room_id > rooms.id
+
+

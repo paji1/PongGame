@@ -4,7 +4,7 @@ import Chatbar from '../components/Chatbar';
 function Pagecontainer(){
     return (<div>
     <p>Pagecontainer</p>
-    <Chatbar />
+    <Chatbar/>
     </div>)
 }
 
