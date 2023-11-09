@@ -1,59 +1,3 @@
-// // This is your Prisma schema file,
-// // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// generator client {
-//   provider = "prisma-client-js"
-// }
-
-// datasource db {
-//   provider = "postgresql"
-//   url      = env("DATABASE_URL")
-// }
-
-// model user {
-//   id Int @id @default(autoincrement())
-//   name42 String @unique
-//   nick String? 
-//   created DateTime  @default(now())
-//   messages messages[]
-//   room_particiants room_particiants[]
-// }
-
-// model messages {
-//   id Int @id @default(autoincrement())
-//   room_id Int 
-//   user_id Int 
-//   message String
-//   created DateTime  @default(now())
-//   user user @relation(fields: [user_id], references: [id])
-//   rooms rooms @relation(fields: [room_id], references: [id])
-// }
-
-// model room_particiants {
-//   id Int @id@default(autoincrement())
-//   room_id Int 
-//   user_id Int 
-//   created DateTime @default(now())
-//   user user @relation(fields: [user_id], references: [id])
-//   rooms rooms @relation(fields: [room_id], references: [id])
-// }
-
-// model rooms {
-//   id Int @id @default(autoincrement())
-//   title  String?
-//   room_type roomtype
-//   created DateTime @default(now())
-//   room_particiants room_particiants[]
-//   messages messages[]
-// }
-// enum  roomtype {
-//   chat
-//   group_public
-//   group_private
-//   group_protected
-// }
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
@@ -69,7 +13,7 @@ model user {
   user42            String          @unique
   nickname          String?
   avatar            String?
-  experience_points Int
+  experience_points Int             @default(0)
   created_at        DateTime        @default(now())
   friendship1       friendship[]    @relation("initiator")
   friendship2       friendship[]    @relation("reciever")
@@ -119,9 +63,9 @@ model matchhistory {
 
 model rooms {
   id            Int             @id @unique @default(autoincrement())
-  name          String
+  name          String?
   password      String?
-  type          permission
+  typeofroom    permission
   created_at    DateTime        @default(now())
   rooms_members rooms_members[]
   messages      messages[]
