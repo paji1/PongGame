@@ -18,7 +18,7 @@ async function seedmessages(messages) {
 
 const getmessages = () =>
 {
-  fs.createReadStream('/code/prisma/seed/messages.csv', 'utf-8')
+  fs.createReadStream('/code/prisma/seed/csv/messages.csv', 'utf-8')
   .on('data',function(csvrow) {
     csvrow.split('\n').forEach(element => {
       class obj  {

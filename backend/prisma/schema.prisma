@@ -64,8 +64,8 @@ model matchhistory {
 model rooms {
   id            Int             @id @unique @default(autoincrement())
   name          String?
-  password      String?
-  typeofroom    permission
+  roompassword      String?
+  roomtypeof    permission
   created_at    DateTime        @default(now())
   rooms_members rooms_members[]
   messages      messages[]
@@ -73,9 +73,9 @@ model rooms {
 
 model rooms_members {
   id            Int                @id @unique @default(autoincrement())
-  userid        Int
   roomid        Int
-  permition     participation_type
+  userid        Int
+  permission     participation_type
   ismuted       Boolean            @default(false)
   isblocked     Boolean            @default(false)
   muted_at      DateTime?
@@ -87,8 +87,8 @@ model rooms_members {
 
 model messages {
   id         Int      @id @unique @default(autoincrement())
-  sender_id  Int
   room_id    Int
+  sender_id  Int
   messages   String
   created_at DateTime @default(now())
   roomid     rooms    @relation(fields: [room_id], references: [id])
@@ -118,7 +118,7 @@ model achieved {
 enum participation_type {
   participation
   admin
-  owber
+  owner
 }
 
 enum permission {

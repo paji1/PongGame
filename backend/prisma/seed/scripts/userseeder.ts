@@ -1,3 +1,6 @@
+
+
+
 var fs = require('fs'); 
 import { PrismaClient, Prisma } from "@prisma/client";
 
@@ -6,7 +9,7 @@ var users = []
 
 const getdata = ()=>
 {
-  fs.createReadStream('/code/prisma/seed/users.csv', 'utf-8')
+  fs.createReadStream('/code/prisma/seed/csv/users.csv', 'utf-8')
       .on('data',function(csvrow) {
          csvrow.split('\n').forEach(element => {
           users.push(element)
@@ -18,10 +21,9 @@ const getdata = ()=>
 
 
 async function seedUsers(users){
-  console.log(users.length + '\n', users)
   for (let i = 0; i < users.length ; i++)
   {
-    await prisma.$executeRaw`insert into public.user(name42) values(${users[i]})`
+    await prisma.$executeRaw`insert into public.user(user42) values(${users[i]})`
   }
   const res = await prisma.$executeRaw`select * from public.user`
   console.log(res);

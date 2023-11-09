@@ -7,7 +7,8 @@ var rooms = []
 async function seedrooms(rooms) {
   for (let i = 0; i < rooms.length ; i++)
   {
-    await prisma.$executeRaw`insert into public.rooms(title, room_type ) values(${rooms[i].title}, ${rooms[i].type}::roomtype)`
+    // console.log(rooms[i])
+    await prisma.$executeRaw`insert into public.rooms(name, roompassword , roomtypeof) values(${rooms[i].title},${rooms[i].password}, ${rooms[i].type}::permission)`
   }
   
   const res = await prisma.$executeRaw`select * from public.rooms`
@@ -16,19 +17,21 @@ async function seedrooms(rooms) {
 
 const getrooms = () =>
 {
-  fs.createReadStream('/code/prisma/seed/rooms.csv', 'utf-8')
+  fs.createReadStream('/code/prisma/seed/csv/rooms.csv', 'utf-8')
   .on('data',function(csvrow) {
     csvrow.split('\n').forEach(element => {
       class obj  {
-        constructor (title , type){
+        constructor (title , password, type){
           this.title = title;
           this.type = type;
+          this.password = password
         }
         title ;
+        password ;
         type
       }
-      const [title, type] = element.split(',')
-      rooms.push(new obj(title, type))
+      const [title,password,type] = element.split(',')
+      rooms.push(new obj(title,password,type))
     });
   }).on('end', () => seedrooms(rooms))
   
