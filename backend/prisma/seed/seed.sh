@@ -18,6 +18,8 @@ echo "seeding rooms ..."
 /code/node_modules/.bin/ts-node /code/prisma/seed/scripts/roomseeder.ts
 echo "seeding rooms participants ..."
 /code/node_modules/.bin/ts-node /code/prisma/seed/scripts/room_parts.ts
+echo "seeding messages ..."
+/code/node_modules/.bin/ts-node /code/prisma/seed/scripts/messageseeder.ts
 
 
 
