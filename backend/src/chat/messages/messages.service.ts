@@ -12,6 +12,7 @@ export class MessagesService {
             where: {AND :[{ roomid: Number(rid) }, {userid : Number(pid)}]}
         }    
         )
+        console.log(membership)
         if (!membership||  membership.isblocked || membership.ismuted)
         throw new HttpException("cant send message", 403);
         if (!message.length)
@@ -31,7 +32,7 @@ export class MessagesService {
             where: {AND :[{ roomid: Number(rid) }, {userid : Number(pid)}]}
         }    
         )
-        if (!membership|| membership.ismuted)
+        if (!membership || membership.isblocked)
             throw new HttpException("Unauthorized", 401);
         const conversation = await this.prisma.messages.findMany({
             where: {

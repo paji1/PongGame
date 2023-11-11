@@ -8,7 +8,7 @@ async function seedmessages(messages) {
   for (let i = 0; i < messages.length ; i++)
   {
     await console.log(messages[i])
-    await prisma.$executeRaw`insert into public.messages(room_id, user_id, message) values(${messages[i].room_id}::integer, ${messages[i].user_id}::integer, ${messages[i].message})`
+    await prisma.$executeRaw`insert into public.messages(room_id, sender_id, messages) values(${messages[i].room_id}::integer, ${messages[i].user_id}::integer, ${messages[i].message})`
   }
   
   const res = await prisma.$executeRaw`select * from public.messages`

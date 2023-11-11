@@ -21,9 +21,25 @@ export class ChatController {
     @Get('message')
     async sendMessage()
     {
-        return await this.service.messages.sendMessage(1, 6)
+        return await this.service.messages.sendMessage(4, 2, "")
     }
 
+    @Get('join')
+    async joinRoom() {
+        return await this.service.rooms.joinRoom(1,4)
+    }
+
+    @Get('getMessages')
+    async getMessages()
+    {
+        return await this.service.messages.getMessages(4, 2)
+    }
+    @Get('mute')
+    
+        async name() {
+            return await this.service.rooms.muteParticipant(1, 4,2,60)
+        }
+            
 }
 
 

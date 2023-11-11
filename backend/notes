@@ -17,8 +17,8 @@ http:
         
         chat specific:
             - get converasion       GET     /chat/rooms/room_id=:id                              {user must be in room}
-            - mute a person,        UPDATE  /chat/rooms/action=mute&user_id=:id                  {user must be asmin or owner}
-            - send message,         POST    /chat/rooms/action=message&roomid=:id                 {in room, not muted or blocked}
+            - mute a person,        UPDATE  /chat/rooms/action=mute&user_id=:id                  {user must be admin or owner}
+            - send message,         POST    /chat/rooms/action=message&roomid=:id                {in room, not muted or blocked}
 
 -------------------------->
 
