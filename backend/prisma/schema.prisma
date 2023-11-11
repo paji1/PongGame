@@ -75,14 +75,14 @@ model rooms_members {
   id            Int                @id @unique @default(autoincrement())
   roomid        Int
   userid        Int
-  permission     participation_type
+  permission    participation_type
   ismuted       Boolean            @default(false)
   isblocked     Boolean            @default(false)
   muted_at      DateTime?
   muting_period Int                @default(0)
   created_at    DateTime           @default(now())
   user_id       user               @relation(fields: [userid], references: [id])
-  room_id       rooms              @relation(fields: [roomid], references: [id])
+  rooms       rooms              @relation(fields: [roomid], references: [id])
 }
 
 model messages {

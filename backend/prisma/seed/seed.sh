@@ -6,7 +6,7 @@
 read -r -p "run prisma migrate and generate? : y|n ? "  var
 if [[ "$var" = "y"  ||  "$var" = "Y" ]]
 then 
-    npx prisma migrate dev --schema='/code/prisma/schema.prisma'
+    npx prisma migrate dev --name init --schema='/code/prisma/schema.prisma'
     npx prisma generate --schema='/code/prisma/schema.prisma'
 fi
 
