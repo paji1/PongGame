@@ -83,6 +83,7 @@ model rooms_members {
   created_at    DateTime           @default(now())
   user_id       user               @relation(fields: [userid], references: [id])
   rooms       rooms              @relation(fields: [roomid], references: [id])
+  @@unique([roomid, userid])
 }
 
 model messages {
