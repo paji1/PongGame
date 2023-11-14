@@ -1,5 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ChatService } from './chat.service';
+import { permission } from '@prisma/client';
 
 @Controller('chat')
 export class ChatController {
@@ -10,8 +11,8 @@ export class ChatController {
     @Get('new')
     async createRoom()
     {
-        await this.service.rooms.createRoom(4);
-        return {};
+        
+        return await this.service.rooms.createRoom(4, permission.chat, "", "");
     }
 
     @Get('rooms')
@@ -39,6 +40,7 @@ export class ChatController {
         async name() {
             return await this.service.rooms.muteParticipant(1, 4,2,60)
         }
+    
             
 }
 

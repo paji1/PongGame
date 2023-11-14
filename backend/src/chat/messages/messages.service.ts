@@ -38,6 +38,7 @@ export class MessagesService {
             where: {
                 room_id: rid,
             }
+            
         })
         console.log(conversation)
         return conversation;

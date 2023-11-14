@@ -6,7 +6,7 @@ export class RoomsService {
     constructor(private readonly prisma: PrismaService)
     {}
     
-    async joinRoom( pid,rid)
+    async joinRoom(pid, rid)
     {        
       let rmp: participation_type = "participation"
       return await this.prisma.rooms_members.create({data: {
@@ -36,33 +36,32 @@ export class RoomsService {
           })
           return data;
     }
-    async createRoom(id)
+    async createRoom(Requester: number, type: permission, password: string, name: string)
     {
-        let rp: permission = "private"
-        let rmp: participation_type = "owner"
-      
-        let room = {
-            name :  "ala azabi mat9olhachi",
-            roompassword: "pass",
-            roomtypeof: rp,
-        }
+        var participation: participation_type = participation_type.owner
+        if (type == permission.chat)
+          participation = participation_type.chat;
+
         const re = await this.prisma.$transaction(async (trx) => {
-            const newroom = await  trx.rooms.create({data: room})
+            const newroom = await  trx.rooms.create({data: {
+              name: name,
+              roompassword: password,
+              roomtypeof: type,
+          }})
             const membership = await trx.rooms_members.create({data: {
                 roomid: newroom.id,
-                userid: id,
-                permission: rmp
+                userid: Requester,
+                permission: participation
             }})
         })
-        
         return re
     }
 
-    async muteParticipant(pid, tid, rid, period)
+    async muteParticipant(Requester, targeted, roomtarget, timetomute)
     {
       const particip : participation_type = participation_type.participation;
 
-      const membership = await this.prisma.rooms_members.findFirst({where: {AND :[{ roomid: Number(rid) }, {userid : Number(pid)}]}}    
+      const membership = await this.prisma.rooms_members.findFirst({where: {AND :[{ roomid: Number(roomtarget) }, {userid : Number(Requester)}]}}    
       )
       if (!membership)
         throw new HttpException("Resource not found", 404)
@@ -71,23 +70,23 @@ export class RoomsService {
         const change = this.prisma.rooms_members.updateMany(
           {
             where: {
-              roomid: rid,
-              userid: tid
+              roomid: roomtarget,
+              userid: targeted
 
             },
             data : {
               ismuted:true,
-              muting_period: period,
+              muting_period: timetomute,
               muted_at: new Date()
             }
           }
         )
       return change;
     }
-    async blockUser(pid, tid, rid) {
+    async blockUser(Requester, targeted, roomtarget) {
       const particip : participation_type = participation_type.participation;
 
-      const membership = await this.prisma.rooms_members.findFirst({where: {AND :[{ roomid: Number(rid) }, {userid : Number(pid)}]}}    
+      const membership = await this.prisma.rooms_members.findFirst({where: {AND :[{ roomid: Number(roomtarget) }, {userid : Number(Requester)}]}}    
       )
       if (!membership)
         throw new HttpException("Resource not found", 404)
@@ -96,8 +95,8 @@ export class RoomsService {
         const change = this.prisma.rooms_members.updateMany(
           {
             where: {
-              roomid: rid,
-              userid: tid
+              roomid: roomtarget,
+              userid: targeted
 
             },
             data : {

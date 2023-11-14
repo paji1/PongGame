@@ -13,6 +13,7 @@ model user {
   user42            String          @unique
   nickname          String?
   avatar            String?
+  status            String?
   experience_points Int             @default(0)
   created_at        DateTime        @default(now())
   friendship1       friendship[]    @relation("initiator")
@@ -75,7 +76,7 @@ model rooms_members {
   id            Int                @id @unique @default(autoincrement())
   roomid        Int
   userid        Int
-  permission    participation_type
+  permission    participation_type 
   ismuted       Boolean            @default(false)
   isblocked     Boolean            @default(false)
   muted_at      DateTime?
@@ -117,6 +118,7 @@ model achieved {
 }
 
 enum participation_type {
+  chat
   participation
   admin
   owner
