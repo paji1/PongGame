@@ -4,11 +4,11 @@ FROM node:lts AS development
 ENV CI=true
 ENV PORT=3000
 
-WORKDIR /code
-COPY package.json /code/package.json
-COPY package-lock.json /code/package-lock.json
-RUN npm ci
-COPY . /code
+WORKDIR /code/src
+COPY package.json /code/src/package.json
+COPY package-lock.json /code/src/package-lock.json
+RUN npm ci 
+COPY . /code/src
 
 CMD [ "npm", "start" ]
 
