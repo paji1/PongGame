@@ -12,6 +12,7 @@ module.exports = {
 			colors: {
 				'transparent': 'transparent',
 				'current': 'currentColor',
+				'background': '#E6E7E9',
 				'primary': "#435899",
 				'secondary': "#0076C0",
 				'textColor': "#000301",
@@ -20,9 +21,8 @@ module.exports = {
 				'errorColor': "#F18DB3"
 			},
 			boxShadow: {
-				// 'test': '-10px 10px 0 0 #F18DB3',
-				'zbi': '100px 50px 5px 5px #000000'
-			  }
+				'buttonShadow': '6px 5px 0 0 #000301'
+			}
 		},
   },
   plugins: [],
