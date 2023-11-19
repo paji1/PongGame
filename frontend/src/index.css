@@ -2,3 +2,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+	--bgColor:  #E6E7E9;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+body {
+	background-color: var(--bgColor);
+}
