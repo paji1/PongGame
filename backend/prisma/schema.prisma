@@ -68,8 +68,8 @@ model rooms {
   roompassword      String?
   roomtypeof    permission
   created_at    DateTime        @default(now())
-  rooms_members rooms_members[]
-  messages      messages[]
+  rooms_members rooms_members[] @relation()
+  messages      messages[] 
 }
 
 model rooms_members {
@@ -83,8 +83,8 @@ model rooms_members {
   muting_period Int                @default(0)
   created_at    DateTime           @default(now())
   user_id       user               @relation(fields: [userid], references: [id])
-  rooms       rooms              @relation(fields: [roomid], references: [id])
-  @@unique([roomid, userid])
+  rooms       rooms              @relation(fields: [roomid], references: [id] , onDelete: Cascade)
+  @@unique([roomid, userid], name: "combination")
 }
 
 model messages {
@@ -92,8 +92,9 @@ model messages {
   room_id    Int
   sender_id  Int
   messages   String
+  deleted    Boolean @default(false)
   created_at DateTime @default(now())
-  roomid     rooms    @relation(fields: [room_id], references: [id])
+  roomid     rooms    @relation(fields: [room_id], references: [id], onDelete: Cascade)
   senderid   user     @relation(fields: [sender_id], references: [id])
 }
 
@@ -114,7 +115,7 @@ model achieved {
   count         Int
   created_at    DateTime     @default(now())
   user_id       user         @relation(fields: [userid], references: [id])
-  achievment_id achievements @relation(fields: [achievementid], references: [id])
+  achievment_id achievements @relation(fields: [achievementid], references: [id], onDelete: Cascade )
 }
 
 enum participation_type {
