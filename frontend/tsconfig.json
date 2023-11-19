@@ -22,5 +22,6 @@
   },
   "include": [
     "src"
-, "tailwind.config.js"  ]
+, "tailwind.config.js",
+"src/custom.d.ts"  ]
 }
