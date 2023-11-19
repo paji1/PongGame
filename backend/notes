@@ -55,3 +55,24 @@ other info:
 
     
         
+hooks:
+    create_room
+    delete_room
+    
+   
+    
+    join_room
+    leave_room
+    
+    get_messages
+    send_message
+    
+    
+    block_user
+    unblock_user
+    
+    mute_user
+    unmute_user
+
+    get_rooms
+

@@ -6,13 +6,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class MessagesService {
     constructor(private readonly prisma: PrismaService)
     {}
-    async sendMessage(pid, rid, message: string)
+    async send_message(pid, rid, message: string)
     {
         const membership = await this.prisma.rooms_members.findFirst({
             where: {AND :[{ roomid: Number(rid) }, {userid : Number(pid)}]}
         }    
         )
-        console.log(membership)
         if (!membership||  membership.isblocked || membership.ismuted)
         throw new HttpException("cant send message", 403);
         if (!message.length)
@@ -26,7 +25,7 @@ export class MessagesService {
         })
         return msg;
     }
-    async getMessages(pid, rid)
+    async get_messages(pid, rid)
     {
         const membership = await this.prisma.rooms_members.findFirst({
             where: {AND :[{ roomid: Number(rid) }, {userid : Number(pid)}]}
@@ -37,10 +36,32 @@ export class MessagesService {
         const conversation = await this.prisma.messages.findMany({
             where: {
                 room_id: rid,
+
             }
             
         })
         console.log(conversation)
         return conversation;
+    }
+    async get_rooms(id:number)
+    {
+  
+        const data =  await this.prisma.rooms_members.findMany({
+            where: {
+              userid: id,
+            },
+            select:{
+              rooms: {
+                select:{
+                  rooms_members: true,
+                  id: true,
+                  name: true,
+                  roomtypeof: true,
+                  created_at: true,
+                }
+              }
+            },
+          })
+          return data;
     }
 }
