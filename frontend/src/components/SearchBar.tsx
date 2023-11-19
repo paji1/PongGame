@@ -18,7 +18,7 @@ const SearchBar = () => (
 				<img src={zoomicon} alt="zoom-icon" />
 			</button>
 		</div>
-	</form>
+	</form> 
 )
 
 export default SearchBar
