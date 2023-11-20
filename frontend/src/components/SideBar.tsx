@@ -10,7 +10,7 @@ const SideBar = () => {
 	return (
 		<aside className={`${!isOpen ? "w-[50px]" : "md:w-[75%] lg:w-[50%] xl:w-[35%] w-[100%]"}
 			duration-300 h-screen min-h-screen float-right flex flex-row font-pixelify
-			fixed top-0 right-0 bg-background`}>
+			fixed top-0 right-0`}>
 			<div className="mt-16 z-50">
 				<button className={`bg-buttonColor border-l-2 border-y-2 border-solid
 					border-textColor rounded-tl-full rounded-bl-full shadow-chatShadow
@@ -21,7 +21,7 @@ const SideBar = () => {
 			</div>
 			<div className={`${!isOpen ? "hidden" : ""} duration-300 w-full z-40 h-full gap-5
 				border-solid border-textColor border-l-2 shadow-chatShadow grid grid-cols-1 content-start
-				items-center justify-center`}>
+				items-center justify-center bg-background`}>
 				{/* <h2 className="text-center text-xl mt-3">Your friends missed you :)</h2> */}
 				<div className="text-center h-auto place-items-center mt-7">
 						<div className="w-auto flex items-center justify-center">
