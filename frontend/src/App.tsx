@@ -1,12 +1,12 @@
 import React from 'react';
 import Navbar from "./components/Navbar";
-import ChatBar from "./components/ChatBar";
+import ChatBar from "./components/SideBar";
 
 const App = () => {
 	return (
 	<div>
 		<Navbar isLogged={true} />
-		<ChatBar />
+		<SideBar />
 	</div>
 )}
 

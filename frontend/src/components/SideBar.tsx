@@ -2,7 +2,7 @@ import chatbubbleicon from "../assets/chatbubbleicon.svg"
 import { useState } from "react"
 import SearchBar from "./SearchBar"
 
-const ChatBar = () => {
+const SideBar = () => {
 	const [isOpen, seIsOpen] = useState(true)
 	const [peopleOrRooms, setPeopleOrRooms] = useState(true)
 	const toggleChatBar = () => seIsOpen(!isOpen)
@@ -55,4 +55,4 @@ const FriendsChat = () => {
 
 }
 
-export default ChatBar
+export default SideBar
