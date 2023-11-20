@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch,
 import { ChatService } from "./chat.service";
 import { permission } from "@prisma/client";
 import { MuteDto, blockFormDto, messageDto, roomDto, roomEntity } from "Dto/chat.dto";
+import { createHash } from "crypto";
 
 @Controller("chat")
 export class ChatController {
@@ -18,6 +19,8 @@ export class ChatController {
 		if (room.type !== permission.protected && room.password.length)
 			throw new HttpException("room Doesnt support password", HttpStatus.FORBIDDEN);
 		if (room.type === permission.chat) return await this.service.rooms.create_chat(500, user);
+		if (room.password.length)
+			room.password = createHash("sha256").update(room.password).digest("hex");
 		return await this.service.rooms.create_room(1, room);
 	}
 	/**
@@ -34,8 +37,9 @@ export class ChatController {
 	@Post("humans")
 	async roomHumansJoin(@Body() room: roomEntity, @Query("room") roomid: number) {
 		//create_room
-
-		return await this.service.rooms.join_room(1, room, roomid);
+		if (room.password.length)
+		room.password = createHash("sha256").update(room.password).digest("hex");
+			return await this.service.rooms.join_room(1, room, roomid);
 	}
 	/**
 	 * @description
