@@ -92,7 +92,6 @@ model messages {
   room_id    Int
   sender_id  Int
   messages   String
-  deleted    Boolean @default(false)
   created_at DateTime @default(now())
   roomid     rooms    @relation(fields: [room_id], references: [id], onDelete: Cascade)
   senderid   user     @relation(fields: [sender_id], references: [id])
