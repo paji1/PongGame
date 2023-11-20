@@ -40,7 +40,7 @@ const LoggedNavBar: React.FC<isOpen> = (props) => (
 			md:flex-row w-full text-center items-center justify-content-center
 			top-9 left-0 md:top-0 md:flex
 		`}>
-			<li className={`uppercase font-pixelify cursor-pointer py-2 h-auto`}>
+			<li className={`uppercase font-pixelify cursor-pointer py-2 h-auto md:mr-5`}>
 				<SearchBar />
 			</li>
 			<li className={`uppercase font-pixelify cursor-pointer py-2 h-auto`}>

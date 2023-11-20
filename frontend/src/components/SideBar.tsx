@@ -11,10 +11,10 @@ const SideBar = () => {
 		<aside className={`${!isOpen ? "w-[50px]" : "md:w-[75%] lg:w-[50%] xl:w-[35%] w-[100%]"}
 			duration-300 h-screen min-h-screen float-right flex flex-row font-pixelify
 			fixed top-0 right-0`}>
-			<div className="mt-16 z-50">
+			<div className="py-32 z-50">
 				<button className={`bg-buttonColor border-l-2 border-y-2 border-solid
 					border-textColor rounded-tl-full rounded-bl-full shadow-chatShadow
-					p-2 justify-center top-11`}
+					p-2 justify-center`}
 					onClick={toggleChatBar}>
 					<img src={chatbubbleicon} alt="chat bubblei con" />
 				</button>
