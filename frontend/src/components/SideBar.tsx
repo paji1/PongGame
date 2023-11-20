@@ -8,7 +8,9 @@ const SideBar = () => {
 	const toggleChatBar = () => seIsOpen(!isOpen)
 
 	return (
-		<aside className={`${!isOpen ? "w-[50px]" : "md:w-[75%] lg:w-[50%] xl:w-[35%] w-[100%]"} duration-300 h-screen min-h-screen float-right flex flex-row font-pixelify`}>
+		<aside className={`${!isOpen ? "w-[50px]" : "md:w-[75%] lg:w-[50%] xl:w-[35%] w-[100%]"}
+			duration-300 h-screen min-h-screen float-right flex flex-row font-pixelify
+			fixed top-0 right-0 bg-background`}>
 			<div className="mt-16 z-50">
 				<button className={`bg-buttonColor border-l-2 border-y-2 border-solid
 					border-textColor rounded-tl-full rounded-bl-full shadow-chatShadow

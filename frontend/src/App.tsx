@@ -1,6 +1,6 @@
 import React from 'react';
 import Navbar from "./components/Navbar";
-import ChatBar from "./components/SideBar";
+import SideBar from "./components/SideBar";
 
 const App = () => {
 	return (
