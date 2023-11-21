@@ -24,8 +24,8 @@
       ports:
         - 3001:8001
         # - 5555:5555
-      volumes: 
-        - ./backend:/code:rw
+      volumes:
+        - ./backend/src:/code/src:rw
         - back-notused:/code/prisma/migrations
         - back-notused:/opt/app/node_modules
       networks:

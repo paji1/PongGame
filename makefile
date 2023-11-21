@@ -9,12 +9,16 @@ ifeq (pause,$(firstword $(MAKECMDGOALS)))
   NAME := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   $(eval $(NAME):;@:)
 endif
+ifeq (exec,$(firstword $(MAKECMDGOALS)))
+  NAME := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(NAME):;@:)
+endif
 
 
 DETACH=d detach
 
 all: build
-	docker-compose up 
+	docker-compose up --build
 
 ${DETACH}:
 	docker-compose up  -d --build
@@ -40,6 +44,12 @@ backend: build
 build: 
 	docker-compose build
 
+
+exec:
+    ifneq ($(NAME),)
+		docker exec -it ${NAME} bash
+    endif
+
 rebuild: 
 	docker-compose up --build
 
@@ -52,5 +62,5 @@ ps:
 	docker ps -q | wc -l
 
 
-.PHONY: backend kill
-.SILENT: ps kill
+.PHONY: backend kill exec
+.SILENT: ps kill exec
