@@ -1,13 +1,19 @@
 import React from 'react';
-import Navbar from "./components/Navbar";
-import SideBar from "./components/SideBar";
+import './App.css';
+import Navbar from './layouts/Navbar';
+import Pagecontainer from './layouts/Pagecontainer'
 
-const App = () => {
-	return (
-	<div>
-		<Navbar isLogged={true} />
-		<SideBar />
-	</div>
-)}
+
+
+
+function App() {
+  
+    return (
+    <div className="App">
+    <Navbar />
+    <Pagecontainer/>
+    </div>
+  );
+}
 
 export default App;

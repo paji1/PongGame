@@ -1,0 +1,138 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id                Int             @id @unique @default(autoincrement())
+  user42            String          @unique
+  nickname          String?
+  avatar            String?
+  status            String?
+  experience_points Int             @default(0)
+  created_at        DateTime        @default(now())
+  friendship1       friendship[]    @relation("initiator")
+  friendship2       friendship[]    @relation("reciever")
+  blocker           blocked[]       @relation("blocker")
+  blocked           blocked[]       @relation("blocked")
+  player1           matchhistory[]  @relation("player1")
+  player2           matchhistory[]  @relation("player2")
+  rooms_members     rooms_members[]
+  messages          messages[]
+  achieved          achieved[]
+}
+
+model level {
+  id        Int @id @unique @default(autoincrement())
+  condition Int
+}
+
+model friendship {
+  id           Int               @id @unique @default(autoincrement())
+  initiator    Int
+  reciever     Int
+  status       friendship_status
+  created_at   DateTime          @default(now())
+  initiator_id user              @relation("initiator", fields: [initiator], references: [id])
+  reciever_id  user              @relation("reciever", fields: [reciever], references: [id])
+}
+
+model blocked {
+  id           Int      @id @unique @default(autoincrement())
+  initiator    Int
+  reciever     Int
+  created_at   DateTime @default(now())
+  initiator_id user     @relation("blocker", fields: [initiator], references: [id])
+  reciever_id  user     @relation("blocked", fields: [reciever], references: [id])
+}
+
+model matchhistory {
+  id         Int      @id @unique @default(autoincrement())
+  player1    Int
+  player2    Int
+  score1     Int
+  score2     Int
+  created_at DateTime @default(now())
+  player1_id user     @relation("player1", fields: [player1], references: [id])
+  player2_id user     @relation("player2", fields: [player2], references: [id])
+}
+
+model rooms {
+  id            Int             @id @unique @default(autoincrement())
+  name          String?
+  roompassword      String?
+  roomtypeof    permission
+  created_at    DateTime        @default(now())
+  rooms_members rooms_members[] @relation()
+  messages      messages[] 
+}
+
+model rooms_members {
+  id            Int                @id @unique @default(autoincrement())
+  roomid        Int
+  userid        Int
+  permission    participation_type 
+  ismuted       Boolean            @default(false)
+  isblocked     Boolean            @default(false)
+  muted_at      DateTime?
+  muting_period Int                @default(0)
+  created_at    DateTime           @default(now())
+  user_id       user               @relation(fields: [userid], references: [id])
+  rooms       rooms              @relation(fields: [roomid], references: [id] , onDelete: Cascade)
+  @@unique([roomid, userid], name: "combination")
+}
+
+model messages {
+  id         Int      @id @unique @default(autoincrement())
+  room_id    Int
+  sender_id  Int
+  messages   String
+  created_at DateTime @default(now())
+  roomid     rooms    @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  senderid   user     @relation(fields: [sender_id], references: [id])
+}
+
+model achievements {
+  id          Int        @id @unique @default(autoincrement())
+  name        String
+  icon        String
+  description String
+  won_xp      Int
+  created_at  DateTime   @default(now())
+  achieved    achieved[]
+}
+
+model achieved {
+  id            Int          @id @unique @default(autoincrement())
+  userid        Int
+  achievementid Int
+  count         Int
+  created_at    DateTime     @default(now())
+  user_id       user         @relation(fields: [userid], references: [id])
+  achievment_id achievements @relation(fields: [achievementid], references: [id], onDelete: Cascade )
+}
+
+enum participation_type {
+  chat
+  participation
+  admin
+  owner
+}
+
+enum permission {
+  chat
+  private
+  public
+  protected
+}
+
+enum friendship_status {
+  pending
+  acepted
+  refused
+}
