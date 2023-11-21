@@ -41,9 +41,13 @@ backend: build
 	# docker-compose  up pgadmin -d 
 
 
-build: 
+build:
 	docker-compose build
 
+nocache:
+	docker-compose build --no-cache
+	make all
+	
 
 exec:
     ifneq ($(NAME),)
