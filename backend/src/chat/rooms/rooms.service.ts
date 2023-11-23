@@ -93,8 +93,13 @@ export class RoomsService {
 		if (data === null) throw new HttpException("No such Entry", HttpStatus.BAD_REQUEST);
 		if (data.permission === participation_type.admin || data.permission === participation_type.participation)
 			throw new HttpException("User is not an owner", HttpStatus.UNAUTHORIZED);
-		const result = this.prisma.rooms.delete({ where: { id: room } });
-		return result;
+
+		try {
+			const result = this.prisma.rooms.delete({ where: { id: room } });
+			return result;
+		} catch {
+			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
+		}
 	}
 	/**
 	 *
@@ -226,23 +231,27 @@ export class RoomsService {
 		});
 		if (!membership) throw new HttpException("Resource not found", 404);
 		if (membership.permission === participation_type.participation) throw new HttpException("Unauthorized", 401);
-		const change = this.prisma.rooms_members.update({
-			where: {
-				combination: {
-					roomid: roomtarget,
-					userid: targeted,
+		try {
+			const change = this.prisma.rooms_members.update({
+				where: {
+					combination: {
+						roomid: roomtarget,
+						userid: targeted,
+					},
+					AND: {
+						permission: participation_type.participation,
+					},
 				},
-				AND: {
-					permission: participation_type.participation,
+				data: {
+					ismuted: true,
+					muting_period: timetomute,
+					muted_at: new Date(),
 				},
-			},
-			data: {
-				ismuted: true,
-				muting_period: timetomute,
-				muted_at: new Date(),
-			},
-		});
-		return change;
+			});
+			return change;
+		} catch {
+			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
+		}
 	}
 	/**
 	 *
@@ -258,23 +267,27 @@ export class RoomsService {
 		});
 		if (!membership) throw new HttpException("Resource not found", 404);
 		if (membership.permission === participation_type.participation) throw new HttpException("Unauthorized", 401);
-		const change = this.prisma.rooms_members.update({
-			where: {
-				combination: {
-					roomid: roomtarget,
-					userid: targeted,
+		try {
+			const change = this.prisma.rooms_members.update({
+				where: {
+					combination: {
+						roomid: roomtarget,
+						userid: targeted,
+					},
+					AND: {
+						permission: participation_type.participation,
+					},
 				},
-				AND: {
-					permission: participation_type.participation,
+				data: {
+					ismuted: false,
+					muting_period: 0,
+					muted_at: new Date(),
 				},
-			},
-			data: {
-				ismuted: false,
-				muting_period: 0,
-				muted_at: new Date(),
-			},
-		});
-		return change;
+			});
+			return change;
+		} catch {
+			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
+		}
 	}
 	/**
 	 *
@@ -291,18 +304,22 @@ export class RoomsService {
 		});
 		if (!membership) throw new HttpException("Resource not found", 404);
 		if (membership.permission === participation_type.participation) throw new HttpException("Unauthorized", 401);
-		const change = this.prisma.rooms_members.update({
-			where: {
-				combination: {
-					roomid: roomtarget,
-					userid: targeted,
+		try {
+			const change = this.prisma.rooms_members.update({
+				where: {
+					combination: {
+						roomid: roomtarget,
+						userid: targeted,
+					},
 				},
-			},
-			data: {
-				isblocked: false,
-			},
-		});
-		return change;
+				data: {
+					isblocked: false,
+				},
+			});
+			return change;
+		} catch {
+			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
+		}
 	}
 	/**
 	 *
@@ -320,17 +337,22 @@ export class RoomsService {
 		});
 		if (!membership) throw new HttpException("Resource not found", 404);
 		if (membership.permission == particip) throw new HttpException("Unauthorized", 401);
-		const change = this.prisma.rooms_members.update({
-			where: {
-				combination: {
-					roomid: roomtarget,
-					userid: targeted,
+		try {
+			const change = this.prisma.rooms_members.update({
+				where: {
+					combination: {
+						roomid: roomtarget,
+						userid: targeted,
+					},
 				},
-			},
-			data: {
-				isblocked: true,
-			},
-		});
-		return change;
+				data: {
+					isblocked: true,
+				},
+			});
+
+			return change;
+		} catch {
+			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
+		}
 	}
 }

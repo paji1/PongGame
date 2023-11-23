@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "prettify": "prettier --config .prettierrc 'src/**/*.ts' --write",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",

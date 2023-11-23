@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from "@nestjs/common";
+import { HttpCode, HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { count } from "console";
 import { PrismaService } from "src/prisma/prisma.service";
 
@@ -30,27 +30,57 @@ export class MessagesService {
 			where: {
 				room_id: rid,
 			},
+			select: {
+				senderid: {
+					select: {
+						id:true,
+						avatar: true,
+						nickname: true,
+					},
+				},
+				created_at: true,
+				messages: true,
+			},
 		});
 		console.log(conversation);
 		return conversation;
 	}
 	async get_rooms(id: number) {
-		const data = await this.prisma.rooms_members.findMany({
-			where: {
-				userid: id,
-			},
-			select: {
-				rooms: {
-					select: {
-						rooms_members: true,
-						id: true,
-						name: true,
-						roomtypeof: true,
-						created_at: true,
+		try {
+			const data = await this.prisma.rooms_members.findMany({
+				where: {
+					userid: id,
+				},
+				select: {
+					rooms: {
+						select: {
+							id: true,
+							name: true,
+							roomtypeof: true,
+							created_at: true,
+							rooms_members: {
+								where: {
+									id: {
+										not: id,
+									},
+								},
+								select: {
+									user_id: {
+										select: {
+											avatar: true,
+											user42: true,
+											nickname: true,
+										},
+									},
+								},
+							},
+						},
 					},
 				},
-			},
-		});
-		return data;
+			});
+			return data;
+		} catch {
+			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
+		}
 	}
 }

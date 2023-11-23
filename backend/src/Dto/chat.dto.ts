@@ -1,12 +1,53 @@
-import { IsNotEmpty, MinLength, MaxLength, ValidateIf } from "class-validator";
-import { participation_type, permission } from "@prisma/client";
+import { IsNotEmpty,MinLength ,MaxLength ,ValidateIf, IsEnum, IsString, IsNumber, Min} from "class-validator";
+import { participation_type, permission } from '@prisma/client';
 
-export class testDto {
-	@MinLength(3, { message: "name is too short" })
-	@MaxLength(10, { message: "name is too long" })
-	// @ValidateIf((value) => value.roomtypeof === participation_type.chat)
-	name: string;
 
-	roomtypeof: permission;
-	roompassword: string;
+
+export class roomDto{
+    @IsNumber()
+    @Min(1)
+    Requester: Number
+    @IsNotEmpty()
+    @IsString()
+    type: permission
+
+
+    password: string
+    
+    name: string
+}
+
+
+export class roomEntity{
+
+    @IsEnum(permission)
+    type: permission
+
+    @IsString()
+    password: string
+    
+    @IsString()
+    name: string
+}
+
+export class messageDto
+{	
+	@IsNotEmpty()
+    @IsNumber()
+    destination: number
+    @IsNotEmpty()
+    @IsString()
+    text: string
+}
+export class blockFormDto
+{
+    usertarget: number
+    roomtarget: number
+}
+
+export class MuteDto
+{
+    targeted: number
+    roomtarget: number
+    time: number
 }
