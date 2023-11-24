@@ -1,15 +1,7 @@
 
 
 
-ifeq (kill,$(firstword $(MAKECMDGOALS)))
-  NAME := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-  $(eval $(NAME):;@:)
-endif
-ifeq (pause,$(firstword $(MAKECMDGOALS)))
-  NAME := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-  $(eval $(NAME):;@:)
-endif
-ifeq (exec,$(firstword $(MAKECMDGOALS)))
+ifeq ($(filter kill pause exec start restart,$(firstword $(MAKECMDGOALS))),$(firstword $(MAKECMDGOALS)))
   NAME := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   $(eval $(NAME):;@:)
 endif
@@ -22,8 +14,6 @@ all: build
 
 ${DETACH}:
 	docker-compose up  -d --build
-
-
 
 kill:
     ifneq ($(NAME),)
@@ -40,6 +30,10 @@ backend: build
 	docker-compose  up backend --build
 	# docker-compose  up pgadmin -d 
 
+start: 
+	docker-compose  up $(NAME) --build
+restart: 
+	docker-compose  restart $(NAME) 
 
 build:
 	docker-compose build
