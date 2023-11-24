@@ -4,6 +4,7 @@ import { PassportStrategy } from "@nestjs/passport";
 import { Strategy, VerifyCallback } from "passport-oauth2";
 import { PrismaClient, user } from "@prisma/client";
 import { AuthService } from "../auth.service";
+import { AuthIntraDto } from "../dto";
 
 @Injectable()
 export class intraStrategy extends PassportStrategy(Strategy, "intra") {
@@ -41,11 +42,14 @@ export class intraStrategy extends PassportStrategy(Strategy, "intra") {
 					return userResponse.json();
 				})
 				.then((user) => {
-					// console.log("accessToken:", accessToken);
-					// console.log("refreshToken:", refreshToken);
-					// console.log("Fetched User Details:", user.login);
-
-					return done(null, user.login);
+					let dtoIntra: AuthIntraDto = {
+						user42: user.login,
+						nickname: user.login,
+						avatar: user.image.link,
+					};
+					// console.log("Fetched User Details:", dtoIntra);
+					user.dtoIntra = dtoIntra; 
+					return done(null, user.dtoIntra);
 				})
 				.catch((error) => {
 					console.error("Error during validation:", error);

@@ -5,7 +5,7 @@ import * as argon from "argon2";
 import { PrismaService } from "../prisma/prisma.service";
 import { Prisma } from "@prisma/client";
 
-import { AuthDto } from "./dto";
+import { AuthDto, AuthIntraDto } from "./dto";
 import { JwtPayload, Tokens } from "./types";
 import { Response } from "express";
 
@@ -42,6 +42,43 @@ export class AuthService {
 		return tokens;
 	}
 
+	async handle_intra(dto: AuthIntraDto): Promise<Tokens> {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				user42: dto.user42,
+			},
+		});
+		if (!user)
+			return await this.signUpIntra(dto);
+		const tokens = await this.getTokens(user.id, user.user42);
+		await this.updateRtHash(user.id, tokens.refresh_token);
+
+		return tokens;
+	}
+
+	async signUpIntra(dto: AuthIntraDto): Promise<Tokens> {
+		const user = await this.prisma.user
+			.create({
+				data: {
+					user42: dto.user42,
+					nickname: dto.nickname,
+					avatar:dto.avatar, 
+				},
+			})
+			.catch((error) => {
+				if (error instanceof Prisma.PrismaClientKnownRequestError) {
+					if (error.code === "P2002") {
+						throw new ForbiddenException("Credentials incorrect");
+					}
+				}
+				throw error;
+			});
+
+		const tokens = await this.getTokens(user.id, user.user42);
+		await this.updateRtHash(user.id, tokens.refresh_token);
+		return tokens;
+	}
+
 	async signinLocal(dto: AuthDto): Promise<Tokens> {
 		const user = await this.prisma.user.findUnique({
 			where: {
@@ -59,23 +96,6 @@ export class AuthService {
 
 		return tokens;
 	}
-
-	// async signin_intra(user42): Promise<Tokens> {
-	// 	const user = await this.prisma.user.findUnique({
-	// 		where: {
-	// 			user42: user42,
-	// 		},
-	// 	});
-
-	// 	if (!user) throw new ForbiddenException("Access Denied");
-
-		
-
-	// 	const tokens = await this.getTokens(user.id, user.user42);
-	// 	await this.updateRtHash(user.id, tokens.refresh_token);
-
-	// 	return tokens;
-	// }
 
 	async logout(user42: string, @Res() res: Response): Promise<boolean> {
 		console.log("user42",user42);
@@ -147,5 +167,24 @@ export class AuthService {
 			access_token: at,
 			refresh_token: rt,
 		};
+	}
+	async syncTokensHttpOnly(res : Response, tokens : Tokens) : Promise<Response>
+	{
+		const minute: number = 60000;
+		res.cookie("atToken", tokens.access_token, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production", 
+			maxAge: 15 * minute,
+			path: "/",
+		});
+
+		res.cookie("rtToken", tokens.refresh_token, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			maxAge: 60 * minute * 24 * 7,
+			path: "/",
+		});
+
+		return res;
 	}
 }

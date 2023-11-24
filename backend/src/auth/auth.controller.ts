@@ -1,4 +1,4 @@
-import { userDto } from "./dto";
+import { AuthIntraDto, userDto } from "./dto";
 import {
 	Body,
 	Controller,
@@ -8,10 +8,16 @@ import {
 	UseGuards,
 	Get,
 	Res,
+	Req,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 
-import { Public, GetCurrentUserId, GetCurrentUser } from "../common/decorators";
+import {
+	Public,
+	GetCurrentUserId,
+	GetCurrentUser,
+	GetUser,
+} from "../common/decorators";
 import { RtGuard } from "../common/guards";
 import { AuthService } from "./auth.service";
 import { AuthDto } from "./dto";
@@ -46,8 +52,12 @@ export class AuthController {
 	@Public()
 	@Post("local/signup")
 	@HttpCode(HttpStatus.CREATED)
-	signupLocal(@Body() dto: AuthDto): Promise<Tokens> {
-		return this.authService.signupLocal(dto);
+	async signupLocal(
+		@Body() dto: AuthDto,
+		@Res() res: Response,
+	): Promise<void> {
+		const tokens = await this.authService.signupLocal(dto);
+		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}
 
 	@Public()
@@ -58,40 +68,27 @@ export class AuthController {
 		@Res() res: Response,
 	): Promise<void> {
 		const tokens = await this.authService.signinLocal(dto);
-		console.log(tokens);
-		// Set the tokens in an HTTP-only cookie
-		const minute: number = 60000;
-		res.cookie("atToken", tokens.access_token, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "production", // Set to true in production for secure cookies over HTTPS
-			maxAge: 15 * minute, // Adjust the expiration time as needed
-			path: "/",
-		});
-
-		res.cookie("rtToken", tokens.refresh_token, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			maxAge: 60 * minute * 24 * 7,
-			path: "/",
-		});
-
-		// You can also send the tokens in the response body if needed
-		res.end();
+		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}
 
 	@Public()
 	@Get("intra/login")
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(AuthGuard("intra"))
-	intraLogin(@Body() user: any) {}
+	intraLogin(@Body() user: any) {
+		console.log("first");
+	}
 
 	@Get("callback_42")
 	@Public()
 	@UseGuards(AuthGuard("intra"))
-	handleCallback() {
-		// return
-		// Handle the authorization code (e.g., exchange it for an access token)
-		// console.log("req:", Req);
+	async handleCallback(
+		@GetUser() userdto: AuthIntraDto,
+		@Res() res: Response,
+	): Promise<void> {
+		const tokens = await this.authService.handle_intra(userdto);
+
+		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}
 
 	@Post("logout")
@@ -100,10 +97,7 @@ export class AuthController {
 		@GetCurrentUser("user42") user42: string,
 		@Res() res: Response,
 	): Promise<boolean> {
-		
 		return this.authService.logout(user42, res);
-		
-		
 	}
 
 	@Post("hello")
@@ -116,10 +110,15 @@ export class AuthController {
 	@UseGuards(RtGuard)
 	@Post("refresh")
 	@HttpCode(HttpStatus.OK)
-	refreshTokens(
+	async refreshTokens(
 		@GetCurrentUserId() userId: number,
 		@GetCurrentUser("refreshToken") refreshToken: string,
-	): Promise<Tokens> {
-		return this.authService.refreshTokens(userId, refreshToken);
+		@Res() res: Response,
+	): Promise<void> {
+		const tokens = await this.authService.refreshTokens(
+			userId,
+			refreshToken,
+		);
+		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}
 }
