@@ -23,5 +23,6 @@ export class AppGateway implements OnModuleInit, OnModuleDestroy {
 	}
 	onModuleDestroy() {}
 	@SubscribeMessage("chat")
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	onMessage(@MessageBody() message: any) {}
 }
