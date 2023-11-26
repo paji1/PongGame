@@ -8,6 +8,8 @@ import { message } from "../types/messages";
 import Profile from "../assets/profile.png"
 import ViewProfile from "../assets/ViewProfile.svg"
 
+import ChatRoomAvatar from "../assets/ChatRoomAvatar.png"
+
 
 
 const SideBar = () => {
@@ -78,41 +80,14 @@ const SideBar = () => {
 	);
 };
 
-const Groups = ({ groupslist }: { groupslist: rooms[] | null }) => {
-	let list;
-	const [select, setSelect] = useState<number>(-1);
-	console.log("rooms", select);
-	if (groupslist !== null)
-		list = groupslist.map((room: rooms, index: number) => (
-			<div onClick={() => setSelect(index)} key={index}>
-				{room.rooms.name}
-			</div>
-		));
-	console.log("rooms", groupslist);
-	return (
-		<>
-			{select === -1 ? (
-				<div> {list} </div>
-			) : (
-				<ChatBar
-					room={groupslist ? groupslist[select].rooms : null}
-					name={groupslist ? groupslist[select].rooms.name : null}
-					selector={setSelect}
-				/>
-			)}
-		</>
-	);
-};
-
 
 const ListItem = ({avatar, name, glimpse, profileurl}: {avatar:any, name:string, glimpse : string, profileurl:string}) => 
 {
 	// (glimpse.length > 25 ) ? (glimpse = glimpse.substring(0, 20) + "...") : glimpse;
 	glimpse = (glimpse.length > 25 ) ? (glimpse.substring(0, 25) + "...") : glimpse;
 	name = (name.length > 25 ) ? (name.substring(0, 20) + "...") : name
-
 	
-	const profilespesefic = (<div className="flex items-center justify-center w-1/6 ">
+	var profilespesefic = (<div className="flex items-center justify-center w-1/6 ">
 							<svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
 								<path d="M4 9H5V10H11V9H12V8H13V2H12V1H11V0H5V1H4V2H3V8H4V9ZM5 4H6V3H7V2H9V3H10V4H11V6H10V7H9V8H7V7H6V6H5V4Z" fill="black"/>
 								<path d="M14 12H13V11H2V12H1V13H0V18H2V15H3V14H4V13H11V14H12V15H13V18H15V13H14V12Z" fill="black"/>
@@ -120,7 +95,7 @@ const ListItem = ({avatar, name, glimpse, profileurl}: {avatar:any, name:string,
 								<path d="M19 13V12H18V11H16V14H17V15H18V18H20V13H19Z" fill="black"/>
 							</svg>
 						</div>)
-	const invite = 		(<div className="flex items-center justify-center w-1/7 ">
+	var invite = 		(<div className="flex items-center justify-center w-1/7 ">
 							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 								<rect x="13" y="14" width="2" height="2" rx="1" fill="#000301"/>
 								<rect x="7" y="11" width="2" height="6" rx="1" fill="#000301"/>
@@ -130,11 +105,16 @@ const ListItem = ({avatar, name, glimpse, profileurl}: {avatar:any, name:string,
 								<path d="M3 14C3 11.4412 3 10.1618 3.61994 9.28042C3.77954 9.05351 3.96572 8.85041 4.17372 8.6763C4.98164 8 6.15442 8 8.5 8H15.5C17.8456 8 19.0184 8 19.8263 8.6763C20.0343 8.85041 20.2205 9.05351 20.3801 9.28042C21 10.1618 21 11.4412 21 14C21 16.5588 21 17.8382 20.3801 18.7196C20.2205 18.9465 20.0343 19.1496 19.8263 19.3237C19.0184 20 17.8456 20 15.5 20H8.5C6.15442 20 4.98164 20 4.17372 19.3237C3.96572 19.1496 3.77954 18.9465 3.61994 18.7196C3 17.8382 3 16.5588 3 14Z" stroke="#000301" stroke-width="2"/>
 							</svg>
 						</div>)
+	if (profileurl == "group")
+	{
+		profilespesefic = <></>
+		invite = <></>
+	}
 
-	return (
-		<div className="flex flex-row mx-2 gap-3 p-2 rounded border-solid border-textColor border-2">
+return (
+	<div className="flex flex-row mx-2 gap-3 p-2 rounded border-solid border-textColor border-2">
 				<div className=" w-1/6 justify-center  rounded">
-					<img className="max-h-[75px] max-w-[75px]" src={profileurl.length ? avatar : Profile}></img>
+					<img className="max-h-[75px] max-w-[75px]" src={avatar}></img>
 				</div>
 				<div className="flex flex-col flex-auto  gap-2 ">
 					<text className=" text-center  text-ellipsis overflow-hidden text-primary text-xl">{name}</text>
@@ -145,6 +125,31 @@ const ListItem = ({avatar, name, glimpse, profileurl}: {avatar:any, name:string,
 		</div>
 	)
 }
+
+const Groups = ({ groupslist }: { groupslist: rooms[] | null }) => {
+	let list;
+	const [select, setSelect] = useState<number>(-1);
+	console.log("rooms", select);
+	if (groupslist !== null)
+		list = groupslist.map((room: rooms, index: number) => (
+			<ListItem avatar={ChatRoomAvatar} name={room.rooms.name} glimpse="fgdfgdfgdfgsbkfjbskjsbfkjdsbfkjbdsfjkbdsfjkbdsjkfbsdbfjkdsbkfjbsdsjkfbdjksfsbkjdbfks" profileurl="group"/>
+			
+		));
+	console.log("rooms", groupslist);
+	return (
+		<>
+			{select === -1 ? (
+				<div className="flex flex-col flex-shrink-0  gap-2"> {list} </div>
+				) : (
+				<ChatBar
+					room={groupslist ? groupslist[select].rooms : null}
+					name={groupslist ? groupslist[select].rooms.name : null}
+					selector={setSelect}
+				/>
+			)}
+		</>
+	);
+};
 const FriendsBar = ({ friendslist }: { friendslist: rooms[] | null }) => {
 	let list;
 	const [select, setSelect] = useState<number>(-1);
@@ -152,7 +157,7 @@ const FriendsBar = ({ friendslist }: { friendslist: rooms[] | null }) => {
 
 	if (friendslist !== null)
 		list = friendslist.map((room: rooms, index: number) => (
-			<ListItem avatar={room.rooms.rooms_members[0].user_id.avatar} name={room.rooms.rooms_members[0].user_id.nickname}  glimpse="fgdfgdfgdfgsbkfjbskjsbfkjdsbfkjbdsfjkbdsfjkbdsjkfbsdbfjkdsbkfjbsdsjkfbdjksfsbkjdbfks" profileurl=""/>
+			<ListItem avatar={Profile} name={room.rooms.rooms_members[0].user_id.nickname}  glimpse="fgdfgdfgdfgsbkfjbskjsbfkjdsbfkjbdsfjkbdsfjkbdsjkfbsdbfjkdsbkfjbsdsjkfbdjksfsbkjdbfks" profileurl=""/>
 		));
 	console.log("friends", friendslist);
 	return (
