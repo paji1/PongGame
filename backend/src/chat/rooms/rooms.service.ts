@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { participation_type, permission } from "@prisma/client";
-import { roomEntity } from "Dto/chat.dto";
+import { roomEntity } from "src/Dto/chat.dto";
 
 @Injectable()
 export class RoomsService {
