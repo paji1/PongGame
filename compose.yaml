@@ -28,6 +28,7 @@
         - ./backend/src:/code/src:rw
         - back-notused:/code/prisma/migrations
         - back-notused:/opt/app/node_modules
+        - ./backend/prisma:/code/prisma:rw
       networks:
         - client-side
         - server-side
@@ -45,7 +46,7 @@
       ports:
         - 5432:5432
       volumes:
-        - db-data:/var/lib/postgresql/data
+        - db-data:/code/prisma/migrations
     # prisma:
     #   image: prismagraphql/prisma:1.34
     #   restart: always
