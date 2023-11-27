@@ -5,7 +5,7 @@ export default function useRooms(rerender: boolean, setRooms: any) {
 		const data = fetch("http://localhost:3001/chat/town")
 			.then((data) => data.json())
 			.then((data) => setRooms(data))
-			.catch((e) => console.log(e));
+			.catch((e) => console.log(e.status));
 		console.log("matrendrach");
 	}, [rerender]);
 }
