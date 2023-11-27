@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -40,8 +39,8 @@ model friendship {
   reciever     Int
   status       friendship_status
   created_at   DateTime          @default(now())
-  initiator_id user              @relation("initiator", fields: [initiator], references: [id])
-  reciever_id  user              @relation("reciever", fields: [reciever], references: [id])
+  initiator_id user              @relation("initiator", fields: [initiator], references: [id], onDelete: Cascade)
+  reciever_id  user              @relation("reciever", fields: [reciever], references: [id], onDelete: Cascade)
 }
 
 model blocked {
@@ -57,8 +56,8 @@ model matchhistory {
   id         Int      @id @unique @default(autoincrement())
   player1    Int
   player2    Int
-  score1     Int
-  score2     Int
+  score1     Int      @default(0)
+  score2     Int      @default(0)
   created_at DateTime @default(now())
   player1_id user     @relation("player1", fields: [player1], references: [id])
   player2_id user     @relation("player2", fields: [player2], references: [id])
@@ -67,25 +66,26 @@ model matchhistory {
 model rooms {
   id            Int             @id @unique @default(autoincrement())
   name          String?
-  roompassword      String?
+  roompassword  String?
   roomtypeof    permission
   created_at    DateTime        @default(now())
   rooms_members rooms_members[] @relation()
-  messages      messages[] 
+  messages      messages[]
 }
 
 model rooms_members {
   id            Int                @id @unique @default(autoincrement())
   roomid        Int
   userid        Int
-  permission    participation_type 
+  permission    participation_type
   ismuted       Boolean            @default(false)
   isblocked     Boolean            @default(false)
   muted_at      DateTime?
   muting_period Int                @default(0)
   created_at    DateTime           @default(now())
   user_id       user               @relation(fields: [userid], references: [id])
-  rooms       rooms              @relation(fields: [roomid], references: [id] , onDelete: Cascade)
+  rooms         rooms              @relation(fields: [roomid], references: [id], onDelete: Cascade)
+
   @@unique([roomid, userid], name: "combination")
 }
 
@@ -116,7 +116,7 @@ model achieved {
   count         Int
   created_at    DateTime     @default(now())
   user_id       user         @relation(fields: [userid], references: [id])
-  achievment_id achievements @relation(fields: [achievementid], references: [id], onDelete: Cascade )
+  achievment_id achievements @relation(fields: [achievementid], references: [id], onDelete: Cascade)
 }
 
 enum participation_type {
