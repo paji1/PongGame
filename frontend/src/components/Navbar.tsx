@@ -1,6 +1,9 @@
 import React, { useState} from "react"
 import MainButton from "./MainButton";
 import SearchBar from "./SearchBar";
+import profileplaceholder from "../assets/profileplaceholder.png"
+import { useContext } from "react";
+import { currentUser, CurrentUser } from "./Context/AuthContext";
 
 const listItems = ["home", "about", "our-team", "button"].map((item: String, key: Number) => (
 	item === "button" ? (
@@ -34,13 +37,13 @@ const UnloggedNavBar: React.FC<isOpen> = (props) => (
 )
 
 const LoggedNavBar: React.FC<isOpen> = (props) => (
-	<nav className={props.isOpen ? ("flex") : ("hidden md:flex")}>
+	<nav className={props.isOpen ? ("flex") : ("hidden lg:flex")}>
 		<ul className={`
 			flex bg-background absolute md:relative flex-col
-			md:flex-row w-full text-center items-center justify-content-center
-			top-9 left-0 md:top-0 md:flex
+			lg:flex-row w-full text-center items-center justify-content-center
+			top-9 left-0 lg:top-0 lg:flex gap-2
 		`}>
-			<li className={`uppercase font-pixelify cursor-pointer py-2 h-auto md:mr-5`}>
+			<li key={1} className={`uppercase font-pixelify cursor-pointer py-2 h-auto md:mr-5`}>
 				<SearchBar />
 			</li>
 			<li className={`uppercase font-pixelify cursor-pointer py-2 h-auto`}>
@@ -50,26 +53,28 @@ const LoggedNavBar: React.FC<isOpen> = (props) => (
 	</nav>
 )
 
-const Navbar = ({isLogged}: {isLogged: Boolean}) => {
+const Navbar = () => {
 	const [isOpen, setIsOpen] = useState<Boolean>(false)
 
 	const toggleNavBar = () => {
 		setIsOpen(!isOpen)
 	};
 
+	const user: CurrentUser | null = useContext(currentUser)
+
 	return (
 		<div className={`
-			container relative m-auto p-3 top-5 flex justify-between items-center
+		container relative m-auto p-3 top-5 flex justify-between items-center border-b-2 border-solid
 		`}>
 			<a href="/" className={`
 				font-xl font-bold text-primary uppercase font-pixelify md:text-2xl text-xl
-			`}>
+				`}>
 				Transcendence
 			</a>
-			{
-				isLogged ? <LoggedNavBar isOpen={isOpen} /> : <UnloggedNavBar isOpen={isOpen} />
-			}
-			<div className="md:hidden">
+				
+			<LoggedinComponents currentUser={user} isOpen={isOpen} />
+
+			<div className="lg:hidden">
 				<button className="flex justify-center items-center"
 					onClick={toggleNavBar}>
 						<svg
@@ -77,7 +82,7 @@ const Navbar = ({isLogged}: {isLogged: Boolean}) => {
 							width="24"
 							height="24"
 							stroke="currentColor"
-							stroke-width="2"
+							strokeWidth="2"
 							fill="none"
 							strokeLinecap="round"
 							strokeLinejoin="round"
@@ -92,7 +97,7 @@ const Navbar = ({isLogged}: {isLogged: Boolean}) => {
 							width="24"
 							height="24"
 							stroke="currentColor"
-							stroke-width="2"
+							strokeWidth="2"
 							fill="none"
 							strokeLinecap="round"
 							strokeLinejoin="round"
@@ -103,8 +108,45 @@ const Navbar = ({isLogged}: {isLogged: Boolean}) => {
 						</svg>
 				</button>
 			</div>
+
 		</div>
 	);
+}
+
+const	ProfilePicture = (props: {isOpen: Boolean, avatar: string}) => {
+	return (
+		<div className={`border-2 border-solid border-textColor rounded-full ${props.isOpen ? "hidden" : "flex"}`}>
+			<img className={`rounded-full w-12`}
+				src={props.avatar === "" ? profileplaceholder : props.avatar }
+				alt=""
+			/>
+		</div>
+	)
+}
+
+// const	LogoutButton: React.FC<isOpen> = (props) => {
+// 	return (
+// 		<div className="border-2 border-solid border-textColor rounded-full">
+// 			<img className={`rounded-full w-12`}
+// 				src={profileplaceholder} alt="" />
+// 		</div>
+// 	)
+// }
+
+const	LoggedinComponents = (props: {isOpen: Boolean, currentUser: CurrentUser | null}) => {
+	if (props.currentUser)
+	{
+		return (
+			<>
+				<LoggedNavBar isOpen={props.isOpen} />
+				{/* <ProfilePicture isOpen={props.isOpen} avatar={props.currentUser.avatar} /> */}
+				{/* <LogoutButton isOpen={props.isOpen} /> */}
+			</>
+		)
+	}
+	return (
+		<UnloggedNavBar isOpen={props.isOpen} />
+	)
 }
 
 export default Navbar

@@ -8,8 +8,8 @@ export class GameController {
   constructor(private readonly gameService: GameService) {}
 
   @Post()
-  create(@Body() createGameDto: CreateGameDto) {
-    return this.gameService.create(createGameDto);
+  async create(@Body() createGameDto: CreateGameDto) {
+    return await this.gameService.create(createGameDto);
   }
 
   @Get()

@@ -3,6 +3,16 @@ import './index.css';
 import App from './App';
 import * as ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import { currentUser , CurrentUser} from './components/Context/AuthContext';
+import profileplaceholder from './assets/profileplaceholder.png'
+
+
+const user: CurrentUser = {
+	id: 1,
+	user42: "zbi",
+	nickname: "qalwa",
+	avatar: profileplaceholder
+}
 
 const router = createBrowserRouter([{
 	path: "/",
@@ -14,7 +24,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-	<RouterProvider router={router} />
+    <currentUser.Provider value={user} >
+		<RouterProvider router={router} />
+	</currentUser.Provider>
   </React.StrictMode>
 );
 

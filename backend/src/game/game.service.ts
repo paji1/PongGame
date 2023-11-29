@@ -1,11 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class GameService {
-  create(createGameDto: CreateGameDto) {
-    return 'This action adds a new game';
+	constructor(private readonly prisma: PrismaService) { }
+  async create(createGameDto: CreateGameDto) {
+	
+	
+    return await this.prisma.matchhistory.create({
+		data: {
+			player1: createGameDto.player1,
+            player2: createGameDto.player2,
+			mode: createGameDto.game_mode
+		}
+	})
   }
 
   findAll() {
