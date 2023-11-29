@@ -1,8 +1,8 @@
 export const ToggleButton = ({isOpen, setIsOpen}:{isOpen: Boolean, setIsOpen: any}) => (
 	<button
-		onClick={() => setIsOpen()}
+		onClick={() => setIsOpen(!isOpen)}
 		className={`p-2 bg-errorColor text-textColor border-textColor border-solid transition-all ease-in-out duration-300
-			border-b-2 border-t-2 border-l-2 focus:outline-none rounded-l-full z-20 fixed top-[50%] w-[40px] ${!isOpen ? "hover:w-[72px]" : ""}
+			border-b-2 border-t-2 border-l-2 focus:outline-none rounded-l-full z-20 fixed top-40 w-[40px] ${!isOpen ? "hover:w-[72px]" : ""}
 			${isOpen ? "sm:right-[85%] md:right-1/2 lg:right-1/2 xl:right-[35%] 2xl:right-[30%] right-[90%]" : "right-0"}
 			${false ? "animate-bounce" : ""}
 		`}
@@ -17,10 +17,3 @@ export const ToggleButton = ({isOpen, setIsOpen}:{isOpen: Boolean, setIsOpen: an
 	</button>
 )
 
-export const HoverDiv = ({toggleChatBar}: {toggleChatBar: any}) => (
-	<div
-	className="fixed inset-0 bg-textColor bg-opacity-50 transition-all duration-300"
-	onClick={() => toggleChatBar()}
-	aria-hidden="true"
-	></div>
-)
