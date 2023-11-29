@@ -53,14 +53,17 @@ model blocked {
 }
 
 model matchhistory {
-  id         Int      @id @unique @default(autoincrement())
-  player1    Int
-  player2    Int
-  score1     Int      @default(0)
-  score2     Int      @default(0)
-  created_at DateTime @default(now())
-  player1_id user     @relation("player1", fields: [player1], references: [id])
-  player2_id user     @relation("player2", fields: [player2], references: [id])
+  id               Int         @id @unique @default(autoincrement())
+  player1          Int
+  player2          Int
+  score1           Int         @default(0)
+  score2           Int         @default(0)
+  mode             game_modes  @default(TIMER_MODE)
+  status           game_status @default(PENDING)
+  game_unique_hash String      @unique @default(uuid())
+  created_at       DateTime    @default(now())
+  player1_id       user        @relation("player1", fields: [player1], references: [id])
+  player2_id       user        @relation("player2", fields: [player2], references: [id])
 }
 
 model rooms {
@@ -137,4 +140,15 @@ enum friendship_status {
   pending
   acepted
   refused
+}
+
+enum game_modes {
+  TIMER_MODE
+  HIGHEST_SCORE_MODE
+}
+
+enum game_status {
+  PENDING
+  PLAYED
+  REFUSED
 }
