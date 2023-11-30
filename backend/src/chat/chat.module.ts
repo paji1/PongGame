@@ -5,10 +5,17 @@ import { RoomsService } from "./rooms/rooms.service";
 import { RoomsModule } from "./rooms/rooms.module";
 import { MessagesModule } from "./messages/messages.module";
 import { PrismaModule } from "src/prisma/prisma.module";
+import { RoomGuard } from "src/common/guards/RoomGuard";
+import { APP_GUARD } from "@nestjs/core";
 
 @Module({
 	exports: [ChatService],
-	providers: [ChatService, RoomsService],
+	providers: [ChatService, RoomsService,
+	{
+		provide:APP_GUARD,
+		useClass: RoomGuard
+	}
+],
 	controllers: [ChatController],
 
 	imports: [RoomsModule, MessagesModule, PrismaModule],

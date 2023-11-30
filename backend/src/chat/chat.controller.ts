@@ -1,8 +1,10 @@
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Query } from "@nestjs/common";
 import { ChatService } from "./chat.service";
-import { permission } from "@prisma/client";
-import { MuteDto, blockFormDto, messageDto, roomDto, roomEntity } from "../Dto/chat.dto";
-import { createHash } from "crypto";
+import { user_permission, roomtype } from "@prisma/client";
+import { RoomDto , MessageDto , MuteDto} from "../Dto/rooms.dto";
+import { IsNotEmpty,MinLength ,MaxLength ,ValidateIf, IsEnum, IsString, IsNumber, Min} from "class-validator";
+import { RoomPermitions } from "src/common/decorators/RoomPermitions.decorator";
+import { RoomType } from "src/common/decorators/RoomType.decorator";
 
 @Controller("chat")
 export class ChatController {
@@ -11,107 +13,116 @@ export class ChatController {
 	 * @description
 	 */
 	@Post("creation/")
-	async roomAddExistance(@Body() room: roomEntity, @Query("user") user: number) {
-		//check if room entity is valid
-		console.log(user);
-		if (room.type === permission.protected && room.password.length <= 6)
-			throw new HttpException("password must be bigger than 6", HttpStatus.FORBIDDEN);
-		if (room.type !== permission.protected && room.password.length)
-			throw new HttpException("room Doesnt support password", HttpStatus.FORBIDDEN);
-		if (room.type === permission.chat) return await this.service.rooms.create_chat(500, user);
-		if (room.password.length) room.password = createHash("sha256").update(room.password).digest("hex");
-		return await this.service.rooms.create_room(1, room);
+	async roomAddExistance(@Body() Room : RoomDto) {
+		return await this.service.rooms.create_room(1, Room);
 	}
 	/**
-	 * @description
+	 * @description  
 	 */
 	@Delete("creation")
+	@RoomPermitions(user_permission.owner)
+	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async roomDellExistance(@Query("room") room: number) {
-		return await this.service.rooms.delete_room(1, room);
+		return await this.service.rooms.delete_room(room);
 	}
 
 	/**
-	 * @description
+	 * @description invite only chanels have there own way of joining
 	 */
 	@Post("humans")
-	async roomHumansJoin(@Body() room: roomEntity, @Query("room") roomid: number) {
-		//create_room
-		if (room.password.length) room.password = createHash("sha256").update(room.password).digest("hex");
-		return await this.service.rooms.join_room(1, room, roomid);
+	@RoomType(roomtype.protected, roomtype.public)
+	async roomHumansJoin( @Query("room") room: number, @Body() Room: RoomDto) {
+		return await this.service.rooms.join_room(1, room, Room);
 	}
 	/**
 	 * @description
 	 */
-	@Delete("humans/:room")
+	@Delete("humans/")
+	@RoomPermitions(user_permission.admin , user_permission.participation)
+	@RoomType(roomtype.protected, roomtype.public, roomtype.private)
 	async roomHumansLeave(@Query("room") room: number) {
-		console.log("param :", room);
-
 		return await this.service.rooms.leave_room(1, room);
+	}
+
+
+	@Post("humans/invite/")
+	@RoomPermitions(user_permission.owner, user_permission.admin)
+	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
+	async roomHumanInvite(@Query("room")  room: number, @Query("friend") friend: number)
+	{
+		return await this.service.rooms.invite_room(1, friend, room)
 	}
 	/**
 	 * @description
 	 */
 	@Get("comunication")
+	@RoomPermitions(user_permission.owner, user_permission.admin ,user_permission.participation, user_permission.chat)
 	async humanFetchMessage(@Query("room") room: number) {
-		//get room messages
 		return await this.service.messages.get_messages(1, room);
 	}
 	/**
 	 * @description
 	 */
 	@Post("comunication")
-	async humanSentMessage(@Body() message: messageDto) {
-		// send a message to a room
-		console.log(message)
-
-		return await this.service.messages.send_message(1, message.destination, message.text);
+	@RoomPermitions(user_permission.owner, user_permission.admin ,user_permission.participation, user_permission.chat)
+	async humanSentMessage(@Query("room") room: number ,@Body() message: MessageDto) {
+		return await this.service.messages.send_message(1, room, message.text);
 	}
 	/**
 	 * @description
 	 */ 
 	@Get("town")
 	async getHumanRooms() {
-		//get_a human rooms
 		return this.service.messages.get_rooms(1);
 	}
 	/**
 	 * @description
 	 */
 	@Post("samak")
-	async HumanBlock(@Body() block: blockFormDto) {
+	@RoomPermitions(user_permission.owner, user_permission.admin)
+	@RoomType(roomtype.private , roomtype.protected, roomtype.public)
+	async HumanBlock(@Query("room") room: number , @Query("target") target: number ) {
 		//block_user
-		return await this.service.rooms.block_user(1, block.usertarget, block.roomtarget);
+		return await this.service.rooms.block_user(target , room);
 	}
 	/**
 	 * @description
 	 */
 	@Patch("unblock")
-	async humanUnblock(@Body() block: blockFormDto) {
+	@RoomPermitions(user_permission.owner, user_permission.admin)
+	@RoomType(roomtype.private , roomtype.protected, roomtype.public)
+	async humanUnblock(@Query("room") room: number , @Query("target") target: number) {
 		// unblock_user
-		return await this.service.rooms.unblock_user(1, block.usertarget, block.roomtarget);
+		return await this.service.rooms.unblock_user(target, room);
 	}
 	/**
 	 * @description
 	 */
 	@Post("samaklite")
-	async humanMute(@Body() mute: MuteDto, @Query("type") type: string) {
+	@RoomPermitions(user_permission.owner, user_permission.admin)
+	@RoomType(roomtype.private , roomtype.protected, roomtype.public)
+	async humanMute(@Query("room") room: number,@Query("type") type: string, @Body() mute: MuteDto ) {
 		//mute_user
-		if (type === "umute") return await this.service.rooms.unmute_user(1, mute.targeted, mute.roomtarget);
-
-		return await this.service.rooms.mute_user(1, mute.targeted, mute.roomtarget, mute.time);
+		if (type === "umute")
+			return await this.service.rooms.unmute_user(mute.target, room);
+		return await this.service.rooms.mute_user(mute.target, room, mute.duration);
 	}
 	/**
 	 * @description
 	 */
 	@Post("diwana")
+	@RoomPermitions(user_permission.owner)
+	@RoomType(roomtype.private , roomtype.protected, roomtype.public)
 	async giveHumanAuth(@Query("room") room: number, @Query("user") user: number) {
-		return await this.service.rooms.give_room_admin(2, room, user);
+		return await this.service.rooms.give_room_admin(room, user);
 	}
 	/**
 	 * @description
 	 */
 	@Patch("diwana")
+	@RoomPermitions(user_permission.owner, user_permission.admin)
+	@RoomType(roomtype.private , roomtype.protected, roomtype.public)
 	async takeHumanAuth(@Query("room") room: number, @Query("user") user: number) {
-		return await this.service.rooms.revoke_room_admin(2, room, user);
+		return await this.service.rooms.revoke_room_admin( room, user);
 	}
 }

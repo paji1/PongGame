@@ -7,7 +7,7 @@ async function seedrooms_parts(room_parts) {
   for (let i = 0; i < room_parts.length ; i++)
   {
     // console.log(room_parts[i])
-    await prisma.$executeRaw`insert into public.rooms_members(roomid, userid, permission ) values(${room_parts[i].room_id}::integer, ${room_parts[i].user_id}::integer, ${room_parts[i].permission}::participation_type)`
+    await prisma.$executeRaw`insert into public.rooms_members(roomid, userid, permission ) values(${room_parts[i].room_id}::integer, ${room_parts[i].user_id}::integer, ${room_parts[i].permission}::user_permission)`
   }
   
   const res = await prisma.$executeRaw`select * from public.rooms_members`

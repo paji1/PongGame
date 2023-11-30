@@ -10,14 +10,12 @@ export class RoomGuard implements CanActivate {
     async canActivate(context: ExecutionContext) {
         const request = context.switchToHttp().getRequest();
         const room = +(request.query['room']);
-        console.log(room)
-        if(Number.isNaN(room))
-            return false
-        const escape  = this.reflect.getAllAndOverride<boolean>('Escape', [context.getHandler(),context.getClass()])
         const roomtypes  = this.reflect.getAllAndOverride<roomtype[]>('RoomType', [context.getHandler(),context.getClass()])
         const roompermition = this.reflect.getAllAndOverride<user_permission[]>('RoomPermitions', [context.getHandler(),context.getClass()])
-        if (escape)
+        if (typeof roomtypes === "undefined" && typeof roompermition === "undefined")
             return true
+        if(Number.isNaN(room))
+            return false
         const user = 1;
         const membership = await this.prisma.rooms_members.findUnique({where: {combination :{roomid: room,userid: user}},select: {permission: true,rooms: {select : {roomtypeof: true}}},})
         console.log(membership)
