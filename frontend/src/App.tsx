@@ -1,12 +1,12 @@
 import Navbar from "./components/Navbar";
-import TestSideBar from './components/sidebar/Tmp';
+import SideBar from './components/sidebar/SideBar';
 import NotificationBar from './components/notifbar/NotificationBar';
 
 const App = () => {
 	return (
 	<div>
 		<Navbar />
-		<TestSideBar />
+		<SideBar />
 		<NotificationBar />
 	</div>
 )}

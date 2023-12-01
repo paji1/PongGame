@@ -5,7 +5,7 @@ import { HoverDiv } from "../Common"
 import ChatSearchBar from "./ChatSearchBar"
 
 
-const TestSideBar = () => {
+const SideBar = () => {
 	const [isOpen, seIsOpen] = useState(false)
 	// const [peopleOrRooms, setPeopleOrRooms] = useState(false)
 	const [searchSelection, setSearchSelection] = useState(1)
@@ -56,4 +56,4 @@ const TestSideBar = () => {
 	)
 }
 
-export default TestSideBar
+export default SideBar
