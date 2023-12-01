@@ -10,7 +10,7 @@ datasource db {
 model user {
   id                Int             @id @unique @default(autoincrement())
   user42            String          @unique
-  nickname          String?
+  nickname          String          @default("7mida")
   avatar            String?
   status            String?
   hash              String?
@@ -26,6 +26,8 @@ model user {
   rooms_members     rooms_members[]
   messages          messages[]
   achieved          achieved[]
+  issuer            invites[]       @relation("issuer")
+  invited           invites[]       @relation("issuer2")
 }
 
 model level {
@@ -34,13 +36,14 @@ model level {
 }
 
 model friendship {
-  id           Int               @id @unique @default(autoincrement())
+  id           Int      @id @unique @default(autoincrement())
   initiator    Int
   reciever     Int
-  status       friendship_status
-  created_at   DateTime          @default(now())
-  initiator_id user              @relation("initiator", fields: [initiator], references: [id], onDelete: Cascade)
-  reciever_id  user              @relation("reciever", fields: [reciever], references: [id], onDelete: Cascade)
+  created_at   DateTime @default(now())
+  initiator_id user     @relation("initiator", fields: [initiator], references: [id])
+  reciever_id  user     @relation("reciever", fields: [reciever], references: [id])
+
+  @@unique([initiator, reciever], name: "friendship")
 }
 
 model blocked {
@@ -70,24 +73,25 @@ model rooms {
   id            Int             @id @unique @default(autoincrement())
   name          String?
   roompassword  String?
-  roomtypeof    permission
+  roomtypeof    roomtype
   created_at    DateTime        @default(now())
   rooms_members rooms_members[] @relation()
   messages      messages[]
+  invites       invites[]
 }
 
 model rooms_members {
-  id            Int                @id @unique @default(autoincrement())
+  id            Int             @id @unique @default(autoincrement())
   roomid        Int
   userid        Int
-  permission    participation_type
-  ismuted       Boolean            @default(false)
-  isblocked     Boolean            @default(false)
+  permission    user_permission
+  ismuted       Boolean         @default(false)
+  isblocked     Boolean         @default(false)
   muted_at      DateTime?
-  muting_period Int                @default(0)
-  created_at    DateTime           @default(now())
-  user_id       user               @relation(fields: [userid], references: [id])
-  rooms         rooms              @relation(fields: [roomid], references: [id], onDelete: Cascade)
+  muting_period Int             @default(0)
+  created_at    DateTime        @default(now())
+  user_id       user            @relation(fields: [userid], references: [id])
+  rooms         rooms           @relation(fields: [roomid], references: [id], onDelete: Cascade)
 
   @@unique([roomid, userid], name: "combination")
 }
@@ -122,24 +126,44 @@ model achieved {
   achievment_id achievements @relation(fields: [achievementid], references: [id], onDelete: Cascade)
 }
 
-enum participation_type {
+model invites {
+  id          Int          @id @unique @default(autoincrement())
+  type        invitetype
+  status      actionstatus
+  issuer      Int
+  reciever    Int
+  // ganme      Int?
+  room        Int?
+  created_at  DateTime     @default(now())
+  issuer_id   user         @relation("issuer", fields: [issuer], references: [id])
+  reciever_id user         @relation("issuer2", fields: [reciever], references: [id])
+  room_id     rooms?       @relation(fields: [room], references: [id])
+}
+
+enum user_permission {
   chat
   participation
   admin
   owner
 }
 
-enum permission {
+enum roomtype {
   chat
   private
   public
   protected
 }
 
-enum friendship_status {
+enum actionstatus {
   pending
-  acepted
+  accepted
   refused
+}
+
+enum invitetype {
+  Friend
+  Game
+  Room
 }
 
 enum game_modes {

@@ -46,7 +46,7 @@ const LoggedNavBar: React.FC<isOpen> = (props) => (
 			<li key={1} className={`uppercase font-pixelify cursor-pointer py-2 h-auto md:mr-5`}>
 				<SearchBar />
 			</li>
-			<li className={`uppercase font-pixelify cursor-pointer py-2 h-auto`}>
+			<li key={2} className={`uppercase font-pixelify cursor-pointer py-2 h-auto`}>
 				<MainButton name={`start a game`} url={`start.com`} />
 			</li>
 		</ul>
@@ -72,9 +72,10 @@ const Navbar = () => {
 				Transcendence
 			</a>
 				
-			<LoggedinComponents currentUser={user} isOpen={isOpen} />
 
-			<div className="lg:hidden">
+			{user ? <LoggedNavBar isOpen={isOpen} /> : <UnloggedNavBar isOpen={isOpen} />}
+
+			<div className="md:hidden">
 				<button className="flex justify-center items-center"
 					onClick={toggleNavBar}>
 						<svg
@@ -111,42 +112,6 @@ const Navbar = () => {
 
 		</div>
 	);
-}
-
-const	ProfilePicture = (props: {isOpen: Boolean, avatar: string}) => {
-	return (
-		<div className={`border-2 border-solid border-textColor rounded-full ${props.isOpen ? "hidden" : "flex"}`}>
-			<img className={`rounded-full w-12`}
-				src={props.avatar === "" ? profileplaceholder : props.avatar }
-				alt=""
-			/>
-		</div>
-	)
-}
-
-// const	LogoutButton: React.FC<isOpen> = (props) => {
-// 	return (
-// 		<div className="border-2 border-solid border-textColor rounded-full">
-// 			<img className={`rounded-full w-12`}
-// 				src={profileplaceholder} alt="" />
-// 		</div>
-// 	)
-// }
-
-const	LoggedinComponents = (props: {isOpen: Boolean, currentUser: CurrentUser | null}) => {
-	if (props.currentUser)
-	{
-		return (
-			<>
-				<LoggedNavBar isOpen={props.isOpen} />
-				{/* <ProfilePicture isOpen={props.isOpen} avatar={props.currentUser.avatar} /> */}
-				{/* <LogoutButton isOpen={props.isOpen} /> */}
-			</>
-		)
-	}
-	return (
-		<UnloggedNavBar isOpen={props.isOpen} />
-	)
 }
 
 export default Navbar
