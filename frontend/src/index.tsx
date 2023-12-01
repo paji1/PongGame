@@ -11,7 +11,8 @@ const user: CurrentUser = {
 	id: 1,
 	user42: "zbi",
 	nickname: "qalwa",
-	avatar: profileplaceholder
+	avatar: profileplaceholder,
+	status: "Lorem ipsum dolor sit amet, consectetur adipis dolor sit amet, sed diam"
 }
 
 const router = createBrowserRouter([{
