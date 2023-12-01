@@ -13,6 +13,8 @@ model user {
   nickname          String          @default("7mida")
   avatar            String?
   status            String?
+  hash              String?
+  hashedRt          String?
   experience_points Int             @default(0)
   created_at        DateTime        @default(now())
   friendship1       friendship[]    @relation("initiator")
@@ -34,14 +36,14 @@ model level {
 }
 
 model friendship {
-  id           Int               @id @unique @default(autoincrement())
+  id           Int      @id @unique @default(autoincrement())
   initiator    Int
   reciever     Int
-  created_at   DateTime          @default(now())
-  initiator_id user              @relation("initiator", fields: [initiator], references: [id])
-  reciever_id  user              @relation("reciever", fields: [reciever], references: [id])
-  @@unique([initiator, reciever], name: "friendship")
+  created_at   DateTime @default(now())
+  initiator_id user     @relation("initiator", fields: [initiator], references: [id])
+  reciever_id  user     @relation("reciever", fields: [reciever], references: [id])
 
+  @@unique([initiator, reciever], name: "friendship")
 }
 
 model blocked {
@@ -54,14 +56,17 @@ model blocked {
 }
 
 model matchhistory {
-  id         Int      @id @unique @default(autoincrement())
-  player1    Int
-  player2    Int
-  score1     Int
-  score2     Int
-  created_at DateTime @default(now())
-  player1_id user     @relation("player1", fields: [player1], references: [id])
-  player2_id user     @relation("player2", fields: [player2], references: [id])
+  id               Int         @id @unique @default(autoincrement())
+  player1          Int
+  player2          Int
+  score1           Int         @default(0)
+  score2           Int         @default(0)
+  mode             game_modes  @default(TIMER_MODE)
+  status           game_status @default(PENDING)
+  game_unique_hash String      @unique @default(uuid())
+  created_at       DateTime    @default(now())
+  player1_id       user        @relation("player1", fields: [player1], references: [id])
+  player2_id       user        @relation("player2", fields: [player2], references: [id])
 }
 
 model rooms {
@@ -76,17 +81,17 @@ model rooms {
 }
 
 model rooms_members {
-  id            Int                @id @unique @default(autoincrement())
+  id            Int             @id @unique @default(autoincrement())
   roomid        Int
   userid        Int
   permission    user_permission
-  ismuted       Boolean            @default(false)
-  isblocked     Boolean            @default(false)
+  ismuted       Boolean         @default(false)
+  isblocked     Boolean         @default(false)
   muted_at      DateTime?
-  muting_period Int                @default(0)
-  created_at    DateTime           @default(now())
-  user_id       user               @relation(fields: [userid], references: [id])
-  rooms         rooms              @relation(fields: [roomid], references: [id], onDelete: Cascade)
+  muting_period Int             @default(0)
+  created_at    DateTime        @default(now())
+  user_id       user            @relation(fields: [userid], references: [id])
+  rooms         rooms           @relation(fields: [roomid], references: [id], onDelete: Cascade)
 
   @@unique([roomid, userid], name: "combination")
 }
@@ -122,17 +127,17 @@ model achieved {
 }
 
 model invites {
-  id          Int        @id @unique @default(autoincrement())
+  id          Int          @id @unique @default(autoincrement())
   type        invitetype
   status      actionstatus
   issuer      Int
   reciever    Int
   // ganme      Int?
   room        Int?
-  created_at  DateTime   @default(now())
-  issuer_id   user       @relation("issuer", fields: [issuer], references: [id])
-  reciever_id user       @relation("issuer2", fields: [reciever], references: [id])
-  room_id     rooms?     @relation(fields: [room], references: [id])
+  created_at  DateTime     @default(now())
+  issuer_id   user         @relation("issuer", fields: [issuer], references: [id])
+  reciever_id user         @relation("issuer2", fields: [reciever], references: [id])
+  room_id     rooms?       @relation(fields: [room], references: [id])
 }
 
 enum user_permission {
@@ -159,4 +164,15 @@ enum invitetype {
   Friend
   Game
   Room
+}
+
+enum game_modes {
+  TIMER_MODE
+  HIGHEST_SCORE_MODE
+}
+
+enum game_status {
+  PENDING
+  PLAYED
+  REFUSED
 }
