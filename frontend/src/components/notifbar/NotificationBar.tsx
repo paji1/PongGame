@@ -10,7 +10,7 @@ import { INotificaion, InviteType } from "../../types/NotificationItem"
 
 
 const NotificationBar = () => {
-	const [isOpen, seIsOpen] = useState(true)
+	const [isOpen, seIsOpen] = useState(false)
 	const [ state, setState ] = useState(1)
 
 	const notif: INotificaion = {
