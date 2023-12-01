@@ -37,10 +37,11 @@ model friendship {
   id           Int               @id @unique @default(autoincrement())
   initiator    Int
   reciever     Int
-  status       friendship_status
   created_at   DateTime          @default(now())
   initiator_id user              @relation("initiator", fields: [initiator], references: [id])
   reciever_id  user              @relation("reciever", fields: [reciever], references: [id])
+  @@unique([initiator, reciever], name: "friendship")
+
 }
 
 model blocked {
@@ -123,6 +124,7 @@ model achieved {
 model invites {
   id          Int        @id @unique @default(autoincrement())
   type        invitetype
+  status      actionstatus
   issuer      Int
   reciever    Int
   // ganme      Int?
@@ -147,9 +149,10 @@ enum roomtype {
   protected
 }
 
-enum friendship_status {
+enum actionstatus {
   pending
   accepted
+  refused
 }
 
 enum invitetype {
