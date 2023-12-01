@@ -1,7 +1,6 @@
-import { PrismaClient, Prisma, friendship_status } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import * as DATA from "../csv/MGSData/users.json"
 
-const fs = require('fs');
 const prisma = new PrismaClient();
 
 const users = [];
@@ -32,7 +31,6 @@ const seedFriendships = async () => {
 				id: friendship['id'],
 				initiator: friendship['initiator'],
 				reciever: friendship['reciever'],
-				status: friendship_status.acepted
 			}
 		});
 	}
