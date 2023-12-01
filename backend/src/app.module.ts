@@ -17,6 +17,7 @@ import { APP_GUARD } from "@nestjs/core";
 		AuthModule,
 		UsersModule,
 	],
+	
 	providers: [
 		AppGateway,
 		UsersService,
