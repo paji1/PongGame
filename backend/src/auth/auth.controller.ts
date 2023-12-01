@@ -24,7 +24,6 @@ import { AuthDto } from "./dto";
 import { Tokens } from "./types";
 import { Response } from "express";
 import { retry } from "rxjs";
-import { blockFormDto } from "Dto/chat.dto";
 
 @Controller("auth")
 export class AuthController {
