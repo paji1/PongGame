@@ -6,6 +6,7 @@ export interface CurrentUser
     user42: string;
 	nickname: string;
 	avatar: string;
+	status: string;
 }
 
 export const currentUser = createContext<CurrentUser | null>(null)
