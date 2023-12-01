@@ -11,8 +11,14 @@
 	margin: 0;
 	padding: 0;
 	border: 0;
+
 }
 
 body {
 	background-color: var(--bgColor);
+}
+
+/* For Webkit (Chrome, Safari) */
+::-webkit-scrollbar {
+	width: 0px; /* Set the width of the scrollbar */
 }
