@@ -12,19 +12,29 @@ export class RoomGuard implements CanActivate {
         const room = +(request.query['room']);
         const roomtypes  = this.reflect.getAllAndOverride<roomtype[]>('RoomType', [context.getHandler(),context.getClass()])
         const roompermition = this.reflect.getAllAndOverride<user_permission[]>('RoomPermitions', [context.getHandler(),context.getClass()])
-        if (typeof roomtypes === "undefined" && typeof roompermition === "undefined")
-            return true
-        if(Number.isNaN(room))
-            return false
+        
         const user = 1;
-        const membership = await this.prisma.rooms_members.findUnique({where: {combination :{roomid: room,userid: user}},select: {permission: true,rooms: {select : {roomtypeof: true}}},})
-        console.log(membership)
-        if (!membership)
-            return false
-        if (typeof roomtypes !== "undefined" && !roomtypes.includes(membership.rooms.roomtypeof))
-            return false;
-        if (typeof roompermition !== "undefined" && !roompermition.includes(membership.permission))
-            return false;
+        if (typeof roomtypes !== "undefined")
+        {
+            if(Number.isNaN(room))
+                return false
+            const roomdata  = await this.prisma.rooms.findUnique({where : {id :room}});
+            if (!roomdata)
+                return false
+            if (!roomtypes.includes(roomdata.roomtypeof))
+                return false;
+        }
+        if (typeof roompermition !== "undefined")
+        {
+            if(Number.isNaN(room))
+                return false
+            const membership = await this.prisma.rooms_members.findUnique({where: {combination :{roomid: room,userid: user}}})
+            if (!membership)
+                return false
+            if (!roompermition.includes(membership.permission))
+                return false;
+
+        }
         return true
     }
 }

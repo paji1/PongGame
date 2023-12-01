@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { invitetype, user_permission, roomtype } from "@prisma/client";
+import { invitetype, user_permission, roomtype, actionstatus } from "@prisma/client";
 import { createHash } from "crypto";
 import { RoomDto } from "../../Dto/rooms.dto";
 
@@ -51,14 +51,17 @@ export class RoomsService {
 	 * @returns on succes it returns a json to the client on failure it retruns BAD_REQUEST
 	 */
 	async create_room(Requester: number, Room: RoomDto) {
+		
 		if (Room.type === roomtype.chat)
-			throw new HttpException("wrong endpoint", HttpStatus.BAD_GATEWAY)
-		if (Room.type === roomtype.protected && Room.password.length > 9)
-			Room.password = createHash("sha256").update(Room.password).digest("hex");
-		else
-			throw new HttpException("do better password", HttpStatus.BAD_REQUEST);
+		throw new HttpException("Action Not Allowed", HttpStatus.BAD_GATEWAY)
+		if (Room.type === roomtype.protected && Room.password.length  < 9)	
+			throw new HttpException("please provide a better password", HttpStatus.BAD_REQUEST)
 		if (Room.type !== roomtype.protected)
-		Room.password = "";
+			Room.password = ""
+		if (Room.type === roomtype.protected)
+			Room.password = createHash("sha256").update(Room.password).digest("hex")
+	console.log(Room.password)	
+	console.log(Room.password)	
 		try {
 			const result = await this.prisma.$transaction(async (trx) => {
 				const newroom = await trx.rooms.create( {data: {name: Room.name, roompassword: Room.password, roomtypeof: Room.type} });
@@ -70,7 +73,7 @@ export class RoomsService {
 			throw new HttpException("Transaction Failed", HttpStatus.BAD_REQUEST);
 		}
 	}
-
+ 
 	/**
 	 *
 	 * @description permissions owner and chat are the only ones that can delete aconversation
@@ -98,14 +101,13 @@ export class RoomsService {
 
 		const validate = await this.prisma.rooms.findUnique({where: { id: room }});
 		if (validate.roomtypeof !== Room.type)
-			throw new HttpException("No please", HttpStatus.UNAUTHORIZED)
-		if (validate.roomtypeof === roomtype.protected && Room.password.length < 9)
-			throw new HttpException("password not enought", HttpStatus.UNAUTHORIZED)
+			throw new HttpException("Nigga  one migga two nigga three", HttpStatus.UNAUTHORIZED)
 		if (Room.type === roomtype.protected && Room.password.length > 9)
 			Room.password = createHash("sha256").update(Room.password).digest("hex");
 		if (Room.type === roomtype.public)
 			Room.password = ""
-		if (Room.password != validate.roompassword)
+		console.log(Room.password, validate.roompassword)
+		if (Room.password !== validate.roompassword)
 			throw new HttpException("Wrong Password", HttpStatus.UNAUTHORIZED)
 		try {
 			await this.prisma.rooms_members.create({
@@ -165,7 +167,8 @@ export class RoomsService {
 					issuer: Requester,
 					reciever: affected,
 					room:room,
-					type: invitetype.Room
+					type: invitetype.Room,
+					status: actionstatus.pending
 				}
 			})
 		} catch (error) {

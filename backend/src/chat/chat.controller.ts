@@ -5,6 +5,7 @@ import { RoomDto , MessageDto , MuteDto} from "../Dto/rooms.dto";
 import { IsNotEmpty,MinLength ,MaxLength ,ValidateIf, IsEnum, IsString, IsNumber, Min} from "class-validator";
 import { RoomPermitions } from "src/common/decorators/RoomPermitions.decorator";
 import { RoomType } from "src/common/decorators/RoomType.decorator";
+import { IsFriend } from "src/common/decorators/Friend.decorator";
 
 @Controller("chat")
 export class ChatController {
@@ -12,6 +13,12 @@ export class ChatController {
 	/**
 	 * @description
 	 */
+	@Post("test")
+	@IsFriend()
+	test ()
+	{
+
+	}
 	@Post("creation/")
 	async roomAddExistance(@Body() Room : RoomDto) {
 		return await this.service.rooms.create_room(1, Room);
@@ -32,12 +39,12 @@ export class ChatController {
 	@Post("humans")
 	@RoomType(roomtype.protected, roomtype.public)
 	async roomHumansJoin( @Query("room") room: number, @Body() Room: RoomDto) {
-		return await this.service.rooms.join_room(1, room, Room);
+		return await this.service.rooms.join_room(2, room, Room);
 	}
 	/**
 	 * @description
 	 */
-	@Delete("humans/")
+	@Delete("humans")
 	@RoomPermitions(user_permission.admin , user_permission.participation)
 	@RoomType(roomtype.protected, roomtype.public, roomtype.private)
 	async roomHumansLeave(@Query("room") room: number) {
@@ -45,7 +52,8 @@ export class ChatController {
 	}
 
 
-	@Post("humans/invite/")
+	@Post("humans/invite")
+	@IsFriend()
 	@RoomPermitions(user_permission.owner, user_permission.admin)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async roomHumanInvite(@Query("room")  room: number, @Query("friend") friend: number)

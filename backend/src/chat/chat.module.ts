@@ -7,6 +7,7 @@ import { MessagesModule } from "./messages/messages.module";
 import { PrismaModule } from "src/prisma/prisma.module";
 import { RoomGuard } from "src/common/guards/RoomGuard";
 import { APP_GUARD } from "@nestjs/core";
+import { FriendGuard } from "src/common/guards/FriendGuard";
 
 @Module({
 	exports: [ChatService],
@@ -14,6 +15,10 @@ import { APP_GUARD } from "@nestjs/core";
 	{
 		provide:APP_GUARD,
 		useClass: RoomGuard
+	},
+	{
+		provide:APP_GUARD,
+		useClass: FriendGuard
 	}
 ],
 	controllers: [ChatController],

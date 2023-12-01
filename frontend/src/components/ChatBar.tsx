@@ -11,16 +11,17 @@ import useMessages from "../hooks/useMessages";
     const [roomConv, setRoomConv] = useState<message[] | null>(null);
     useMessages(srcRoom ? srcRoom.id : -1 , setRoomConv);
     if (roomConv)
-        messages = roomConv.map((obj, index) => <div key={index}>{index} {obj.messages} : {obj.sender_id}</div>)
- 	return (
- 		<div className="flex flex-col h-full max-h-ful">
-            <div className="flex justify-start">
+        messages = roomConv.map((obj, index) => <div  className="border-solid border-2" key={index}>{index} {obj.messages} : {obj.sender_id}</div>)
+ 	
+		return ( 
+ 		<div className="flex flex-col  h-full max-h-ful">
+            <div className="bg-white">
                 <button onClick={()=> roomselector(-1)}>rja3lor</button>
             </div>
-            <div className=" flex flex-col  h-5/6 overflow-y-scroll">
-                {messages}
+            <div id="scrolable" className=" flex-wrap basis-full  min-h-0 grid overflow-y-auto">
+	                {messages}
             </div>
-            <div className="">
+            <div className="bg-gray-600">
             <MessageBar roomnumber={srcRoom ? srcRoom.id : -1}/>
             </div >
  		</div>
