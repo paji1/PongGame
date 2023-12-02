@@ -6,18 +6,12 @@ import { AuthModule } from "./auth/auth.module";
 import { UsersService } from "./users/users.service";
 import { UsersModule } from "./users/users.module";
 import { AtGuard } from "./common/guards";
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
 
 @Module({
-	imports: [
-		ConfigModule.forRoot({ isGlobal: true }),
-		PrismaModule,
-		ChatModule,
-		AuthModule,
-		UsersModule,
-	],
-	
+	imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, ChatModule, AuthModule, UsersModule],
+
 	providers: [
 		AppGateway,
 		UsersService,

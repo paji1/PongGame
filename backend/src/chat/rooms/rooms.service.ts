@@ -4,7 +4,6 @@ import { invitetype, user_permission, roomtype, actionstatus } from "@prisma/cli
 import { createHash } from "crypto";
 import { RoomDto } from "../../Dto/rooms.dto";
 
-
 @Injectable()
 export class RoomsService {
 	constructor(private readonly prisma: PrismaService) {}
@@ -17,7 +16,6 @@ export class RoomsService {
 	 * @returns return 200 if success 400 on failure
 	 */
 	async create_chat(creator: number, reciever: number) {
-
 		try {
 			const re = await this.prisma.$transaction(async (trx) => {
 				const newroom = await trx.rooms.create({
@@ -51,21 +49,29 @@ export class RoomsService {
 	 * @returns on succes it returns a json to the client on failure it retruns BAD_REQUEST
 	 */
 	async create_room(Requester: number, Room: RoomDto) {
-		
-		if (Room.type === roomtype.chat)
-		throw new HttpException("Action Not Allowed", HttpStatus.BAD_GATEWAY)
-		if (Room.type === roomtype.protected && Room.password.length  < 9)	
-			throw new HttpException("please provide a better password", HttpStatus.BAD_REQUEST)
-		if (Room.type !== roomtype.protected)
-			Room.password = ""
-		if (Room.type === roomtype.protected)
-			Room.password = createHash("sha256").update(Room.password).digest("hex")
-	console.log(Room.password)	
-	console.log(Room.password)	
+		if (Room.type === roomtype.chat) throw new HttpException("Action Not Allowed", HttpStatus.BAD_GATEWAY);
+		if (Room.type === roomtype.protected && Room.password.length < 9)
+			throw new HttpException("please provide a better password", HttpStatus.BAD_REQUEST);
+		if (Room.type !== roomtype.protected) Room.password = "";
+		if (Room.type === roomtype.protected) Room.password = createHash("sha256").update(Room.password).digest("hex");
+		console.log(Room.password);
+		console.log(Room.password);
 		try {
 			const result = await this.prisma.$transaction(async (trx) => {
-				const newroom = await trx.rooms.create( {data: {name: Room.name, roompassword: Room.password, roomtypeof: Room.type} });
-				await trx.rooms_members.create({data: {roomid: newroom.id, userid: Requester, permission: user_permission.owner} });
+				const newroom = await trx.rooms.create({
+					data: {
+						name: Room.name,
+						roompassword: Room.password,
+						roomtypeof: Room.type,
+					},
+				});
+				await trx.rooms_members.create({
+					data: {
+						roomid: newroom.id,
+						userid: Requester,
+						permission: user_permission.owner,
+					},
+				});
 				return newroom;
 			});
 			return result;
@@ -73,7 +79,7 @@ export class RoomsService {
 			throw new HttpException("Transaction Failed", HttpStatus.BAD_REQUEST);
 		}
 	}
- 
+
 	/**
 	 *
 	 * @description permissions owner and chat are the only ones that can delete aconversation
@@ -97,18 +103,17 @@ export class RoomsService {
 	 * @param roomid
 	 * @returns
 	 */
-	async join_room(Requester: number, room: number , Room: RoomDto) {
-
-		const validate = await this.prisma.rooms.findUnique({where: { id: room }});
+	async join_room(Requester: number, room: number, Room: RoomDto) {
+		const validate = await this.prisma.rooms.findUnique({
+			where: { id: room },
+		});
 		if (validate.roomtypeof !== Room.type)
-			throw new HttpException("Nigga  one migga two nigga three", HttpStatus.UNAUTHORIZED)
+			throw new HttpException("Nigga  one migga two nigga three", HttpStatus.UNAUTHORIZED);
 		if (Room.type === roomtype.protected && Room.password.length > 9)
 			Room.password = createHash("sha256").update(Room.password).digest("hex");
-		if (Room.type === roomtype.public)
-			Room.password = ""
-		console.log(Room.password, validate.roompassword)
-		if (Room.password !== validate.roompassword)
-			throw new HttpException("Wrong Password", HttpStatus.UNAUTHORIZED)
+		if (Room.type === roomtype.public) Room.password = "";
+		console.log(Room.password, validate.roompassword);
+		if (Room.password !== validate.roompassword) throw new HttpException("Wrong Password", HttpStatus.UNAUTHORIZED);
 		try {
 			await this.prisma.rooms_members.create({
 				data: {
@@ -129,7 +134,6 @@ export class RoomsService {
 	 * @returns
 	 */
 	async leave_room(Requester: number, room: number) {
-
 		try {
 			const change = await this.prisma.rooms_members.delete({
 				where: {
@@ -146,36 +150,30 @@ export class RoomsService {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 
-	async invite_room(Requester :number, affected : number, room: number )
-	{
+	async invite_room(Requester: number, affected: number, room: number) {
 		const member = await this.prisma.rooms_members.findUnique({
 			where: {
-			combination: {
-				roomid: room,
-				userid: affected,
-			}
-		}});
-		if (member)
-			throw new  HttpException("User already exist", 404);
+				combination: {
+					roomid: room,
+					userid: affected,
+				},
+			},
+		});
+		if (member) throw new HttpException("User already exist", 404);
 		try {
 			this.prisma.invites.create({
-				data:
-				{
+				data: {
 					issuer: Requester,
 					reciever: affected,
-					room:room,
+					room: room,
 					type: invitetype.Room,
-					status: actionstatus.pending
-				}
-			})
-		} catch (error) {
-			
-		}
-
-
+					status: actionstatus.pending,
+				},
+			});
+		} catch (error) {}
 	}
 	/**
 	 *
@@ -184,8 +182,7 @@ export class RoomsService {
 	 * @param user
 	 * @returns
 	 */
-	async give_room_admin( room: number, user: number) {
-
+	async give_room_admin(room: number, user: number) {
 		try {
 			await this.prisma.rooms_members.update({
 				where: {
@@ -210,7 +207,6 @@ export class RoomsService {
 	 * @param user
 	 */
 	async revoke_room_admin(room: number, user: number) {
-	
 		try {
 			const entry = await this.prisma.rooms_members.update({
 				where: {
@@ -230,7 +226,6 @@ export class RoomsService {
 	}
 
 	async mute_user(targeted: number, roomtarget: number, timetomute: number) {
-		
 		try {
 			const change = this.prisma.rooms_members.update({
 				where: {
@@ -260,7 +255,6 @@ export class RoomsService {
 	 * @param roomtarget
 	 */
 	async unmute_user(targeted: number, roomtarget: number) {
-
 		try {
 			const change = this.prisma.rooms_members.update({
 				where: {
@@ -290,7 +284,7 @@ export class RoomsService {
 	 * @param roomtarget
 	 * @returns
 	 */
-	async block_user( targeted: number, roomtarget: number) {
+	async block_user(targeted: number, roomtarget: number) {
 		try {
 			const change = this.prisma.rooms_members.update({
 				where: {
@@ -315,7 +309,6 @@ export class RoomsService {
 	 * @param roomtarget
 	 */
 	async unblock_user(targeted: number, roomtarget: number) {
-		
 		try {
 			const change = this.prisma.rooms_members.update({
 				where: {

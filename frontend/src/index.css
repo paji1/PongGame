@@ -20,5 +20,5 @@ body {
 
 /* For Webkit (Chrome, Safari) */
 ::-webkit-scrollbar {
-	width: 0px; /* Set the width of the scrollbar */
+	width: 20px; /* Set the width of the scrollbar */
 }

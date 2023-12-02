@@ -1,14 +1,17 @@
+import { ToastContainer, toast } from "react-toastify";
 import Navbar from "./components/Navbar";
-import TestSideBar from './components/sidebar/Tmp';
-import NotificationBar from './components/notifbar/NotificationBar';
+import SideBar from "./components/SideBar";
+import NotificationBar from "./components/notifbar/NotificationBar";
 
 const App = () => {
 	return (
-	<div>
-		<Navbar />
-		<TestSideBar />
-		<NotificationBar />
-	</div>
-)}
+		<div>
+			<ToastContainer />
+			<Navbar />
+			<SideBar />
+			<NotificationBar />
+		</div>
+	);
+};
 
 export default App;

@@ -1,4 +1,3 @@
 import { SetMetadata } from "@nestjs/common";
 
-
-export const IsFriend = () => SetMetadata('Friend', true)
+export const IsFriend = () => SetMetadata("Friend", true);
