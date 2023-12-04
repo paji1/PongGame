@@ -25,6 +25,18 @@ export class WsInRoomGuard implements CanActivate {
             client.emit("error", "zabi la")
             return false
         }
+        try
+        {
+
+            if (! await this.prisma.rooms_members.findUnique({where :{combination : { roomid: data.Destination , userid: data.Sender} }}))
+                return false
+        }
+        catch (e)
+        {
+            client.emit("error", "user not in room")
+            return false;
+        }
+        await this.prisma.rooms_members.findUnique({where :{combination : { roomid: data.Destination , userid: data.Sender} }})
 		return true;
 	}
 }
