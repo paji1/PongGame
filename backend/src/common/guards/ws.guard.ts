@@ -18,25 +18,24 @@ export class WsInRoomGuard implements CanActivate {
 		]);
         const client = context.switchToWs().getClient()
         const data: ChatSocketDto = context.switchToWs().getData()
+        /**
+         * user id should be handled
+         */
+        const userid = 1
         if (typeof inroom === "undefined")
             return true;
-        if (typeof data.Destination != "number" || typeof data.Sender != "number")
+        if (typeof data.Destination != "number" || Number.isNaN(data.Destination))
         {
-            client.emit("error", "zabi la")
+            client.emit("error", "invalid data")
             return false
         }
-        try
-        {
-
-            if (! await this.prisma.rooms_members.findUnique({where :{combination : { roomid: data.Destination , userid: data.Sender} }}))
-                return false
-        }
-        catch (e)
+        const check = await this.prisma.rooms_members.findUnique({where :{combination : { roomid: data.Destination , userid: userid} }})
+        console.log(check)
+        if (!check)
         {
             client.emit("error", "user not in room")
             return false;
         }
-        await this.prisma.rooms_members.findUnique({where :{combination : { roomid: data.Destination , userid: data.Sender} }})
 		return true;
 	}
 }
