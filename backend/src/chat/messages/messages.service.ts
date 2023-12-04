@@ -68,7 +68,6 @@ export class MessagesService {
 				where: {
 					rooms_members : {
 						some: {
-							 
 								userid: id,
 						}
 					}

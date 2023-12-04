@@ -16,6 +16,9 @@ export class ChatController {
 	@Post("test")
 	@IsFriend()
 	test() {}
+
+
+	
 	@Post("creation/")
 	async roomAddExistance(@Body() Room: RoomDto) {
 		return await this.service.rooms.create_room(1, Room);

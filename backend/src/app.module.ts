@@ -14,7 +14,6 @@ import { APP_GUARD } from "@nestjs/core";
 
 	providers: [
 		AppGateway,
-		UsersService,
 		// {
 		// 	provide: APP_GUARD,
 		// 	useClass: AtGuard,
