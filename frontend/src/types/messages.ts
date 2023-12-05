@@ -6,6 +6,7 @@ type room = {
 	roomtypeof: permission;
 };
 type sender = {
+	id: number;
 	avatar: string;
 	nickname: string;
 };

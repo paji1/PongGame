@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useState } from "react";
 import { room } from "../../types/room";
 import { message } from "../../types/messages";
 import useMessages from "../../hooks/useMessages";
 import { toast } from "react-toastify";
+import { currentUser, CurrentUser} from "../../components/Context/AuthContext"
+import { log } from "console";
 
 const ChatBar = ({ roomselector, room }: { roomselector: any; room: room | null }) => {
 	let srcRoom: room | null = room ? room : null;
@@ -11,13 +13,20 @@ const ChatBar = ({ roomselector, room }: { roomselector: any; room: room | null 
 	const [roomConv, setRoomConv] = useState<message[] | null>(null);
 	console.log(room);
 
+	const user: CurrentUser | null =  useContext(currentUser);
+
 	useMessages(srcRoom ? srcRoom.id : -1, setRoomConv);
 	if (roomConv)
-		messages = roomConv.map((obj, index) => (
-			<div className="border-solid border-2" key={index}>
+		messages = roomConv.map((obj, index) => { 
+	console.log("malmamak", obj.senderid.id, user?.id);
+	
+			return (
+
+				<div className={`flex  ${user?.id === obj.senderid.id ? "flex-row-reverse" :  "flex-row"} border-solid   border-2`} key={index}>
 				{index} {obj.messages} : {obj.sender_id}
-			</div>
-		));
+				</div>
+			)
+			});
 	return (
 		<div className="flex flex-col h-full">
 			<div className="bg-white">
