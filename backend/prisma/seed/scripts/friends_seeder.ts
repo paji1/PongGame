@@ -44,9 +44,8 @@ const seeder = async () => {
 const resetAll = async () => {
 	await prisma.$queryRaw`ALTER SEQUENCE user_id_seq RESTART WITH 1;`
 	await prisma.$queryRaw`ALTER SEQUENCE friendship_id_seq RESTART WITH 1;`
-	await prisma.$queryRaw`ALTER SEQUENCE matchhistory_id_seq RESTART WITH 1;`
-	await prisma.user.deleteMany({})
 	await prisma.friendship.deleteMany({})
+	await prisma.user.deleteMany({})
 }
 
 (async () => {
