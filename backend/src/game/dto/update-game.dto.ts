@@ -5,7 +5,7 @@ import { game_state } from '@prisma/client';
 
 export class UpdateGameDto extends PartialType(CreateGameDto) {
 
-	static readonly HIGHEST_SCORE: number = 100;
+	static readonly HIGHEST_SCORE: number = 42;
 
 	@IsInt()
 	@Min(0)
