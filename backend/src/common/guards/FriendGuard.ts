@@ -12,8 +12,8 @@ export class FriendGuard implements CanActivate {
         const friend = +(request.query['friend']);
         const Guarded  = this.reflect.getAllAndOverride<boolean>('Friend', [context.getHandler(),context.getClass()])
         
-        console.log(Guarded)
-        console.log("salam")
+        // console.log(Guarded)
+        // console.log("salam")
         if (typeof Guarded === "undefined")
             return true
         const user = 1;
@@ -28,7 +28,7 @@ export class FriendGuard implements CanActivate {
                
             }
         })
-        console.log(arefriends)
+        // console.log(arefriends)
         if (!arefriends)
             return false
         return true
