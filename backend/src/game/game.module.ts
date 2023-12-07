@@ -4,8 +4,8 @@ import { GameController } from './game.controller';
 import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
-  controllers: [GameController],
-  providers: [GameService],
-  imports: [PrismaModule]
+	imports: [PrismaModule],
+	controllers: [GameController],
+	providers: [GameService],
 })
 export class GameModule {}
