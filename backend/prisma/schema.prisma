@@ -56,17 +56,17 @@ model blocked {
 }
 
 model matchhistory {
-  id               String      @id @unique @default(uuid())
-  player1          Int
-  player2          Int
-  score1           Int         @default(0)
-  score2           Int         @default(0)
-  mode             game_modes  @default(TIMER_MODE)
-  status           game_status @default(PENDING)
-  created_at       DateTime    @default(now())
-  updated_at	   DateTime    @updatedAt
-  player1_id       user        @relation("player1", fields: [player1], references: [id])
-  player2_id       user        @relation("player2", fields: [player2], references: [id])
+  id         String      @id @unique @default(uuid())
+  player1    Int
+  player2    Int
+  score1     Int         @default(0)
+  score2     Int         @default(0)
+  mode       game_modes  @default(TIMER_MODE)
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+  player1_id user        @relation("player1", fields: [player1], references: [id])
+  player2_id user        @relation("player2", fields: [player2], references: [id])
+  invite     invites[]
 }
 
 model rooms {
@@ -74,7 +74,6 @@ model rooms {
   name          String?
   roompassword  String?
   roomtypeof    roomtype
-  updated_at    DateTime        @default(now())
   created_at    DateTime        @default(now())
   rooms_members rooms_members[] @relation()
   messages      messages[]
@@ -128,17 +127,18 @@ model achieved {
 }
 
 model invites {
-  id          Int          @id @unique @default(autoincrement())
+  id          Int           @id @unique @default(autoincrement())
   type        invitetype
   status      actionstatus
   issuer      Int
   reciever    Int
-  // ganme      Int?
+  game        String?
   room        Int?
-  created_at  DateTime     @default(now())
-  issuer_id   user         @relation("issuer", fields: [issuer], references: [id])
-  reciever_id user         @relation("issuer2", fields: [reciever], references: [id])
-  room_id     rooms?       @relation(fields: [room], references: [id])
+  created_at  DateTime      @default(now())
+  issuer_id   user          @relation("issuer", fields: [issuer], references: [id])
+  reciever_id user          @relation("issuer2", fields: [reciever], references: [id])
+  room_id     rooms?        @relation(fields: [room], references: [id])
+  game_id     matchhistory? @relation(fields: [game], references: [id])
 }
 
 enum user_permission {
@@ -170,10 +170,4 @@ enum invitetype {
 enum game_modes {
   TIMER_MODE
   HIGHEST_SCORE_MODE
-}
-
-enum game_status {
-  PENDING
-  PLAYED
-  REFUSED
 }
