@@ -62,6 +62,7 @@ model matchhistory {
   score1     Int         @default(0)
   score2     Int         @default(0)
   mode       game_modes  @default(TIMER_MODE)
+  state		 game_state  @default(PENDING)
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
   player1_id user        @relation("player1", fields: [player1], references: [id])
@@ -171,4 +172,10 @@ enum invitetype {
 enum game_modes {
   TIMER_MODE
   HIGHEST_SCORE_MODE
+}
+
+enum game_state {
+	PENDING
+	IN_PLAY
+	FINISHED
 }
