@@ -10,7 +10,7 @@ datasource db {
 model user {
   id                Int             @id @unique @default(autoincrement())
   user42            String          @unique
-  nickname          String          @default("7mida")
+  nickname          String          @unique
   avatar            String?
   status            String?
   hash              String?
