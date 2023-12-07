@@ -27,7 +27,7 @@ model user {
   messages          messages[]
   achieved          achieved[]
   issuer            invites[]       @relation("issuer")
-  invited           invites[]       @relation("issuer2")
+  reciever           invites[]       @relation("reciever")
 }
 
 model level {
@@ -75,6 +75,7 @@ model rooms {
   roompassword  String?
   roomtypeof    roomtype
   created_at    DateTime        @default(now())
+  updated_at    DateTime        @default(now())
   rooms_members rooms_members[] @relation()
   messages      messages[]
   invites       invites[]
@@ -136,7 +137,7 @@ model invites {
   room        Int?
   created_at  DateTime      @default(now())
   issuer_id   user          @relation("issuer", fields: [issuer], references: [id])
-  reciever_id user          @relation("issuer2", fields: [reciever], references: [id])
+  reciever_id user          @relation("reciever", fields: [reciever], references: [id])
   room_id     rooms?        @relation(fields: [room], references: [id])
   game_id     matchhistory? @relation(fields: [game], references: [id])
 }
