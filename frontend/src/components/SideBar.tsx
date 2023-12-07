@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ToggleSidBar } from "./sidebar/ToggleSidBar";
 import { HoverDiv } from "./Common";
 import ChatSearchBar from "./sidebar/ChatSearchBar";
@@ -6,35 +6,43 @@ import SideBarItemFilter from "./sidebar/SideBarItemFilter";
 import { room } from "../types/room";
 import useRooms from "../hooks/useRooms";
 import ChatBar from "./sidebar/ChatBar";
+import { messages, roommessages } from "../types/messages";
+import useMessages from "../hooks/useMessages";
+import { SocketContext } from "./Context/SocketContext";
+import { Socket } from "socket.io-client";
+import { toast } from "react-toastify";
+import { updateMessages } from "./sidebar/updater";
 
-const SideBar = () => {
+const SideBar =  () => {
+	const socket = useContext(SocketContext)
 	const [isOpen, seIsOpen] = useState(false);
 	const [searchSelection, setSearchSelection] = useState(1);
 	const [searchText, setSearchText] = useState("");
 	const [chatSelector, setChatSelector] = useState(-1);
 	const [roomsState, setRoomsState] = useState<room[] | null>(null);
-	const friendroom = roomsState ? roomsState.filter((room: room) => room.roomtypeof === "chat") : null;
-	const grouproom = roomsState ? roomsState.filter((room: room) => room.roomtypeof !== "chat") : null;
+	const [chatState, setChatState] = useState<roommessages[] | null>(null)
+	const friendroom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof === "chat") : null;
+	const grouproom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof !== "chat") : null;
+	useMessages(0, setChatState);
 	useRooms(false, setRoomsState);
+	console.log(chatState, "oldest")
+	
+	const current = Array.isArray( chatState) ? chatState.find((ob:roommessages) => ob.id === chatSelector) : null;
+	socket.off("connect").on("connect", () => console.log("conected"))
+	socket.off("chat").on("chat", (data:messages) => updateMessages(data, chatState, setChatState))
+	socket.off("ChatError").on("ChatError", (data) => toast.error(data) )
 	const toggleChatBar = () => seIsOpen(!isOpen);
-
 	const RenderOption = () => {
+		if (chatSelector !== -1)
+			return (
+				<ChatBar roomselector={setChatSelector} conversation={ (typeof current === "undefined") ? null: current} />
+			);
 		switch (searchSelection) {
 			case 0:
-				if (chatSelector !== -1)
-					return (
-						<ChatBar roomselector={setChatSelector} room={roomsState ? roomsState[chatSelector] : null} />
-					);
 				return <SideBarItemFilter rooms={roomsState} query={searchText} roomselector={setChatSelector} />;
 			case 1:
-				if (chatSelector !== -1)
-					return (
-						<ChatBar roomselector={setChatSelector} room={friendroom ? friendroom[chatSelector] : null} />
-					);
 				return <SideBarItemFilter rooms={friendroom} query="" roomselector={setChatSelector} />;
 			case 2:
-				if (chatSelector !== -1)
-					return <ChatBar roomselector={setChatSelector} room={grouproom ? grouproom[chatSelector] : null} />;
 				return <SideBarItemFilter rooms={grouproom} query="" roomselector={setChatSelector} />;
 		}
 	};

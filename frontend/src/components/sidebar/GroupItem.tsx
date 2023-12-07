@@ -1,12 +1,12 @@
 import React from "react";
 import { room } from "../../types/room";
 import ChatRoomAvatar from "../../assets/ChatRoomAvatar.png";
-import { message } from "../../types/messages";
+import { messages } from "../../types/messages";
 
-const GroupItem = ({ selector, room, glimpse }: { selector: any; room: room; glimpse: message | undefined }) => {
+const GroupItem = ({ selector, room, glimpse }: { selector: any; room: room; glimpse: string | undefined }) => {
 	let preview;
 	if (typeof glimpse !== "undefined")
-		preview = (glimpse.messages.length > 25) ? glimpse.messages.substring(0, 25) + "..." : glimpse.messages;
+		preview = (glimpse.length > 25) ? glimpse.substring(0, 25) + "..." : glimpse;
 	else 
 		preview = "Start the conversation"
 	const name = room.name.length > 15 ? room.name.substring(0, 15) : room.name;

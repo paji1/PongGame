@@ -1,4 +1,4 @@
-import { message } from "./messages";
+import { messages } from "./messages";
 export enum permission {
 	chat,
 	private,
@@ -15,7 +15,7 @@ type member_filler = {
 };
 
 export type room = {
-	messages: message[]
+	messages: string
 	id: number;
 	name: string;
 	roomtypeof: string;

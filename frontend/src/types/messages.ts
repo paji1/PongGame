@@ -1,20 +1,27 @@
+import { Id } from "react-toastify";
 import { permission } from "./room";
 
-type room = {
-	id: number;
-	name: string;
-	roomtypeof: permission;
-};
+
 type sender = {
 	id: number;
 	avatar: string;
 	nickname: string;
 };
 
-export type message = {
-	sender_id: number;
+export type messages = {
+	room_id:	number;
 	created_at: Date;
 	messages: string;
-	roomid: room;
 	senderid: sender;
 };
+export type roommessages = {
+	id: number
+	messages: messages[];
+}
+
+export type SocketMessage = 
+{
+	Destination: number;
+    Message: string
+}
+

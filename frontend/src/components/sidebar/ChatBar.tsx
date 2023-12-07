@@ -1,32 +1,29 @@
 import React, { useContext } from "react";
 import { useState } from "react";
 import { room } from "../../types/room";
-import { message } from "../../types/messages";
+import { SocketMessage, messages, roommessages } from "../../types/messages";
 import useMessages from "../../hooks/useMessages";
 import { toast } from "react-toastify";
 import { currentUser, CurrentUser} from "../../components/Context/AuthContext"
 import { log } from "console";
+import { SocketContext } from "../Context/SocketContext";
 
-const ChatBar = ({ roomselector, room }: { roomselector: any; room: room | null }) => {
-	let srcRoom: room | null = room ? room : null;
+const ChatBar = ({ roomselector, conversation }: { roomselector: any; conversation: roommessages | null }) => {
 	let messages;
-	const [roomConv, setRoomConv] = useState<message[] | null>(null);
-	console.log(room);
-
-	const user: CurrentUser | null =  useContext(currentUser);
-
-	useMessages(srcRoom ? srcRoom.id : -1, setRoomConv);
-	if (roomConv)
-		messages = roomConv.map((obj, index) => { 
-	console.log("malmamak", obj.senderid.id, user?.id);
 	
-			return (
+	const user: CurrentUser | null =  useContext(currentUser);
+	if (conversation && typeof conversation.messages !== "undefined")	
+	{
+			messages = conversation.messages.map((obj:messages, index) => { 		
+				return (
+	
+					<div className={`flex  ${user?.id === obj.senderid.id ? "flex-row-reverse" :  "flex-row"} border-solid   border-2`} key={index}>
+					{index} {obj.messages} : {obj.senderid.id}
+					</div>
+				)
+				});
+	}
 
-				<div className={`flex  ${user?.id === obj.senderid.id ? "flex-row-reverse" :  "flex-row"} border-solid   border-2`} key={index}>
-				{index} {obj.messages} : {obj.sender_id}
-				</div>
-			)
-			});
 	return (
 		<div className="flex flex-col h-full">
 			<div className="bg-white">
@@ -36,12 +33,14 @@ const ChatBar = ({ roomselector, room }: { roomselector: any; room: room | null 
 				{messages}
 			</div>
 			<div className="bg-gray-600">
-				<MessageBar roomnumber={srcRoom ? srcRoom.id : -1} />
+				<MessageBar roomnumber={conversation ? conversation.id : -1} />
 			</div>
 		</div>
 	);
 };
 const MessageBar = ({ roomnumber }: { roomnumber: number }) => {
+	const socket = useContext(SocketContext)
+
 	const [textmessage, settextmessage] = useState<string>("");
 	const writing = () => {
 		/**
@@ -52,8 +51,19 @@ const MessageBar = ({ roomnumber }: { roomnumber: number }) => {
 
 		settextmessage(object.target.value);
 	};
-
-	const SendMessage = (input: any) => {
+	const sendSocket = (input: any) => {
+		input.preventDefault();
+		if (!textmessage.length) return;
+		const messsage: SocketMessage = {
+			Destination : roomnumber,
+			Message: textmessage
+		}
+		socket.emit("chat", messsage)
+		
+		input.target.value = "";
+		settextmessage(input.target.value);
+	};
+	const SendHttp = (input: any) => {
 		input.preventDefault();
 		if (!textmessage.length) return;
 
@@ -73,15 +83,16 @@ const MessageBar = ({ roomnumber }: { roomnumber: number }) => {
 				toast.error(`code: ${e.status} - ${e.statusText}`)
 		}
 		).catch(() => toast.error(`network error`))
+		
 		input.target.value = "";
 		settextmessage(input.target.value);
+		toast.error("websocket failure message sent via http")
 	};
-	console.log("rerender");
 	return (
-		<div>
+		<form>
 			<input type="text" value={textmessage} onChange={setMessage} placeholder="write something here"></input>
-			<button onClick={SendMessage}>sendMessage</button>
-		</div>
+			<button onClick={socket.connected ? sendSocket :  SendHttp}>sendMessage</button>
+		</form>
 	);
 };
 export default ChatBar;

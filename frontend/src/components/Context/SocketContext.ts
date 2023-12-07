@@ -1,5 +1,6 @@
 import { createContext } from 'react';
+import {  Socket, io} from 'socket.io-client';
 
-
-export const SocketContext = createContext<any | null>(null)
+const socket:Socket  = io("ws://localhost:3001", {autoConnect: false , transports: ['websocket']})
+export const SocketContext = createContext<Socket>(socket)
 

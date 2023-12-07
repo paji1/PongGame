@@ -14,8 +14,6 @@ import {
 export class ChatSocketDto
 {
     @IsNumber()
-    Sender: number;
-    @IsNumber()
     Destination: number;
     @IsString()
     @IsNotEmpty()

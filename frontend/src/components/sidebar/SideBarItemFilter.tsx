@@ -14,30 +14,34 @@ const SideBarItemFilter = ({
 	roomselector: any;
 }) => {
 	let i = 0;
-	if (!Array.isArray(rooms)) return <>tbon mok console.error</>;
+	if (!Array.isArray(rooms)) 
+		return<>empty</>;
 	var list;
-	console.log(rooms[0].messages[0]);
+	console.log(rooms)
 	if (rooms) {
 		if (query.length) {
 			list = rooms.map((ob: room, index: number) => {
 				let group = ob.name.toLowerCase();
+				
 				let name = ob.rooms_members[0].user_id.nickname.toLowerCase();
 
+
 				if (ob.roomtypeof === "chat" && name.includes(query.toLowerCase()))
-					return <FriendItem selector={() => roomselector(index)} room={ob} glimpse={ob.messages[0]} />;
+					return <FriendItem key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages}  />;
 				else if (ob.roomtypeof !== "chat" && group.includes(query.toLowerCase())) {
-					return <GroupItem selector={() => roomselector(index)} room={ob} glimpse={ob.messages[0]} />;
+					return <GroupItem key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />;
 				} else i++;
 			});
 		} else {
 			list = rooms.map((ob: room, index: number) => {
 				if (ob.roomtypeof === "chat")
-					return <FriendItem selector={() => roomselector(index)} room={ob} glimpse={ob.messages[0]} />;
-				return <GroupItem selector={() => roomselector(index)} room={ob} glimpse={ob.messages[0]} />;
+					return <FriendItem key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />;
+				return <GroupItem  key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />;
 			});
-		}
+		
 		if (i === rooms.length) toast.error("Found Nothing");
 	}
+}
 	return (
 		<div className="border-solid border-white border-2 flex h-full flex-col flex-auto gap-2 overflow-y-scroll">
 			{list}

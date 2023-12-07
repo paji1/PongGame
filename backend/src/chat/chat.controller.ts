@@ -62,10 +62,9 @@ export class ChatController {
 	 * @description
 	 */
 	@Get("comunication")
-	@RoomPermitions(user_permission.owner, user_permission.admin, user_permission.participation, user_permission.chat)
-	async humanFetchMessage(@Query("room") room: number) {
+	async humanFetchMessage() {
 		console.log("hi");
-		return await this.service.messages.get_messages(1, room);
+		return await this.service.messages.get_messages(1);
 	}
 	/**
 	 * @description

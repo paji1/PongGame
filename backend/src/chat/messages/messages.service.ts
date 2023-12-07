@@ -12,15 +12,6 @@ export class MessagesService {
 		console.log("hnayahnaya" ,)
 		if (membership.isblocked || membership.ismuted) throw new HttpException("cant send message", 403);
 		const conv = this.prisma.$transaction(async (t) => {
-			await t.rooms.update({
-				where:
-				{
-					id: room,
-				},
-				data:{
-					updated_at: new Date()
-				}
-			})
 			const msg = await t.messages.create({
 				data: {
 					sender_id: Requester,
@@ -28,37 +19,57 @@ export class MessagesService {
 					messages: message,
 				},
 			});
+			await t.rooms.update({
+				where:
+				{
+					id: room,
+				},
+				data:{
+					updated_at: msg.created_at
+				}
+			})
 			return msg
 		})
 		return conv;
 	}
-	async get_messages(Requester: number, room: number) {
-		const membership = await this.prisma.rooms_members.findUnique({
-			where: { combination: { userid: Requester, roomid: room } },
-		});
-		if (membership.isblocked) throw new HttpException("Unauthorized", 401);
-		const conversation = await this.prisma.messages.findMany({
+	async get_messages(Requester: number) {
+	
+		const conversation = await this.prisma.rooms.findMany({
 			where: {
-				room_id: room,
+				rooms_members : {
+					some: {
+							userid: Requester,
+					}
+				}
 			},
 			select: {
 				id:true,
-				senderid: {
-					select: {
-						id: true,
-						avatar: true,
-						nickname: true,
+				messages: 
+				{
+					select:
+					{
+						created_at: true,
+						messages: true,
+						senderid:
+						{
+							select:
+							{
+								id: true,
+								nickname:true,
+								avatar: true,
+							}
+						}
 					},
+					orderBy: {
+						created_at: "desc"
+					},
+					take: 30,
 				},
-				created_at: true,
-				messages: true,
-
 			},
 			orderBy: {
-				created_at: "desc"
-			}
+				updated_at: "desc"
+			},
 		});
-		console.log(conversation)
 		return conversation;
 	}
 
@@ -80,36 +91,22 @@ export class MessagesService {
 					name:true,
 					roomtypeof:true,
 					updated_at:true,
-					messages:{
-						orderBy:
-						{
-							created_at: "desc"
-						},
-						take: 1
-					},
 					rooms_members:
 					{
-						where:
-						{
-							id: {
-								not: id
-							}
-							
-						},
 						select:
 						{
 							user_id:{
 								select:{
+									id:true,
 									nickname: true,
 									avatar: true,
-									user42: true,
 								}
 							}
 						}
 					}
 				}
 			});
-			console.log(data);
+			console.log(  data,  "hba")
 			return data;
 		} catch {
 			throw new HttpException("Database error", HttpStatus.NOT_FOUND);

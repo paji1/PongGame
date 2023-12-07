@@ -1,12 +1,12 @@
 import React from "react";
 import { room } from "../../types/room";
 import Profile from "../../assets/profile.png";
-import { message } from "../../types/messages";
+import { messages } from "../../types/messages";
 
-const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; glimpse: message | undefined  }) => {
+const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; glimpse: string | undefined  }) => {
 	let preview;
 	if (typeof glimpse !== "undefined")
-		preview = (glimpse.messages.length > 25) ? glimpse.messages.substring(0, 25) + "..." : glimpse.messages;
+		preview = (glimpse.length > 25) ? glimpse.substring(0, 25) + "..." : glimpse;
 	else 
 		preview = "Start A conversation"
 	const name =
@@ -20,8 +20,8 @@ const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; gl
 				<img className="max-h-[75px] max-w-[75px]" src={Profile}></img>
 			</div>
 			<div onClick={selector} className="flex flex-col flex-auto cursor-pointer gap-2 ">
-				<text className=" text-center  text-ellipsis overflow-hidden text-primary text-xl">{name}</text>
-				<text className="text-ellipsis overflow-hidden">{preview}</text>
+				<p className=" text-center  text-ellipsis overflow-hidden text-primary text-xl">{name}</p>
+				<p className="text-ellipsis overflow-hidden">{preview}</p>
 			</div>
 			<div className="flex items-center justify-center w-1/6 ">
 				<svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
