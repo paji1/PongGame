@@ -1,28 +1,28 @@
-import { Injectable, OnModuleInit, SetMetadata } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
-export class GameService implements OnModuleInit {
+export class GameService {
 
-	constructor(readonly prisma: PrismaService) {  }
-
-	machesState: Map<string, string>;
+	constructor(readonly prisma: PrismaService) { }
 
 	async create(createGameDto: CreateGameDto) {
-		return await this.prisma.matchhistory.create({
+
+		if (createGameDto.player1 === createGameDto.player2)
+			throw new HttpException(`The same player cannot have a match with themselves.`, 401)
+		
+		const res = await this.prisma.matchhistory.create({
 			data: {
 				player1: createGameDto.player1,
-                player2: createGameDto.player2,
-                mode: createGameDto.game_mode
+				player2: createGameDto.player2,
+				mode: createGameDto.game_mode
 			}
 		})
+		return res
 	}
-	onModuleInit() {
 
-		// this.machesState[]
-	}
 	async findAll() {
 		return await this.prisma.matchhistory.findMany({})
 	}
@@ -44,8 +44,8 @@ export class GameService implements OnModuleInit {
 	}
 
 	async update(id: string, updateGameDto: UpdateGameDto) {
-		// check if game exist
-		// if (this.map.)
+
+		
 
 		return await this.prisma.matchhistory.update({
 			where: { id: id },
@@ -58,7 +58,9 @@ export class GameService implements OnModuleInit {
 		// this.map[id] = updateGameDto.state;
 	}
 
-  remove(id: string) {
-    return `This action removes a #${id} game`;
-  }
+	async remove(id: string) {
+		return await this.prisma.matchhistory.delete({
+			where: { id: id }
+		})
+	}
 }
