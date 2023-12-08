@@ -1,23 +1,8 @@
 import { AuthIntraDto, userDto } from "./dto";
-import {
-	Body,
-	Controller,
-	HttpCode,
-	HttpStatus,
-	Post,
-	UseGuards,
-	Get,
-	Res,
-	Req,
-} from "@nestjs/common";
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards, Get, Res, Req } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 
-import {
-	Public,
-	GetCurrentUserId,
-	GetCurrentUser,
-	GetUser,
-} from "../common/decorators";
+import { Public, GetCurrentUserId, GetCurrentUser, GetUser } from "../common/decorators";
 import { RtGuard } from "../common/guards";
 import { AuthService } from "./auth.service";
 import { AuthDto } from "./dto";
@@ -51,10 +36,7 @@ export class AuthController {
 	@Public()
 	@Post("local/signup")
 	@HttpCode(HttpStatus.CREATED)
-	async signupLocal(
-		@Body() dto: AuthDto,
-		@Res() res: Response,
-	): Promise<void> {
+	async signupLocal(@Body() dto: AuthDto, @Res() res: Response): Promise<void> {
 		const tokens = await this.authService.signupLocal(dto);
 		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}
@@ -62,10 +44,7 @@ export class AuthController {
 	@Public()
 	@Post("local/signin")
 	@HttpCode(HttpStatus.OK)
-	async signinLocal(
-		@Body() dto: AuthDto,
-		@Res() res: Response,
-	): Promise<void> {
+	async signinLocal(@Body() dto: AuthDto, @Res() res: Response): Promise<void> {
 		const tokens = await this.authService.signinLocal(dto);
 		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}
@@ -81,10 +60,7 @@ export class AuthController {
 	@Get("callback_42")
 	@Public()
 	@UseGuards(AuthGuard("intra"))
-	async handleCallback(
-		@GetUser() userdto: AuthIntraDto,
-		@Res() res: Response,
-	): Promise<void> {
+	async handleCallback(@GetUser() userdto: AuthIntraDto, @Res() res: Response): Promise<void> {
 		const tokens = await this.authService.handle_intra(userdto);
 
 		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
@@ -92,10 +68,7 @@ export class AuthController {
 
 	@Post("logout")
 	@HttpCode(HttpStatus.OK)
-	async logout(
-		@GetCurrentUser("user42") user42: string,
-		@Res() res: Response,
-	): Promise<boolean> {
+	async logout(@GetCurrentUser("user42") user42: string, @Res() res: Response): Promise<boolean> {
 		return this.authService.logout(user42, res);
 	}
 
@@ -114,10 +87,7 @@ export class AuthController {
 		@GetCurrentUser("refreshToken") refreshToken: string,
 		@Res() res: Response,
 	): Promise<void> {
-		const tokens = await this.authService.refreshTokens(
-			userId,
-			refreshToken,
-		);
+		const tokens = await this.authService.refreshTokens(userId, refreshToken);
 		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}
 }

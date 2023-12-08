@@ -9,8 +9,8 @@ import { AtStrategy, RtStrategy } from "./strategy";
 import { PrismaModule } from "src/prisma/prisma.module";
 
 @Module({
-	imports: [PrismaModule ,PassportModule, JwtModule.register({})],
+	imports: [PrismaModule, PassportModule, JwtModule.register({})],
 	controllers: [AuthController],
-	providers: [AuthService, AtStrategy, RtStrategy,intraStrategy],
+	providers: [AuthService, AtStrategy, RtStrategy, intraStrategy],
 })
 export class AuthModule {}

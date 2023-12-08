@@ -19,11 +19,11 @@ export class AuthService {
 
 	async signupLocal(dto: AuthDto): Promise<Tokens> {
 		const hash = await argon.hash(dto.password);
-
 		const user = await this.prisma.user
 			.create({
 				data: {
 					user42: dto.user42,
+					nickname:dto.user42,
 					hash,
 				},
 			})
@@ -48,8 +48,7 @@ export class AuthService {
 				user42: dto.user42,
 			},
 		});
-		if (!user)
-			return await this.signUpIntra(dto);
+		if (!user) return await this.signUpIntra(dto);
 		const tokens = await this.getTokens(user.id, user.user42);
 		await this.updateRtHash(user.id, tokens.refresh_token);
 
@@ -62,7 +61,7 @@ export class AuthService {
 				data: {
 					user42: dto.user42,
 					nickname: dto.nickname,
-					avatar:dto.avatar, 
+					avatar: dto.avatar,
 				},
 			})
 			.catch((error) => {
@@ -98,8 +97,8 @@ export class AuthService {
 	}
 
 	async logout(user42: string, @Res() res: Response): Promise<boolean> {
-		console.log("user42",user42);
-		res.cookie('atToken', '', { expires: new Date(Date.now()) });
+		console.log("user42", user42);
+		res.cookie("atToken", "", { expires: new Date(Date.now()) });
 		await this.prisma.user.updateMany({
 			where: {
 				user42: user42,
@@ -112,7 +111,7 @@ export class AuthService {
 			},
 		});
 		res.end();
-		
+
 		return true;
 	}
 
@@ -122,8 +121,7 @@ export class AuthService {
 				id: userId,
 			},
 		});
-		if (!user || !user.hashedRt)
-			throw new ForbiddenException("Access Denied");
+		if (!user || !user.hashedRt) throw new ForbiddenException("Access Denied");
 
 		const rtMatches = await argon.verify(user.hashedRt, rt);
 		if (!rtMatches) throw new ForbiddenException("Access Denied");
@@ -168,12 +166,11 @@ export class AuthService {
 			refresh_token: rt,
 		};
 	}
-	async syncTokensHttpOnly(res : Response, tokens : Tokens) : Promise<Response>
-	{
+	async syncTokensHttpOnly(res: Response, tokens: Tokens): Promise<Response> {
 		const minute: number = 60000;
 		res.cookie("atToken", tokens.access_token, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production", 
+			secure: process.env.NODE_ENV === "production",
 			maxAge: 15 * minute,
 			path: "/",
 		});

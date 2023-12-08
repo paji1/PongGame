@@ -7,4 +7,3 @@ export class userDto {
 	@IsNotEmpty()
 	password: string;
 }
-

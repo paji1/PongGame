@@ -18,12 +18,8 @@ export class AtStrategy extends PassportStrategy(Strategy, "jwt") {
 	}
 
 	private static extractJWT(req: RequestType): string | null {
-    // console.log("coockies", req.cookies);
-		if (
-			req.cookies &&
-			"atToken" in req.cookies &&
-			req.cookies.atToken.length > 0
-		) {
+		// console.log("coockies", req.cookies);
+		if (req.cookies && "atToken" in req.cookies && req.cookies.atToken.length > 0) {
 			return req.cookies.atToken;
 		}
 		return null;
