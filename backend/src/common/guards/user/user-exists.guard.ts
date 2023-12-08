@@ -21,17 +21,17 @@ export class UserExistGuard implements CanActivate {
 	async verifyUsers(userID1: number, userID2: number) {
 		const u1 = await this.checkUserExists(userID1)
 		const u2 = await this.checkUserExists(userID2)
-
 		return u1 && u2
 	}
 
-	canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+	async canActivate(context: ExecutionContext) {
 
 		const request = context.switchToHttp().getRequest()
 		const reqBody = request.body
 		if (!request)
 			return false
-		if (this.verifyUsers(reqBody.player1, reqBody.player2))
+		const res = await this.verifyUsers(reqBody.player1, reqBody.player2)
+		if (!res)
 			return false
 		return true;
 	}
