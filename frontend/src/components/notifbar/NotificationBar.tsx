@@ -79,19 +79,7 @@ const NotificationBar = () => {
 					<div className={`flex flex-col flex-1 py-3 min-h-[100px] gap-2 px-2 sm:px-3 overflow-y-scroll`}>
 						<NotificationItem notif={notif} />
 						<NotificationItem notif={notif} />
-						<NotificationItem notif={notif} />
-						<NotificationItem notif={notif} />
-						<NotificationItem notif={notif} />
-						<NotificationItem notif={notif} />
-						<NotificationItem notif={notif} />
-						<NotificationItem notif={notif} />
-						<NotificationItem notif={notif} />
-						<NotificationItem notif={notif} />
-						<NotificationItem notif={notif} />
-						<NotificationItem notif={notif} />
-						<NotificationItem notif={notif} />
-						<NotificationItem notif={notif} />
-						<NotificationItem notif={notif} />
+
 					</div>
 				</div>
 			</section>
@@ -100,3 +88,5 @@ const NotificationBar = () => {
 };
 
 export default NotificationBar;
+
+

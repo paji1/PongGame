@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import { room } from "../../types/room";
 import FriendItem from "./FriendsItem";
 import GroupItem from "./GroupItem";
 import { toast } from "react-toastify";
+import { currentUser } from "../Context/AuthContext";
 
 const SideBarItemFilter = ({
 	rooms,
@@ -13,17 +14,17 @@ const SideBarItemFilter = ({
 	query: string;
 	roomselector: any;
 }) => {
+	const	user = useContext(currentUser)
 	let i = 0;
 	if (!Array.isArray(rooms)) 
 		return<>empty</>;
 	var list;
-	console.log(rooms)
 	if (rooms) {
 		if (query.length) {
 			list = rooms.map((ob: room, index: number) => {
 				let group = ob.name.toLowerCase();
 				
-				let name = ob.rooms_members[0].user_id.nickname.toLowerCase();
+				let name = (ob.rooms_members[0].user_id.id === user?.id) ? ob.rooms_members[1].user_id.nickname.toLowerCase() : ob.rooms_members[0].user_id.nickname.toLowerCase();
 
 
 				if (ob.roomtypeof === "chat" && name.includes(query.toLowerCase()))

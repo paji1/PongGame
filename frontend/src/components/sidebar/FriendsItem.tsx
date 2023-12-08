@@ -1,18 +1,23 @@
-import React from "react";
+import React, { useContext } from "react";
 import { room } from "../../types/room";
 import Profile from "../../assets/profile.png";
 import { messages } from "../../types/messages";
+import { currentUser } from "../Context/AuthContext";
 
 const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; glimpse: string | undefined  }) => {
 	let preview;
+	const	user = useContext(currentUser)
+
 	if (typeof glimpse !== "undefined")
 		preview = (glimpse.length > 25) ? glimpse.substring(0, 25) + "..." : glimpse;
 	else 
 		preview = "Start A conversation"
-	const name =
-		room.rooms_members[0].user_id.nickname.length > 15
-			? room.rooms_members[0].user_id.nickname.substring(0, 15)
-			: room.rooms_members[0].user_id.nickname;
+		const name = (room.rooms_members[0].user_id.id === user?.id) ? room.rooms_members[1].user_id.nickname.toLowerCase() : room.rooms_members[0].user_id.nickname.toLowerCase();
+		console.log(name, room)
+	const display =
+	name.length > 15
+			? name.substring(0, 15)
+			: name;
 
 	return (
 		<div className="flex flex-row mx-2 gap-3 p-2 rounded border-solid border-textColor border-2">
@@ -20,7 +25,7 @@ const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; gl
 				<img className="max-h-[75px] max-w-[75px]" src={Profile}></img>
 			</div>
 			<div onClick={selector} className="flex flex-col flex-auto cursor-pointer gap-2 ">
-				<p className=" text-center  text-ellipsis overflow-hidden text-primary text-xl">{name}</p>
+				<p className=" text-center  text-ellipsis overflow-hidden text-primary text-xl">{display}</p>
 				<p className="text-ellipsis overflow-hidden">{preview}</p>
 			</div>
 			<div className="flex items-center justify-center w-1/6 ">

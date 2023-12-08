@@ -8,10 +8,15 @@ export enum permission {
 type member_filler = {
 	avatar: string;
 	nickname: string;
-	user42: string;
+	id: number;
 };
- type member = {
+ export type member = {
+	permission:string,
+	isblocked:boolean,
+	ismuted:boolean,
+	isBanned:boolean,
 	user_id: member_filler;
+	created_at:Date,
 };
 
 export type room = {

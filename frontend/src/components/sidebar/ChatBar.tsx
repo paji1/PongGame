@@ -7,10 +7,12 @@ import { toast } from "react-toastify";
 import { currentUser, CurrentUser} from "../../components/Context/AuthContext"
 import { log } from "console";
 import { SocketContext } from "../Context/SocketContext";
+import RoomSettings from "./RoomSettings";
+import FriendSetting from "./FriendSetting";
 
-const ChatBar = ({ roomselector, conversation }: { roomselector: any; conversation: roommessages | null }) => {
+const ChatBar = ({ refresh , room, roomselector, conversation }: { refresh:any, room :room|null ,roomselector: any; conversation: roommessages | null }) => {
 	let messages;
-	
+	const	[config, setConfig] = useState(false);
 	const user: CurrentUser | null =  useContext(currentUser);
 	if (conversation && typeof conversation.messages !== "undefined")	
 	{
@@ -23,11 +25,14 @@ const ChatBar = ({ roomselector, conversation }: { roomselector: any; conversati
 				)
 				});
 	}
-
+	if (config)
+		return ((room?.roomtypeof !== "chat") ?<RoomSettings refresh={refresh} returnbutton={setConfig} room={room}/> : <FriendSetting returnbutton={setConfig} room={room}/>)
 	return (
 		<div className="flex flex-col h-full">
-			<div className="bg-white">
+			<div className="bg-white flex flex-row justify-between">
 				<button onClick={() => roomselector(-1)}>rja3lor</button>
+				<button onClick={() => setConfig(true)}> config </button>
+				<button></button>
 			</div>
 			<div  className="  flex overflow-y-scroll   flex-col-reverse basis-full  ">
 				{messages}

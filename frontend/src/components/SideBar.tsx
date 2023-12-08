@@ -21,21 +21,26 @@ const SideBar =  () => {
 	const [chatSelector, setChatSelector] = useState(-1);
 	const [roomsState, setRoomsState] = useState<room[] | null>(null);
 	const [chatState, setChatState] = useState<roommessages[] | null>(null)
+	const [roomsUpdater, updateRooms] = useState(false)
+	const updaterooms = () => {
+		updateRooms(!roomsState)
+	}
+	
 	const friendroom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof === "chat") : null;
 	const grouproom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof !== "chat") : null;
-	useMessages(0, setChatState);
-	useRooms(false, setRoomsState);
-	console.log(chatState, "oldest")
+	useMessages(false, setChatState);
+	useRooms(roomsUpdater, setRoomsState);
 	
-	const current = Array.isArray( chatState) ? chatState.find((ob:roommessages) => ob.id === chatSelector) : null;
+	const currentchat = Array.isArray( chatState) ? chatState.find((ob:roommessages) => ob.id === chatSelector) : null;
+	const currentroom = Array.isArray( roomsState) ? roomsState.find((ob:room) => ob.id === chatSelector) : null;
 	socket.off("connect").on("connect", () => console.log("conected"))
-	socket.off("chat").on("chat", (data:messages) => updateMessages(data, chatState, setChatState))
+	socket.off("chat").on("chat", (data:messages) =>  {updateMessages(data, chatState, setChatState); updaterooms() })
 	socket.off("ChatError").on("ChatError", (data) => toast.error(data) )
 	const toggleChatBar = () => seIsOpen(!isOpen);
 	const RenderOption = () => {
 		if (chatSelector !== -1)
 			return (
-				<ChatBar roomselector={setChatSelector} conversation={ (typeof current === "undefined") ? null: current} />
+				<ChatBar refresh={updaterooms} roomselector={setChatSelector} room={(typeof currentroom === "undefined") ? null: currentroom} conversation={ (typeof currentchat === "undefined") ? null: currentchat} />
 			);
 		switch (searchSelection) {
 			case 0:
