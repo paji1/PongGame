@@ -87,10 +87,9 @@ model rooms_members {
   roomid        Int
   userid        Int
   permission    user_permission
-  ismuted       Boolean         @default(false)
   isblocked     Boolean         @default(false)
-  muted_at      DateTime?
-  muting_period Int             @default(0)
+  ismuted       Boolean         @default(false)
+  isBanned      Boolean         @default(false)
   created_at    DateTime        @default(now())
   user_id       user            @relation(fields: [userid], references: [id])
   rooms         rooms           @relation(fields: [roomid], references: [id], onDelete: Cascade)
