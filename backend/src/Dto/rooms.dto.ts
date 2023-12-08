@@ -26,11 +26,6 @@ export class MessageDto {
 	text: string;
 }
 
-export class MuteDto {
-	@IsNumber()
-	target: number;
 
-	duration: number;
-}
 
 // bf9e5d91ba6a5d18e2b3c2c9d56a16d2bc6d0e88ef024319df26d6b257ef30b8

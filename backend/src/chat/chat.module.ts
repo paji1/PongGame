@@ -14,6 +14,7 @@ import { FriendGuard } from "src/common/guards/FriendGuard";
 	providers: [
 		ChatService,
 		RoomsService,
+
 		{
 			provide: APP_GUARD,
 			useClass: RoomGuard,

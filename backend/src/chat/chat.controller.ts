@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Query } from "@nestjs/common";
 import { ChatService } from "./chat.service";
 import { user_permission, roomtype } from "@prisma/client";
-import { RoomDto, MessageDto, MuteDto } from "../Dto/rooms.dto";
+import { RoomDto, MessageDto } from "../Dto/rooms.dto";
 import { IsNotEmpty, MinLength, MaxLength, ValidateIf, IsEnum, IsString, IsNumber, Min } from "class-validator";
 import { RoomPermitions } from "src/common/decorators/RoomPermitions.decorator";
 import { RoomType } from "src/common/decorators/RoomType.decorator";
@@ -10,15 +10,58 @@ import { IsFriend } from "src/common/decorators/Friend.decorator";
 @Controller("chat")
 export class ChatController {
 	constructor(private readonly service: ChatService) {}
-	/**
-	 * @description
-	 */
-	@Post("test")
-	@IsFriend()
-	test() {}
-
-
 	
+	
+	/**
+	 * 
+	 */
+	@Get("town")
+	async getHumanRooms() {
+		return this.service.messages.get_rooms(1);
+	}
+	/**
+	 * 
+	 * 
+	 */
+	@Get("comunication")
+	async humanFetchMessage() {
+		console.log("hi");
+		return await this.service.messages.get_messages(1);
+	}
+	/**
+	 * 
+	 */
+	@Post("comunication")
+	@RoomPermitions(user_permission.owner, user_permission.admin, user_permission.participation, user_permission.chat)
+	async humanSentMessage(@Query("room") room: number, @Body() message: MessageDto) {
+		return await this.service.messages.send_message(1, room, message.text);
+	}
+
+	/**
+	 * 
+	 * /\
+	 * message service
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * room service
+	 * \/
+	 * 
+	 */
 	@Post("creation/")
 	async roomAddExistance(@Body() Room: RoomDto) {
 		return await this.service.rooms.create_room(1, Room);
@@ -30,7 +73,7 @@ export class ChatController {
 	@RoomPermitions(user_permission.owner)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async roomDellExistance(@Query("room") room: number) {
-		return await this.service.rooms.delete_room(room);
+		return   this.service.rooms.delete_room(room);
 	}
 
 	/**
@@ -58,29 +101,8 @@ export class ChatController {
 	async roomHumanInvite(@Query("room") room: number, @Query("friend") friend: number) {
 		return await this.service.rooms.invite_room(1, friend, room);
 	}
-	/**
-	 * @description
-	 */
-	@Get("comunication")
-	async humanFetchMessage() {
-		console.log("hi");
-		return await this.service.messages.get_messages(1);
-	}
-	/**
-	 * @description
-	 */
-	@Post("comunication")
-	@RoomPermitions(user_permission.owner, user_permission.admin, user_permission.participation, user_permission.chat)
-	async humanSentMessage(@Query("room") room: number, @Body() message: MessageDto) {
-		return await this.service.messages.send_message(1, room, message.text);
-	}
-	/**
-	 * @description
-	 */
-	@Get("town")
-	async getHumanRooms() {
-		return this.service.messages.get_rooms(1);
-	}
+
+
 	/**
 	 * @description
 	 */
@@ -94,7 +116,7 @@ export class ChatController {
 	/**
 	 * @description
 	 */
-	@Patch("unblock")
+	@Patch("block")
 	@RoomPermitions(user_permission.owner, user_permission.admin)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async humanUnblock(@Query("room") room: number, @Query("target") target: number) {
@@ -107,10 +129,20 @@ export class ChatController {
 	@Post("samaklite")
 	@RoomPermitions(user_permission.owner, user_permission.admin)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
-	async humanMute(@Query("room") room: number, @Query("type") type: string, @Body() mute: MuteDto) {
+	async humanMute(@Query("room") room: number, @Query("target") target: number) {
 		//mute_user
-		if (type === "umute") return await this.service.rooms.unmute_user(mute.target, room);
-		return await this.service.rooms.mute_user(mute.target, room, mute.duration);
+		return await this.service.rooms.mute_user(target, room);
+
+	}
+	/**
+	 * @description
+	 */
+	@Patch("samaklite")
+	@RoomPermitions(user_permission.owner, user_permission.admin)
+	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
+	async humanuMute(@Query("room") room: number,@Query("target") target: number) {
+		//mute_user
+		return await this.service.rooms.unmute_user(target, room);
 	}
 	/**
 	 * @description

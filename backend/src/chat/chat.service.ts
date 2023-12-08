@@ -8,5 +8,9 @@ export class ChatService {
 	constructor(
 		public readonly messages: MessagesService,
 		public readonly rooms: RoomsService,
-	) {}
+	) {
+
+	}
+
 }
+

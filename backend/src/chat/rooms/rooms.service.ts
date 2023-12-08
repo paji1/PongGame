@@ -175,108 +175,9 @@ export class RoomsService {
 			});
 		} catch (error) {}
 	}
-	/**
-	 *
-	 * @param Requester
-	 * @param room
-	 * @param user
-	 * @returns
-	 */
-	async give_room_admin(room: number, user: number) {
-		try {
-			await this.prisma.rooms_members.update({
-				where: {
-					combination: {
-						roomid: room,
-						userid: user,
-					},
-				},
-				data: {
-					permission: user_permission.admin,
-				},
-			});
-		} catch (e) {
-			throw new HttpException(e.code, 400);
-		}
-		return "ok";
-	}
-	/**
-	 *
-	 * @param Requester
-	 * @param room
-	 * @param user
-	 */
-	async revoke_room_admin(room: number, user: number) {
-		try {
-			const entry = await this.prisma.rooms_members.update({
-				where: {
-					combination: {
-						roomid: room,
-						userid: user,
-					},
-				},
-				data: {
-					permission: user_permission.participation,
-				},
-			});
-			return entry;
-		} catch (e) {
-			throw new HttpException(e.code, 400);
-		}
-	}
 
-	async mute_user(targeted: number, roomtarget: number, timetomute: number) {
-		try {
-			const change = this.prisma.rooms_members.update({
-				where: {
-					combination: {
-						roomid: roomtarget,
-						userid: targeted,
-					},
-					AND: {
-						permission: user_permission.participation,
-					},
-				},
-				data: {
-					ismuted: true,
-					muting_period: timetomute,
-					muted_at: new Date(),
-				},
-			});
-			return change;
-		} catch {
-			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
-		}
-	}
-	/**
-	 *
-	 * @param Requester
-	 * @param targeted
-	 * @param roomtarget
-	 */
-	async unmute_user(targeted: number, roomtarget: number) {
-		try {
-			const change = this.prisma.rooms_members.update({
-				where: {
-					combination: {
-						roomid: roomtarget,
-						userid: targeted,
-					},
-					AND: {
-						permission: user_permission.participation,
-					},
-				},
-				data: {
-					ismuted: false,
-					muting_period: 0,
-					muted_at: new Date(),
-				},
-			});
-			return change;
-		} catch {
-			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
-		}
-	}
+
+
 	/**
 	 *
 	 * @param Requester
@@ -327,4 +228,107 @@ export class RoomsService {
 			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
 		}
 	}
+	/**
+	 * 
+	 * @param targeted 
+	 * @param room 
+	 * @returns 
+	 */
+	async mute_user(targeted: number, room: number) {
+		try {
+			return  await this.prisma.rooms_members.update({
+				where: {
+					combination: {
+						roomid: room,
+						userid: targeted,
+					},
+					AND: {
+						permission: user_permission.participation,
+					},
+				},
+				data: {
+					ismuted: true,
+				},
+			});
+		} catch (e){
+			throw new HttpException("cannot mute", HttpStatus.NOT_FOUND);
+		}
+	}
+	/**
+	 *
+	 * @param Requester
+	 * @param targeted
+	 * @param roomtarget
+	 */
+	async unmute_user(targeted: number, roomtarget: number) {
+		try {
+			const change = this.prisma.rooms_members.update({
+				where: {
+					combination: {
+						roomid: roomtarget,
+						userid: targeted,
+					},
+					AND: {
+						permission: user_permission.participation,
+					},
+				},
+				data: {
+					ismuted: false,
+				},
+			});
+			return change;
+		} catch {
+			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
+		}
+	}
+	/**
+	 *
+	 * @param Requester
+	 * @param room
+	 * @param user
+	 * @returns
+	 */
+		async give_room_admin(room: number, user: number) {
+			try {
+				await this.prisma.rooms_members.update({
+					where: {
+						combination: {
+							roomid: room,
+							userid: user,
+						},
+					},
+					data: {
+						permission: user_permission.admin,
+					},
+				});
+			} catch (e) {
+				throw new HttpException(e.code, 400);
+			}
+			return "ok";
+		}
+		/**
+		 *
+		 * @param Requester
+		 * @param room
+		 * @param user
+		 */
+		async revoke_room_admin(room: number, user: number) {
+			try {
+				const entry = await this.prisma.rooms_members.update({
+					where: {
+						combination: {
+							roomid: room,
+							userid: user,
+						},
+					},
+					data: {
+						permission: user_permission.participation,
+					},
+				});
+				return entry;
+			} catch (e) {
+				throw new HttpException(e.code, 400);
+			}
+		}
 }
+

@@ -83,9 +83,6 @@ export class MessagesService {
 						}
 					}
 				},
-				orderBy:{
-					updated_at: "desc",
-				},
 				select: {
 					id:true,
 					name:true,
@@ -95,6 +92,11 @@ export class MessagesService {
 					{
 						select:
 						{
+							permission:true,
+							isblocked:true,
+							isBanned:true,
+							ismuted:true,
+							created_at:true,
 							user_id:{
 								select:{
 									id:true,
@@ -112,4 +114,5 @@ export class MessagesService {
 			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
 		}
 	}
+
 }
