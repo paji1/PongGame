@@ -1,6 +1,6 @@
 ! /bin/bash
 
-these because of forein keys requirments these scripts sould be run in this order 
+# these because of forein keys requirments these scripts sould be run in this order 
 
 
 read -r -p "run prisma migrate and generate? : y|n ? "  var
