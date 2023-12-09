@@ -11,53 +11,112 @@ const filter =(str:string) =>
 }
 const banAction = (userid: number, roomid : number, action: boolean) =>
 {
-    const data = fetch(`http://localhost:3001/chat/town?room=${roomid}&target=${userid}`)
+    const how:string = action ? "POST":"PATCH"
+    console.log(how)
+    const data = fetch(`http://localhost:3001/chat/ban?room=${roomid}&target=${userid}`, {method:how})
 			.then((data) => data.json())
 			.then((data) => {
-			}
+                let res= data.statusCode
+                console.log(res)
+                if (res < 400)
+                    toast(data.message)
+                else
+                    toast.error(data.message)
+            }
 			)
-			.catch(() => toast.error(`Rooms: network error`))
+			.catch(() => toast.error(`ban: network error`))
 }
 const muteAction = (userid: number, roomid : number, action: boolean) =>
 {
     const how:string = action ? "POST":"PATCH"
     console.log(how)
-    const data = fetch(`http://localhost:3001/chat/samaklite?room=${roomid}&target=${userid}`, {method:how})
+    const data = fetch(`http://localhost:3001/chat/mute?room=${roomid}&target=${userid}`, {method:how})
 			.then((data) => data.json())
 			.then((data) => {
-			}
+                let res= data.statusCode
+                console.log(res)
+                if (res < 400)
+                    toast(data.message)
+                else
+                    toast.error(data.message)
+            }
 			)
 			.catch(() => toast.error(`mute: network error`))
 }
 const kickAction = (userid: number, roomid : number) => 
 {
-    const data = fetch("http://localhost:3001/chat/town")
+    const how:string = "POST"
+
+    const data = fetch(`http://localhost:3001/chat/kick?room=${roomid}&target=${userid}`, {method:how})
 			.then((data) => data.json())
 			.then((data) => {
-			}
+                let res= data.statusCode
+                console.log(res)
+                if (res < 400)
+                    toast(data.message)
+                else
+                    toast.error(data.message)
+            }
 			)
-			.catch(() => toast.error(`Rooms: network error`))
+			.catch(() => toast.error(`kick: network error`))
+}
+const AdminAction = (userid: number, roomid : number, action: boolean) =>
+{
+    const how:string = action ? "POST":"PATCH"
+    console.log(how)
+    const data = fetch(`http://localhost:3001/chat/diwana?room=${roomid}&target=${userid}`, {method:how})
+			.then((data) => data.json())
+			.then((data) => {
+                let res= data.statusCode
+                console.log(res)
+                if (res < 400)
+                    toast(data.message)
+                else
+                    toast.error(data.message)
+            }
+			)
+			.catch(() => toast.error(`member: network error`))
 }
 const RoomsettingItem = ({ refresh , user, roomid} : {refresh :any ,user : member, roomid: number}) => 
 {
 
     const [expand, setExpand] = useState(false)
     var more;
-    if (expand)
+    if (expand && user.permission !== "owner")
         more = <div className="flex flex-col">
             {
-                user.ismuted ? 
-                <button onClick={() => {muteAction(user.user_id.id, roomid, false);  refresh()}}>unmute</button> :
-                <button onClick={() => {muteAction(user.user_id.id, roomid, true);  refresh()}}>mute</button>
+                (user.permission === "participation")?
+                (
+
+                        user.ismuted ? 
+                        <button onClick={() => {muteAction(user.user_id.id, roomid, false);  refresh()}}>unmute</button> :
+                        <button onClick={() => {muteAction(user.user_id.id, roomid, true);  refresh()}}>mute</button>
+                    
+                )
+                :
+                <></>              
 
             }
             {
+                (user.permission === "participation")?
+                (
                 user.isBanned ? 
                 <button onClick={() => banAction(user.user_id.id, roomid, false)}>unban</button>:
                 <button onClick={() => banAction(user.user_id.id, roomid, true)}> ban</button>
-
+                )
+                : <></>
             }
-            <button onClick={() => kickAction(user.user_id.id, roomid)}>kick</button>
+            {
+                    
+                    (user.permission === "admin" ) ? 
+                    <button onClick={() => AdminAction(user.user_id.id, roomid, false)}>revoke admin right</button>:
+                    <button onClick={() => AdminAction(user.user_id.id, roomid, true)}> set admin</button>
+            }
+            {
+                (user.permission === "participation")?
+                <button onClick={() => kickAction(user.user_id.id, roomid)}>kick</button>
+                :<></>
+            }
         </div>
     return (
         <div >
@@ -113,3 +172,7 @@ const RoomSettings = ({refresh , returnbutton, room}  : {refresh:any ,returnbutt
     )
 }
 export default RoomSettings;
+
+/**
+ * if new admin ban and mute should be removed
+ */

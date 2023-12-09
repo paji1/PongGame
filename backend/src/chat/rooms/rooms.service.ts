@@ -230,13 +230,41 @@ export class RoomsService {
 	}
 	/**
 	 * 
+	 */
+
+	async kick_room(user: number, room: number) {
+		try {
+			const change = await this.prisma.rooms_members.delete({
+				where: {
+					combination: {
+						roomid: room,
+						userid: user,
+					},
+					AND:
+					{
+						permission: 
+						{
+							not: "owner"
+						}
+
+					}
+				},
+			});
+
+		} catch (e) {
+			throw new HttpException("kick: unsucessfull", 400);
+		}
+		throw new HttpException("kick:  succes", 201);
+	}
+	/**
+	 * 
 	 * @param targeted 
 	 * @param room 
 	 * @returns 
 	 */
 	async mute_user(targeted: number, room: number) {
 		try {
-			return  await this.prisma.rooms_members.update({
+			 await this.prisma.rooms_members.update({
 				where: {
 					combination: {
 						roomid: room,
@@ -245,14 +273,17 @@ export class RoomsService {
 					AND: {
 						permission: user_permission.participation,
 					},
+					
 				},
 				data: {
 					ismuted: true,
 				},
 			});
 		} catch (e){
-			throw new HttpException("cannot mute", HttpStatus.NOT_FOUND);
+			throw new HttpException("Mute: unsucesfull (owner and admins can't be muted OR user not in room)",500);
 		}
+		throw new HttpException("Mute: succes",201);
+		
 	}
 	/**
 	 *
@@ -262,7 +293,7 @@ export class RoomsService {
 	 */
 	async unmute_user(targeted: number, roomtarget: number) {
 		try {
-			const change = this.prisma.rooms_members.update({
+			await this.prisma.rooms_members.update({
 				where: {
 					combination: {
 						roomid: roomtarget,
@@ -276,10 +307,67 @@ export class RoomsService {
 					ismuted: false,
 				},
 			});
-			return change;
 		} catch {
-			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
+			throw  new HttpException("Mute: unsucesfull",500);;
 		}
+		throw new HttpException("Mute:  succes",201);
+
+	}
+	/**
+	 * 
+	 * @param targeted 
+	 * @param room 
+	 */
+	async ban_user(targeted: number, room: number) {
+		try {
+			 await this.prisma.rooms_members.update({
+				where: {
+					combination: {
+						roomid: room,
+						userid: targeted,
+					},
+					AND: {
+						permission: user_permission.participation,
+					},
+					
+				},
+				data: {
+					isBanned: true,
+				},
+			});
+		} catch (e){
+			throw new HttpException("Ban: unsucesfull (owner and admins can't be banned OR user not in room)",500);
+		}
+		throw new HttpException("Ban: succes",201);
+		
+	}
+	/**
+	 *
+	 * @param Requester
+	 * @param targeted
+	 * @param roomtarget
+	 */
+	async unban_user(targeted: number, roomtarget: number) {
+		try {
+			await this.prisma.rooms_members.update({
+				where: {
+					combination: {
+						roomid: roomtarget,
+						userid: targeted,
+					},
+					AND: {
+						permission: user_permission.participation,
+					},
+				},
+				data: {
+					isBanned: false,
+				},
+			});
+		} catch {
+			throw  new HttpException("Ban:  unsucesfull",500);;
+		}
+		throw new HttpException("Ban:   succes",201);
+
 	}
 	/**
 	 *
@@ -298,13 +386,15 @@ export class RoomsService {
 						},
 					},
 					data: {
+						isBanned:false,
+						ismuted:false,
 						permission: user_permission.admin,
 					},
 				});
 			} catch (e) {
-				throw new HttpException(e.code, 400);
+				throw new HttpException("User: Failiure",400)
 			}
-			return "ok";
+			throw new HttpException("User: garanting admin success",201)
 		}
 		/**
 		 *
@@ -314,7 +404,7 @@ export class RoomsService {
 		 */
 		async revoke_room_admin(room: number, user: number) {
 			try {
-				const entry = await this.prisma.rooms_members.update({
+				await this.prisma.rooms_members.update({
 					where: {
 						combination: {
 							roomid: room,
@@ -325,10 +415,11 @@ export class RoomsService {
 						permission: user_permission.participation,
 					},
 				});
-				return entry;
+				
 			} catch (e) {
-				throw new HttpException(e.code, 400);
+				throw new HttpException("User: Failiure",400)
 			}
+			throw new HttpException("User: removed admin",201)
 		}
 }
 

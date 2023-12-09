@@ -82,7 +82,7 @@ export class ChatController {
 	@Post("humans")
 	@RoomType(roomtype.protected, roomtype.public)
 	async roomHumansJoin(@Query("room") room: number, @Body() Room: RoomDto) {
-		return await this.service.rooms.join_room(2, room, Room);
+		return await this.service.rooms.join_room(1, room, Room);
 	}
 	/**
 	 * @description
@@ -106,9 +106,10 @@ export class ChatController {
 	/**
 	 * @description
 	 */
-	@Post("samak")
-	@RoomPermitions(user_permission.owner, user_permission.admin)
-	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
+	@Post("block")
+	@IsFriend()
+	@RoomPermitions(user_permission.chat)
+	@RoomType(roomtype.chat)
 	async HumanBlock(@Query("room") room: number, @Query("target") target: number) {
 		//block_user
 		return await this.service.rooms.block_user(target, room);
@@ -117,16 +118,49 @@ export class ChatController {
 	 * @description
 	 */
 	@Patch("block")
-	@RoomPermitions(user_permission.owner, user_permission.admin)
-	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
+	@IsFriend()
+	@RoomPermitions(user_permission.chat)
+	@RoomType(roomtype.chat)
 	async humanUnblock(@Query("room") room: number, @Query("target") target: number) {
 		// unblock_user
 		return await this.service.rooms.unblock_user(target, room);
 	}
+
+	/**
+	 * 
+	 */
+	@Post("kick")
+	@RoomPermitions(user_permission.admin, user_permission.owner)
+	@RoomType(roomtype.protected, roomtype.public, roomtype.private)
+	async roomHumanskick(@Query("room") room: number, @Query("target") user: number) {
+		return await this.service.rooms.kick_room(user, room);
+	}
+	
+	/**
+	 * 
+	*/
+	@Post("ban")
+	@RoomPermitions(user_permission.owner, user_permission.admin)
+	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
+	async humanBan(@Query("room") room: number, @Query("target") target: number) {
+		//mute_user
+		return await this.service.rooms.ban_user(target, room);
+		
+	}
 	/**
 	 * @description
 	 */
-	@Post("samaklite")
+	@Patch("ban")
+	@RoomPermitions(user_permission.owner, user_permission.admin)
+	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
+	async humanuBan(@Query("room") room: number,@Query("target") target: number) {
+		//mute_user
+		return await this.service.rooms.unban_user(target, room);
+	}
+	/**
+	 * @description
+	 */
+	@Post("mute")
 	@RoomPermitions(user_permission.owner, user_permission.admin)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async humanMute(@Query("room") room: number, @Query("target") target: number) {
@@ -137,7 +171,7 @@ export class ChatController {
 	/**
 	 * @description
 	 */
-	@Patch("samaklite")
+	@Patch("mute")
 	@RoomPermitions(user_permission.owner, user_permission.admin)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async humanuMute(@Query("room") room: number,@Query("target") target: number) {
@@ -145,12 +179,13 @@ export class ChatController {
 		return await this.service.rooms.unmute_user(target, room);
 	}
 	/**
+	 * 
 	 * @description
 	 */
 	@Post("diwana")
 	@RoomPermitions(user_permission.owner)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
-	async giveHumanAuth(@Query("room") room: number, @Query("user") user: number) {
+	async giveHumanAuth(@Query("room") room: number, @Query("target") user: number) {
 		return await this.service.rooms.give_room_admin(room, user);
 	}
 	/**
@@ -159,7 +194,7 @@ export class ChatController {
 	@Patch("diwana")
 	@RoomPermitions(user_permission.owner, user_permission.admin)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
-	async takeHumanAuth(@Query("room") room: number, @Query("user") user: number) {
+	async takeHumanAuth(@Query("room") room: number, @Query("target") user: number) {
 		return await this.service.rooms.revoke_room_admin(room, user);
 	}
 }
