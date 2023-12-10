@@ -5,7 +5,7 @@ import * as ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { currentUser , CurrentUser} from './components/Context/AuthContext';
 import profileplaceholder from './assets/profileplaceholder.png'
-import Game from './components/Game';
+import GameMain from './components/game';
 
 
 const user: CurrentUser = {
@@ -22,7 +22,7 @@ const router = createBrowserRouter([{
 },
 {
 	path: "/game",
-	element: <Game />
+	element: <GameMain />
 }])
 
 const root = ReactDOM.createRoot(
