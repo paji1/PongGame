@@ -49,13 +49,14 @@ export class RoomsService {
 	 * @returns on succes it returns a json to the client on failure it retruns BAD_REQUEST
 	 */
 	async create_room(Requester: number, Room: RoomDto) {
+		console.log("wslat lhna")
 		if (Room.type === roomtype.chat) throw new HttpException("Action Not Allowed", HttpStatus.BAD_GATEWAY);
 		if (Room.type === roomtype.protected && Room.password.length < 9)
 			throw new HttpException("please provide a better password", HttpStatus.BAD_REQUEST);
 		if (Room.type !== roomtype.protected) Room.password = "";
 		if (Room.type === roomtype.protected) Room.password = createHash("sha256").update(Room.password).digest("hex");
-		console.log(Room.password);
-		console.log(Room.password);
+
+		console.log("nigga hi")
 		try {
 			const result = await this.prisma.$transaction(async (trx) => {
 				const newroom = await trx.rooms.create({
@@ -72,12 +73,11 @@ export class RoomsService {
 						permission: user_permission.owner,
 					},
 				});
-				return newroom;
 			});
-			return result;
 		} catch (e) {
 			throw new HttpException("Transaction Failed", HttpStatus.BAD_REQUEST);
 		}
+		throw new HttpException(`Room: ${Room.name} created`, HttpStatus.OK);
 	}
 
 	/**
@@ -90,11 +90,12 @@ export class RoomsService {
 	 */
 	async delete_room(room: number) {
 		try {
-			const result = this.prisma.rooms.delete({ where: { id: room } });
-			return result;
+			const result = await this.prisma.rooms.delete({ where: { id: room } });
+			console.log(result, await this.prisma.rooms.findUnique({where:{id:room}}))
 		} catch {
-			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
+			throw new HttpException("Room: delete unsucsessfull", HttpStatus.NOT_FOUND);
 		}
+		throw new HttpException("Room: deleted", 200);
 	}
 	/**
 	 *
@@ -135,7 +136,7 @@ export class RoomsService {
 	 */
 	async leave_room(Requester: number, room: number) {
 		try {
-			const change = await this.prisma.rooms_members.delete({
+			await this.prisma.rooms_members.delete({
 				where: {
 					combination: {
 						roomid: room,
@@ -144,9 +145,9 @@ export class RoomsService {
 				},
 			});
 		} catch (e) {
-			throw new HttpException("database error", 400);
+			throw new HttpException("Error Leaving Room", 400);
 		}
-		return "";
+		throw new HttpException("User left Room", 400);
 	}
 
 	/**
@@ -185,23 +186,35 @@ export class RoomsService {
 	 * @param roomtarget
 	 * @returns
 	 */
-	async block_user(targeted: number, roomtarget: number) {
+	async block_user(user: number ,targeted: number, roomtarget: number) {
 		try {
-			const change = this.prisma.rooms_members.update({
-				where: {
-					combination: {
-						roomid: roomtarget,
-						userid: targeted,
+			await this.prisma.$transaction(async (trx) =>
+			{
+				await trx.rooms_members.update({
+					where: {
+						combination: {
+							roomid: roomtarget,
+							userid: targeted,
+						},
 					},
-				},
-				data: {
-					isblocked: true,
-				},
-			});
-			return change;
+					data: {
+						isblocked: true,
+					},
+				});
+				await trx.blocked.create({
+					data:
+					{
+						initiator: user,
+						reciever: targeted
+					}});
+			}
+
+			)
 		} catch {
-			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
+			throw new HttpException("Block: Unsuccesfull", HttpStatus.NOT_FOUND);
 		}
+		throw new HttpException("Block: Success", HttpStatus.OK);
+
 	}
 	/**
 	 *
@@ -209,24 +222,35 @@ export class RoomsService {
 	 * @param targeted
 	 * @param roomtarget
 	 */
-	async unblock_user(targeted: number, roomtarget: number) {
+	async unblock_user(user: number, targeted: number, roomtarget: number) {
 		try {
-			const change = this.prisma.rooms_members.update({
-				where: {
-					combination: {
-						roomid: roomtarget,
-						userid: targeted,
+			await this.prisma.$transaction(async (trx) =>
+			{
+				await trx.rooms_members.update({
+					where: {
+						combination: {
+							roomid: roomtarget,
+							userid: targeted,
+						},
 					},
-				},
-				data: {
-					isblocked: false,
-				},
-			});
-
-			return change;
+					data: {
+						isblocked: false,
+					},
+				});
+				const entry = 
+				await trx.blocked.deleteMany({
+					where:
+					{
+						initiator: user,
+						reciever: targeted
+					}}
+					);
+			}
+			)
 		} catch {
-			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
+			throw new HttpException("unBlock: unsucessfull", HttpStatus.NOT_FOUND);
 		}
+		throw new HttpException("unBlock: Success", HttpStatus.OK);
 	}
 	/**
 	 * 
@@ -421,5 +445,78 @@ export class RoomsService {
 			}
 			throw new HttpException("User: removed admin",201)
 		}
+		async giveOwnership(owner : number, room: number, user: number) {
+			try {
+				await this.prisma.$transaction(async (trx) =>
+				{
+				
+					await trx.rooms_members.update({
+						where:
+						{
+
+							combination:
+							{
+								roomid:room,
+								userid:owner
+							},
+						}
+						,
+						data:{
+							permission:user_permission.participation,
+						}
+					})
+					await trx.rooms_members.update({
+						where:
+						{
+
+							combination:
+							{
+								roomid:room,
+								userid:user
+							},
+						}
+						,
+						data:{
+							permission:user_permission.owner,
+							isBanned:false,
+							ismuted:false,
+						}
+					})
+	
+				})
+				
+			} catch (e) {
+				throw new HttpException("failed to give up ownership",400)
+			}
+			throw new HttpException("wertok fchanel",201)
+		}
 }
 
+/**
+ *  	participant
+ * 			for him
+ * 				leave room
+ * 		admin
+ * 			for him
+ * 				leave room
+ * 				revoke admin right
+ * 			for participants
+ * 				kick
+ * 				ban
+ * 				mute
+ * 		owner:
+ * 			for him:
+ * 				nothing
+ * 			for admin
+ * 				revoke admin right
+ * 				give owenership	
+ * 			for participation
+ * 				kick
+ * 				ban
+ * 				mute
+ * 				give admin
+ * 				give ownership
+ * 				 
+ * 			
+ * 			
+ */

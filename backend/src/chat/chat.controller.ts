@@ -62,7 +62,7 @@ export class ChatController {
 	 * \/
 	 * 
 	 */
-	@Post("creation/")
+	@Post("creation")
 	async roomAddExistance(@Body() Room: RoomDto) {
 		return await this.service.rooms.create_room(1, Room);
 	}
@@ -73,7 +73,7 @@ export class ChatController {
 	@RoomPermitions(user_permission.owner)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async roomDellExistance(@Query("room") room: number) {
-		return   this.service.rooms.delete_room(room);
+		return   await this.service.rooms.delete_room(room);
 	}
 
 	/**
@@ -112,7 +112,7 @@ export class ChatController {
 	@RoomType(roomtype.chat)
 	async HumanBlock(@Query("room") room: number, @Query("target") target: number) {
 		//block_user
-		return await this.service.rooms.block_user(target, room);
+		return await this.service.rooms.block_user(1,target, room);
 	}
 	/**
 	 * @description
@@ -123,7 +123,7 @@ export class ChatController {
 	@RoomType(roomtype.chat)
 	async humanUnblock(@Query("room") room: number, @Query("target") target: number) {
 		// unblock_user
-		return await this.service.rooms.unblock_user(target, room);
+		return await this.service.rooms.unblock_user(1,target, room);
 	}
 
 	/**
@@ -196,5 +196,11 @@ export class ChatController {
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async takeHumanAuth(@Query("room") room: number, @Query("target") user: number) {
 		return await this.service.rooms.revoke_room_admin(room, user);
+	}
+	@Patch("lwert")
+	@RoomPermitions(user_permission.owner)
+	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
+	async giveOwnership(@Query("room") room: number, @Query("target") user: number) {
+		return await this.service.rooms.giveOwnership(1,room, user);
 	}
 }

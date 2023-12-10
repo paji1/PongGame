@@ -20,7 +20,7 @@ export class RoomGuard implements CanActivate {
 			context.getHandler(),
 			context.getClass(),
 		]);
-
+		console.log("jat request")
 		const user = 1;
 		if (typeof roomtypes !== "undefined") {
 			if (Number.isNaN(room)) return false;
