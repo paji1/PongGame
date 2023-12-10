@@ -94,6 +94,19 @@ export class ChatController {
 		return await this.service.rooms.leave_room(1, room);
 	}
 
+	/**
+	 * 
+	 * @param room 
+	 * @param friend 
+	 * @returns 
+	 */
+	@Patch("modify")
+	@RoomPermitions(user_permission.owner)
+	@RoomType(roomtype.protected, roomtype.public, roomtype.private)
+	async roomHumansmodify(@Query("room") room: number,  @Body() Room: RoomDto) {
+		console.log(room , "dtrodzeb")
+		return await this.service.rooms.modify_room(1, room, Room);
+	}
 	@Post("humans/invite")
 	@IsFriend()
 	@RoomPermitions(user_permission.owner, user_permission.admin)

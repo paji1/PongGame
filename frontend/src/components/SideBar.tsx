@@ -125,7 +125,7 @@ const CreateRoom = ()=>
     if (type !== "protected" && password.length)
         setPassword("")
 	if (!clicked)
-		return <button onClick={() => click(true)}>+</button>
+		return <button onClick={() => click(true)}>Create new Room</button>
 	const createRoom = (e:any) =>
 	{
 		e.preventDefault();
@@ -182,10 +182,11 @@ const CreateRoom = ()=>
                 </div>:
                 <></>
             }
-            <button onClick={createRoom}> change </button>
+            <button onClick={createRoom}> Create </button>
 			<button onClick={() => click(false)}>dismiss</button>
         </form>
     )
 }
 
 export default SideBar;
+

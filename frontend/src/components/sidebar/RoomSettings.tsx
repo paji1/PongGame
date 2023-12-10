@@ -255,15 +255,58 @@ const RoomsettingItem = ({ refresh , user, roomid, userPerm} : {refresh :any ,us
         </div>
     )
 }
-const ChangeRoomType = ({room} : {room : room|null})=>
+const ChangeRoomType = ({room}:{room: room |null})=>
 {
-    const [type, setType] = useState("")
+  
+	const	[clicked, click]  = useState(false)
+    const [type, setType] = useState("public")
     const [password, setPassword] = useState("")
+	const [name, setName] = useState<string | null>(room ? room.name: "")
     if (type !== "protected" && password.length)
         setPassword("")
+	if (!clicked)
+		return <button onClick={() => click(true)}>Modify Room</button>
+	const createRoom = (e:any) =>
+	{
+		e.preventDefault();
+		const roomform = {
+			password:password,
+			name : name,
+			type :type
+		}
+		const data = fetch(`http://localhost:3001/chat/modify?room=${room}`, {
+			method:"PATCH", 
+			headers:
+			{
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify(roomform),
+		})
+		.then((data) => data.json())
+		.then((data) => {
+			let res= data.statusCode
+			console.log(data)
+			if (res < 400)
+				toast(data.message)
+			if (res >= 400 && Array.isArray(data.message))
+				data.message.map((e:string)=> toast.error(e))
+			else if (res >= 400)
+				toast.error(data.message);
+		}
+		)
+		.catch((e) => toast.error(e.message))
+		setPassword("")
+		setName("")
+		setType("public")
+		click(false)
+	}		
     return (
         <form className="flex flex-col">
             <div className="flex flex-row">
+                <div className="flex flex-row">
+                    <p>name</p>
+                    <input  value={name ? name : ""} onChange={(e)=>setName(e.target.value)} placeholder="type a name" type="text"></input>
+                </div>
                 <p>RoomType</p>
                 <select onChange={(e) => setType(e.target.value)} >
                     <option value="public">public</option>
@@ -272,15 +315,15 @@ const ChangeRoomType = ({room} : {room : room|null})=>
                 </select>
             </div>
             {
-                type === "protected" ?
+				type === "protected" ?
                 <div className="flex flex-row">
                     <p>Password</p>
-                    <input onChange={(e)=>setPassword(e.target.value)} placeholder="***" type="password"></input>
+                    <input onChange={(e)=>setPassword(e.target.value)}  placeholder="***" type="password"></input>
                 </div>:
                 <></>
             }
-            <button> change </button>
-
+            <button onClick={createRoom}> modify </button>
+			<button onClick={() => click(false)}>dismiss</button>
         </form>
     )
 }
@@ -308,14 +351,17 @@ const RoomSettings = ({refresh , returnbutton, room}  : {refresh:any ,returnbutt
     {
 		setQuery(object.target.value);
 	};
-
+    console.log("obdzeb", userState)
     return (
         <div className="flex flex-col h-full">
             <div>
            <button onClick={() => returnbutton(false)}> rja3 lchat </button>
             </div>
             <div>
-                <ChangeRoomType room={room}/>
+                {userState?.permission ==="owner" ?
+                    <ChangeRoomType room={room}/>:
+                    <></>
+                }
             </div>
             <div>
                 <input type="text" value={query} onChange={setQueryonchange} placeholder="Finduser"></input>

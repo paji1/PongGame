@@ -79,6 +79,34 @@ export class RoomsService {
 		}
 		throw new HttpException(`Room: ${Room.name} created`, HttpStatus.OK);
 	}
+	/**
+	 * 
+	 */
+	async modify_room(Requester: number,room:number, Room: RoomDto) {
+		console.log("wslat lhna")
+		if (Room.type === roomtype.chat) throw new HttpException("Action Not Allowed", HttpStatus.BAD_GATEWAY);
+		if (Room.type === roomtype.protected && Room.password.length < 9)
+			throw new HttpException("please provide a better password", HttpStatus.BAD_REQUEST);
+		if (Room.type !== roomtype.protected) Room.password = "";
+		if (Room.type === roomtype.protected) Room.password = createHash("sha256").update(Room.password).digest("hex");
+
+		try {
+		 await this.prisma.rooms.update(
+				{
+					where: {id:room},
+					data:
+					{
+						name:Room.name,
+						roomtypeof:Room.type,
+						roompassword:Room.password,
+					}
+				}
+				)
+		} catch (e) {
+			throw new HttpException("failed to modify room", HttpStatus.BAD_REQUEST);
+		}
+		throw new HttpException(`Room: ${Room.name} modified`, HttpStatus.OK);
+	}
 
 	/**
 	 *
