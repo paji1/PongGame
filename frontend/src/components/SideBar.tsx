@@ -48,7 +48,13 @@ const SideBar =  () => {
 			case 1:
 				return <SideBarItemFilter rooms={friendroom} query="" roomselector={setChatSelector} />;
 			case 2:
-				return <SideBarItemFilter rooms={grouproom} query="" roomselector={setChatSelector} />;
+				return (
+
+					<>
+						<CreateRoom />
+						<SideBarItemFilter rooms={grouproom} query="" roomselector={setChatSelector} />
+					</>
+					)
 		}
 	};
 	return (
@@ -101,11 +107,85 @@ const SideBar =  () => {
 						</div>
 					</div>
 
-					<div className={`flex-1 min-h-[100px] border-solid border-blue-500 border-2`}>{RenderOption()}</div>
+					<div className={`flex-1 min-h-[100px] border-solid border-blue-500 border-2`}>
+						{RenderOption()}
+						</div>
 				</div>
 			</section>
 		</>
 	);
 };
+
+const CreateRoom = ()=>
+{
+	const	[clicked, click]  = useState(false)
+    const [type, setType] = useState("public")
+    const [password, setPassword] = useState("")
+	const [name, setName] = useState("")
+    if (type !== "protected" && password.length)
+        setPassword("")
+	if (!clicked)
+		return <button onClick={() => click(true)}>+</button>
+	const createRoom = (e:any) =>
+	{
+		e.preventDefault();
+		const roomform = {
+			password:password,
+			name : name,
+			type :type
+		}
+		const data = fetch(`http://localhost:3001/chat/creation`, {
+			method:"POST", 
+			headers:
+			{
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify(roomform),
+		})
+		.then((data) => data.json())
+		.then((data) => {
+			let res= data.statusCode
+			console.log(data)
+			if (res < 400)
+				toast(data.message)
+			if (res >= 400 && Array.isArray(data.message))
+				data.message.map((e:string)=> toast.error(e))
+			else if (res >= 400)
+				toast.error(data.message);
+		}
+		)
+		.catch((e) => toast.error(e.message))
+		setPassword("")
+		setName("")
+		setType("public")
+		click(false)
+	}		
+    return (
+        <form className="flex flex-col">
+            <div className="flex flex-row">
+                <div className="flex flex-row">
+                    <p>name</p>
+                    <input onChange={(e)=>setName(e.target.value)} placeholder="type a name" type="text"></input>
+                </div>
+                <p>RoomType</p>
+                <select onChange={(e) => setType(e.target.value)} >
+                    <option value="public">public</option>
+                    <option value="protected">protected</option>
+                    <option value="private">private</option>
+                </select>
+            </div>
+            {
+				type === "protected" ?
+                <div className="flex flex-row">
+                    <p>Password</p>
+                    <input onChange={(e)=>setPassword(e.target.value)}  placeholder="***" type="password"></input>
+                </div>:
+                <></>
+            }
+            <button onClick={createRoom}> change </button>
+			<button onClick={() => click(false)}>dismiss</button>
+        </form>
+    )
+}
 
 export default SideBar;
