@@ -1,7 +1,6 @@
 import React, { useState} from "react"
 import MainButton from "./MainButton";
 import SearchBar from "./SearchBar";
-import profileplaceholder from "../assets/profileplaceholder.png"
 import { useContext } from "react";
 import { currentUser, CurrentUser } from "./Context/AuthContext";
 
@@ -47,7 +46,7 @@ const LoggedNavBar: React.FC<isOpen> = (props) => (
 				<SearchBar />
 			</li>
 			<li key={2} className={`uppercase font-pixelify cursor-pointer py-2 h-auto`}>
-				<MainButton name={`start a game`} url={`start.com`} />
+				<MainButton name={`start a game`} url={`/game`} />
 			</li>
 		</ul>
 	</nav>
@@ -64,7 +63,7 @@ const Navbar = () => {
 
 	return (
 		<div className={`
-		container relative m-auto p-3 top-5 flex justify-between items-center border-b-2 border-solid
+		container relative m-auto p-3 top-5 flex justify-between items-center border-b border-solid
 		`}>
 			<a href="/" className={`
 				font-xl font-bold text-primary uppercase font-pixelify md:text-2xl text-xl

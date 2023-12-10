@@ -1,5 +1,4 @@
 import { useState } from "react"
-import SearchBar from "../SearchBar"
 import { ToggleSidBar } from "./ToggleSidBar"
 import { HoverDiv } from "../Common"
 import ChatSearchBar from "./ChatSearchBar"
