@@ -11,6 +11,7 @@
         - 3000:3000
       volumes:
         - ./frontend/src:/code/src:ro
+        - ./frontend/src/tailwind.config.js:/code/src/tailwind.config.js:ro
     backend:
       container_name: "bb"
       build:
