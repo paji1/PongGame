@@ -22,7 +22,6 @@ module.exports = {
 			},
 			boxShadow: {
 				'buttonShadow': '6px 5px 0 0 #000301',
-				'chatShadow': '-7px 1px 95px 1px rgba(0,3,1,0.75);'
 			}
 		},
   },
