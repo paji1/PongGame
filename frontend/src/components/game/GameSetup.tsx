@@ -5,7 +5,7 @@ const CheckButton = ({_key, text, color, selected, clickHandler}:
 	) => (
 	<button className={`font-pixelify border-solid border-2 py-1 w-48 rounded-full
 		${selected === _key ? `bg-${color} text-background border-textColor` : `border-${color} text-${color} bg-background`}
-		hover:text-background hover:border-${color} hover:bg-${color} shadow-buttonShadow`}
+		hover:text-background hover:border-${color} hover:bg-${color} shadow-buttonShadow capitalize`}
 		onClick={() => clickHandler(_key)}>
 		{text}
 	</button>
@@ -40,7 +40,7 @@ const GameSetup = () => {
 	return (
 		<div className={`h-[576px] sm:h-[324px] md:h-[389px] lg:h-[518px] xl:h-[648px] 2xl:h-[757px]
 			border-solid border-textColor border-4 w-full justify-center
-			flex flex-col gap-4`}>
+			flex flex-col gap-8 sm:gap-2 md:gap-6`}>
 
 			<div className={`flex  flex-col gap-2 items-center justify-evenly`}>
 				<CheckButton clickHandler={difficultyHandeler} text="easy" color="sucessColor" _key="easy" selected={difficulty} />
