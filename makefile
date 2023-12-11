@@ -30,6 +30,10 @@ backend: build
 	docker-compose  up backend --build
 	# docker-compose  up pgadmin -d 
 
+front: build
+	docker-compose  up frontend --build
+	# docker-compose  up pgadmin -d 
+
 start: 
 	docker-compose  up $(NAME) --build
 restart: 
