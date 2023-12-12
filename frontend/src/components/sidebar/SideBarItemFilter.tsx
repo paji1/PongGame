@@ -40,7 +40,6 @@ const SideBarItemFilter = ({
 				return <GroupItem  key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />;
 			});
 		
-		if (i === rooms.length) toast.error("Found Nothing");
 	}
 }
 	return (

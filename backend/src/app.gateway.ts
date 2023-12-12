@@ -7,6 +7,10 @@ import { ChatSocketDto } from "src/Dto/ChatSocketFormat.dto";
 import { WsValidationExeption } from "src/common/filters/ws.exeption.filter";
 import { WsInRoomGuard } from "src/common/guards/ws.guard";
 import { inRoom } from "src/common/decorators/wsinRoom.decorator";
+import { AdjacencyList } from "./common/classes/adjacent";
+import { subscribe } from "diagnostics_channel";
+import { stat } from "fs";
+import { action, statusDto } from "./Dto/status.dto";
 
 @WebSocketGateway({transports: ['websocket'] })
 @UsePipes(new ValidationPipe())
@@ -17,26 +21,31 @@ export class AppGateway implements OnModuleInit, OnModuleDestroy {
 		private readonly prisma: PrismaService,
 		private readonly chat: ChatService,
 	) {
-		this.map = new Map<string, number>
+		this.state = new AdjacencyList()
 	}
 	
 	@WebSocketServer()
 		server: Server;
-		map : Map<string, number>;
+		state : AdjacencyList;
+		id: string;
 	onModuleInit() {}
 	onModuleDestroy() {}
 	
 	async handleConnection(client){
 		console.log(`Client connecter ${client.id}`)
 		console.log(client.handshake.headers.cookie)
+		this.state.newNode(1,client.id, "online")
 		const user_rooms  = await this.getRooms(1);
+		console.log(this.state)
 		for (let i = 0; i < user_rooms.length; i++)
 		{
-			client.join(user_rooms[i].rooms.id.toString() );
+			client.join(user_rooms[i].rooms.id.toString());
 		}
 	}
 	handleDisconnect(client){
 		console.log(`Client disconnected ${client.id}`)
+		this.state.delNode(1, client.id)
+	
 	}
 	@SubscribeMessage("chat")
 	@inRoom()
@@ -54,6 +63,19 @@ export class AppGateway implements OnModuleInit, OnModuleDestroy {
 				this.server.to(message.Destination.toString()).emit("chat", res);
 			else
 				client.emit("ChatError", "error sending message");
+	}
+	@SubscribeMessage("status")
+	async onrequest(@ConnectedSocket() client ,@MessageBody() status: statusDto)
+	{
+		if (status.action == action.update)
+		{
+			this.state.changeStatus(1, status.status);
+		}
+		if (status.action === action.get)
+		{
+			this.state.addvertices(status.user,client.i)
+			client.emit("status", this.state.getstatus(1))
+		}
 	}
 	async getRooms(user)
 	{

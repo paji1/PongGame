@@ -10,11 +10,11 @@ const filter =(str:string) =>
         return "participant"
     return str
 }
-const banAction = (userid: number, roomid : number, action: boolean) =>
+const Action = (userid: number, roomid : number, action: boolean, endpoint: string) =>
 {
     const how:string = action ? "POST":"PATCH"
     console.log(how)
-    const data = fetch(`http://localhost:3001/chat/ban?room=${roomid}&target=${userid}`, {method:how})
+    const data = fetch(`http://localhost:3001/chat/${endpoint}?room=${roomid}&target=${userid}`, {method:how})
 			.then((data) => data.json())
 			.then((data) => {
                 let res= data.statusCode
@@ -25,47 +25,13 @@ const banAction = (userid: number, roomid : number, action: boolean) =>
                     toast.error(data.message)
             }
 			)
-			.catch(() => toast.error(`ban: network error`))
+			.catch(() => toast.error(`network error`))
 }
-const muteAction = (userid: number, roomid : number, action: boolean) =>
-{
-    const how:string = action ? "POST":"PATCH"
-    console.log(how)
-    const data = fetch(`http://localhost:3001/chat/mute?room=${roomid}&target=${userid}`, {method:how})
-			.then((data) => data.json())
-			.then((data) => {
-                let res= data.statusCode
-                console.log(res)
-                if (res < 400)
-                    toast(data.message)
-                else
-                    toast.error(data.message)
-            }
-			)
-			.catch(() => toast.error(`mute: network error`))
-}
-const kickAction = (userid: number, roomid : number) => 
-{
-    const how:string = "POST"
 
-    const data = fetch(`http://localhost:3001/chat/kick?room=${roomid}&target=${userid}`, {method:how})
-			.then((data) => data.json())
-			.then((data) => {
-                let res= data.statusCode
-                console.log(res)
-                if (res < 400)
-                    toast(data.message)
-                else
-                    toast.error(data.message)
-            }
-			)
-			.catch(() => toast.error(`kick: network error`))
-}
-const AdminAction = (userid: number, roomid : number, action: boolean) =>
+const byby = (userid: number, roomid : number,action:boolean, endpoint: string)=>
 {
-    const how:string = action ? "POST":"PATCH"
-    console.log(how)
-    const data = fetch(`http://localhost:3001/chat/diwana?room=${roomid}&target=${userid}`, {method:how})
+    const how:string =  action ? "PATCH"  :"DELETE" 
+    const data = fetch(`http://localhost:3001/chat/${endpoint}?room=${roomid}&target=${userid}`, {method:how})
 			.then((data) => data.json())
 			.then((data) => {
                 let res= data.statusCode
@@ -76,41 +42,9 @@ const AdminAction = (userid: number, roomid : number, action: boolean) =>
                     toast.error(data.message)
             }
 			)
-			.catch(() => toast.error(`member: network error`))
+			.catch(() => toast.error(`network error`))
 }
-const GiveUpOwner = (userid: number, roomid : number)=>
-{
-    const how:string =  "PATCH"
-    const data = fetch(`http://localhost:3001/chat/lwert?room=${roomid}&target=${userid}`, {method:how})
-			.then((data) => data.json())
-			.then((data) => {
-                let res= data.statusCode
-                console.log(res)
-                if (res < 400)
-                    toast(data.message)
-                else
-                    toast.error(data.message)
-            }
-			)
-			.catch(() => toast.error(`member: network error`))
-}
-const LeaveRoom = (userid: number, roomid : number) =>
-{
-    const how:string = "DELETE"
-    console.log(how)
-    const data = fetch(`http://localhost:3001/chat/humans?room=${roomid}`, {method:how})
-			.then((data) => data.json())
-			.then((data) => {
-                let res= data.statusCode
-                console.log(res)
-                if (res < 400)
-                    toast(data.message)
-                else
-                    toast.error(data.message)
-            }
-			)
-			.catch(() => toast.error(`ban: network error`))
-}
+
 
 const deleteRoom = (roomid : number) =>
 {
@@ -127,7 +61,7 @@ const deleteRoom = (roomid : number) =>
                     toast.error(data.message)
             }
 			)
-			.catch(() => toast.error(`ban: network error`))
+			.catch(() => toast.error(`network error`))
 }
 
 /**
@@ -137,8 +71,8 @@ const deleteRoom = (roomid : number) =>
 const MuteButton = ({room, roomuser}: {room: number, roomuser: member }) =>
 (
             roomuser.ismuted ? 
-            <button onClick={() => {muteAction(roomuser.user_id.id, room, false)}}>unmute</button> :
-            <button onClick={() => {muteAction(roomuser.user_id.id, room, true)}}>mute</button>
+            <button onClick={() => {Action(roomuser.user_id.id, room, false, "mute")}}>unmute</button> :
+            <button onClick={() => {Action(roomuser.user_id.id, room, true, "mute")}}>mute</button>
 )
 const DeleteRoom = ({room}: {room: number }) =>
 (
@@ -146,31 +80,31 @@ const DeleteRoom = ({room}: {room: number }) =>
 )
 const KickButton = ({room, roomuser}: {room: number, roomuser: member }) =>
 (
-    <button onClick={() => kickAction(roomuser.user_id.id, room)}>kick</button>
+    <button onClick={() => Action(roomuser.user_id.id, room, true, "kick")}>kick</button>
 )
 const AdminButton = ({room, roomuser}: {room: number, roomuser: member }) =>
 (
 
     (roomuser.permission === "admin" ) ? 
-    <button onClick={() => AdminAction(roomuser.user_id.id, room, false)}>revoke admin right</button>:
-    <button onClick={() => AdminAction(roomuser.user_id.id, room, true)}>make admin</button>
+    <button onClick={() => Action(roomuser.user_id.id, room, false, "diwana")}>revoke admin right</button>:
+    <button onClick={() => Action(roomuser.user_id.id, room, true, "diwana")}>make admin</button>
 )
 
 const BanButton = ({room, roomuser}: {room: number, roomuser: member }) =>
 (
     roomuser.isBanned ? 
-    <button onClick={() => banAction(roomuser.user_id.id, room, false)}>unban</button>:
-    <button onClick={() => banAction(roomuser.user_id.id, room, true)}> ban</button>
+    <button onClick={() => Action(roomuser.user_id.id, room, false, "ban")}>unban</button>:
+    <button onClick={() => Action(roomuser.user_id.id, room, true, "ban")}> ban</button>
 )
 
 const OwnershipButton = ({room, roomuser}: {room: number, roomuser: member}) => 
 (
-    <button onClick={() => GiveUpOwner(roomuser.user_id.id, room)}>give owner</button>   
+    <button onClick={() => byby(roomuser.user_id.id, room, true, "lwert")}>give owner</button>   
 )
 
 const LeaveButton = ({room, roomuser}: {room: number, roomuser: member}) =>
 (
-    <button onClick={()=> LeaveRoom(roomuser.user_id.id, room)}>leave room</button> 
+    <button onClick={()=> byby(roomuser.user_id.id, room, false, "humans")}>leave room</button> 
 )
 /**
  * 
