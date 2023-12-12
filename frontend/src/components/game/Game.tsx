@@ -19,8 +19,7 @@ const PointsScreen = ({direction}: {direction: string}) => {
 		<div className={`w-1/12 h-full bg-buttonColor bg-opacity-[90%] absolute 
 			${direction === 'right' ? 'right-[92%] rounded-r-[35%]' : 'left-[92%] rounded-l-[35%]'}
 			flex flex-col gap-2 lg:gap-4 justify-center items-center
-			
-		`}>
+		`} >
 			{pointsCalculator(direction)}
 		</div>
 	)
@@ -45,10 +44,11 @@ const Ball = () => {
 
 const PlayGround = () => {
 	const position = {zbi: 'test'}
+
+
 	return (
 		<div id="play-ground" className={`absolute w-3/4 h-3/4 top-[12.5%] right-[12.5%]
-			bg-secondary bg-opacity-[85%] rounded-lg`}
-			>
+			bg-secondary bg-opacity-[85%] rounded-lg`}>
 			<div className={`absolute w-1 h-full bg-sucessColor left-[49%]`}></div>
 			<div className={`absolute w-[25%] h-[25%] rounded-full  left-[36.9%] top-[37.5%]
 				border-[.25rem] border-solid border-sucessColor`}></div>
