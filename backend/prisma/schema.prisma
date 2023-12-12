@@ -67,7 +67,6 @@ model matchhistory {
   updated_at DateTime   @updatedAt
   player1_id user       @relation("player1", fields: [player1], references: [id])
   player2_id user       @relation("player2", fields: [player2], references: [id])
-  invite     invites[]
 }
 
 model rooms {
