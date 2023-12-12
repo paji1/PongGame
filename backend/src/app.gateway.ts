@@ -73,8 +73,12 @@ export class AppGateway implements OnModuleInit, OnModuleDestroy {
 		}
 		if (status.action === action.get)
 		{
+			const retstatus = {
+				user:status.user,
+				status: this.state.getstatus(1)
+			}
 			this.state.addvertices(status.user,client.i)
-			client.emit("status", this.state.getstatus(1))
+			client.emit("status", retstatus)
 		}
 	}
 	async getRooms(user)

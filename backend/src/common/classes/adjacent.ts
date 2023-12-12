@@ -43,15 +43,23 @@ export class AdjacencyList implements IAdjacencyList
     {
         const   inconsistence = [];
         let userdata = this.nodes.find((ob : INode) => ob.id === user)
+       
+        const retstatus = {
+            user:user,
+            status: userdata.status
+        }
         console.log(userdata)
         userdata.vertices.map(async (sockid:string, index: number) => {
             const client =  server.sockets.sockets.get(sockid)
             if (client === undefined)
                 inconsistence.push(index)
             else
-                client.emit("status",userdata.status)
+                client.emit("status", retstatus)
         })
         console.log(inconsistence)
+        /**
+         * todo: delete incostincencies 
+         */
     }
     getstatus(user:number)
     {
