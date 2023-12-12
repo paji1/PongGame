@@ -23,6 +23,15 @@ body {
 	width: 0px; /* Set the width of the scrollbar */
 }
 
+ #game-setup-frame {
+	background-color: #E6E7E9;
+	opacity: 1;
+	background-image:  radial-gradient(#435899 0.5px, transparent 0.5px),
+		radial-gradient(#435899 0.5px, #E6E7E9 0.5px);
+	background-size: 25px 25px;
+	background-position: 0 0,10px 10px;  
+}
+
 .text-secondary {
 	--tw-text-opacity: 1;
     color: rgb(0 118 192 / var(--tw-text-opacity));
