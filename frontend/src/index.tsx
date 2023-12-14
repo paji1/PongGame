@@ -29,10 +29,8 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <React.StrictMode>
     <currentUser.Provider value={user} >
 		<RouterProvider router={router} />
 	</currentUser.Provider>
-  </React.StrictMode>
 );
 
