@@ -23,7 +23,7 @@ export class AuthService {
 			.create({
 				data: {
 					user42: dto.user42,
-					nickname:dto.user42,
+					nickname: dto.user42,
 					hash,
 				},
 			})

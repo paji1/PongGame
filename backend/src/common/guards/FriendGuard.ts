@@ -16,8 +16,7 @@ export class FriendGuard implements CanActivate {
 
 		console.log(Guarded);
 		console.log("salam");
-		if (typeof Guarded === "undefined")
-		 return true;
+		if (typeof Guarded === "undefined") return true;
 		const user = 1;
 		if (Number.isNaN(friend)) return false;
 		const arefriends = await this.prisma.friendship.findFirst({
