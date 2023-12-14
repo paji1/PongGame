@@ -11,12 +11,14 @@ type member_filler = {
 	id: number;
 };
  export type member = {
+	id: number,
+	roomid:number,
 	permission:string,
 	isblocked:boolean,
 	ismuted:boolean,
 	isBanned:boolean,
-	user_id: member_filler;
 	created_at:Date,
+	user_id: member_filler;
 };
 
 export type room = {

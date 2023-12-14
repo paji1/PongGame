@@ -3,44 +3,57 @@ import { ToggleSidBar } from "./sidebar/ToggleSidBar";
 import { HoverDiv } from "./Common";
 import ChatSearchBar from "./sidebar/ChatSearchBar";
 import SideBarItemFilter from "./sidebar/SideBarItemFilter";
-import { room } from "../types/room";
+import { member, room } from "../types/room";
 import useRooms from "../hooks/useRooms";
 import ChatBar from "./sidebar/ChatBar";
 import { messages, roommessages } from "../types/messages";
 import useMessages from "../hooks/useMessages";
 import { SocketContext } from "./Context/SocketContext";
-import { Socket } from "socket.io-client";
 import { toast } from "react-toastify";
-import { updateMessages } from "./sidebar/updater";
+import { roomseventssetter, updateMessages } from "./sidebar/updater";
+import { backendretun } from "../types/backendreturn";
 
-const SideBar =  () => {
-	const socket = useContext(SocketContext)
+const SideBar = () => {
+	const socket = useContext(SocketContext);
 	const [isOpen, seIsOpen] = useState(false);
 	const [searchSelection, setSearchSelection] = useState(1);
 	const [searchText, setSearchText] = useState("");
 	const [chatSelector, setChatSelector] = useState(-1);
 	const [roomsState, setRoomsState] = useState<room[] | null>(null);
-	const [chatState, setChatState] = useState<roommessages[] | null>(null)
-	const [roomsUpdater, updateRooms] = useState(false)
-	const updaterooms = () => {
-		updateRooms(!roomsState)
+	const [chatState, setChatState] = useState<roommessages[] | null>(null);
+	const [roomsUpdater, updateRooms] = useState(false);
+	const roomevents = (data: backendretun) =>
+	{
+		console.log(data)
+		if (data.region === "chat")
+			roomseventssetter(data, roomsState, setRoomsState , null)
+		else if(data.region === "room")
+			roomseventssetter(null,  roomsState, setRoomsState , data)
+
 	}
-	
+
 	const friendroom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof === "chat") : null;
 	const grouproom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof !== "chat") : null;
 	useMessages(false, setChatState);
 	useRooms(roomsUpdater, setRoomsState);
-	
-	const currentchat = Array.isArray( chatState) ? chatState.find((ob:roommessages) => ob.id === chatSelector) : null;
-	const currentroom = Array.isArray( roomsState) ? roomsState.find((ob:room) => ob.id === chatSelector) : null;
-	socket.off("connect").on("connect", () => console.log("conected"))
-	socket.off("chat").on("chat", (data:messages) =>  {updateMessages(data, chatState, setChatState); updaterooms() })
-	socket.off("ChatError").on("ChatError", (data) => toast.error(data) )
+
+	const currentchat = Array.isArray(chatState) ? chatState.find((ob: roommessages) => ob.id === chatSelector) : null;
+	const currentroom = Array.isArray(roomsState) ? roomsState.find((ob: room) => ob.id === chatSelector) : null;
+	socket.off("connect").on("connect", () => console.log("conected"));
+	socket.off("chat").on("chat", (data: messages) => {
+		updateMessages(data, chatState, setChatState);
+	});
+	socket.off("ChatError").on("ChatError", (data) => toast.error(data));
 	const toggleChatBar = () => seIsOpen(!isOpen);
 	const RenderOption = () => {
 		if (chatSelector !== -1)
 			return (
-				<ChatBar refresh={updaterooms} roomselector={setChatSelector} room={(typeof currentroom === "undefined") ? null: currentroom} conversation={ (typeof currentchat === "undefined") ? null: currentchat} />
+				<ChatBar
+					refresh={roomevents}
+					roomselector={setChatSelector}
+					room={typeof currentroom === "undefined" ? null : currentroom}
+					conversation={typeof currentchat === "undefined" ? null : currentchat}
+				/>
 			);
 		switch (searchSelection) {
 			case 0:
@@ -49,12 +62,11 @@ const SideBar =  () => {
 				return <SideBarItemFilter rooms={friendroom} query="" roomselector={setChatSelector} />;
 			case 2:
 				return (
-
 					<>
-						<CreateRoom />
+						<CreateRoom refresh={roomevents}/>
 						<SideBarItemFilter rooms={grouproom} query="" roomselector={setChatSelector} />
 					</>
-					)
+				);
 		}
 	};
 	return (
@@ -107,86 +119,77 @@ const SideBar =  () => {
 						</div>
 					</div>
 
-					<div className={`flex-1 min-h-[100px] border-solid border-blue-500 border-2`}>
-						{RenderOption()}
-						</div>
+					<div className={`flex-1 min-h-[100px] border-solid border-blue-500 border-2`}>{RenderOption()}</div>
 				</div>
 			</section>
 		</>
 	);
 };
 
-const CreateRoom = ()=>
-{
-	const	[clicked, click]  = useState(false)
-    const [type, setType] = useState("public")
-    const [password, setPassword] = useState("")
-	const [name, setName] = useState("")
-    if (type !== "protected" && password.length)
-        setPassword("")
-	if (!clicked)
-		return <button onClick={() => click(true)}>Create new Room</button>
-	const createRoom = (e:any) =>
-	{
+const CreateRoom = ({refresh}: {refresh:any}) => {
+	const [clicked, click] = useState(false);
+	const [type, setType] = useState("public");
+	const [password, setPassword] = useState("");
+	const [name, setName] = useState("");
+	if (type !== "protected" && password.length) setPassword("");
+	if (!clicked) return <button onClick={() => click(true)}>Create new Room</button>;
+	const createRoom = (e: any) => {
 		e.preventDefault();
 		const roomform = {
-			password:password,
-			name : name,
-			type :type
-		}
+			password: password,
+			name: name,
+			type: type,
+		};
 		const data = fetch(`http://localhost:3001/chat/creation`, {
-			method:"POST", 
-			headers:
-			{
-				"Content-Type": "application/json"
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
 			},
 			body: JSON.stringify(roomform),
 		})
-		.then((data) => data.json())
-		.then((data) => {
-			let res= data.statusCode
-			console.log(data)
-			if (res < 400)
-				toast(data.message)
-			if (res >= 400 && Array.isArray(data.message))
-				data.message.map((e:string)=> toast.error(e))
-			else if (res >= 400)
-				toast.error(data.message);
-		}
-		)
-		.catch((e) => toast.error(e.message))
-		setPassword("")
-		setName("")
-		setType("public")
-		click(false)
-	}		
-    return (
-        <form className="flex flex-col">
-            <div className="flex flex-row">
-                <div className="flex flex-row">
-                    <p>name</p>
-                    <input onChange={(e)=>setName(e.target.value)} placeholder="type a name" type="text"></input>
-                </div>
-                <p>RoomType</p>
-                <select onChange={(e) => setType(e.target.value)} >
-                    <option value="public">public</option>
-                    <option value="protected">protected</option>
-                    <option value="private">private</option>
-                </select>
-            </div>
-            {
-				type === "protected" ?
-                <div className="flex flex-row">
-                    <p>Password</p>
-                    <input onChange={(e)=>setPassword(e.target.value)}  placeholder="***" type="password"></input>
-                </div>:
-                <></>
-            }
-            <button onClick={createRoom}> Create </button>
+			.then((data) => data.json())
+			.then((data) => {
+				let res = data.statusCode;
+				if (res >= 400 && Array.isArray(data.message)) data.message.map((e: string) => toast.error(e));
+				else if (res >= 400) toast.error(data.message);
+				if (res === undefined)
+				{
+					refresh(data)
+					toast("room created")
+				}
+			})
+			// .catch((e) => toast.error(e.message+"niffa"));
+		setPassword("");
+		setName("");
+		setType("public");
+		click(false);
+	};
+	return (
+		<form className="flex flex-col">
+			<div className="flex flex-row">
+				<div className="flex flex-row">
+					<p>name</p>
+					<input onChange={(e) => setName(e.target.value)} placeholder="type a name" type="text"></input>
+				</div>
+				<p>RoomType</p>
+				<select onChange={(e) => setType(e.target.value)}>
+					<option value="public">public</option>
+					<option value="protected">protected</option>
+					<option value="private">private</option>
+				</select>
+			</div>
+			{type === "protected" ? (
+				<div className="flex flex-row">
+					<p>Password</p>
+					<input onChange={(e) => setPassword(e.target.value)} placeholder="***" type="password"></input>
+				</div>
+			) : (
+				<></>
+			)}
+			<button onClick={createRoom}> Create </button>
 			<button onClick={() => click(false)}>dismiss</button>
-        </form>
-    )
-}
+		</form>
+	);
+};
 
 export default SideBar;
-

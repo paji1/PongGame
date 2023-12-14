@@ -6,7 +6,7 @@ import { SocketContext } from "./components/Context/SocketContext";
 import { useContext } from "react";
 
 const App = () => {
-	const socket = useContext(SocketContext)
+	const socket = useContext(SocketContext);
 	socket.connect();
 	return (
 		<div>

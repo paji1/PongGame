@@ -48,7 +48,7 @@ export class AppGateway implements OnModuleInit, OnModuleDestroy {
 	
 	}
 	@SubscribeMessage("chat")
-	@inRoom()
+	// @inRoom()
 	async onMessage( @ConnectedSocket() client, @MessageBody() message: ChatSocketDto)
 	{
 			console.log(message)

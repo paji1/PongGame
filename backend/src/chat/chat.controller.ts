@@ -120,7 +120,6 @@ export class ChatController {
 	 * @description
 	 */
 	@Post("block")
-	@IsFriend()
 	@RoomPermitions(user_permission.chat)
 	@RoomType(roomtype.chat)
 	async HumanBlock(@Query("room") room: number, @Query("target") target: number) {
@@ -131,7 +130,6 @@ export class ChatController {
 	 * @description
 	 */
 	@Patch("block")
-	@IsFriend()
 	@RoomPermitions(user_permission.chat)
 	@RoomType(roomtype.chat)
 	async humanUnblock(@Query("room") room: number, @Query("target") target: number) {

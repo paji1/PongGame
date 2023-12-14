@@ -5,10 +5,8 @@ import { messages } from "../../types/messages";
 
 const GroupItem = ({ selector, room, glimpse }: { selector: any; room: room; glimpse: string | undefined }) => {
 	let preview;
-	if (typeof glimpse !== "undefined")
-		preview = (glimpse.length > 25) ? glimpse.substring(0, 25) + "..." : glimpse;
-	else 
-		preview = "Start the conversation"
+	if (typeof glimpse !== "undefined") preview = glimpse.length > 25 ? glimpse.substring(0, 25) + "..." : glimpse;
+	else preview = "Start the conversation";
 	const name = room.name.length > 15 ? room.name.substring(0, 15) : room.name;
 	return (
 		<div className="flex flex-row mx-2 gap-3 p-2 rounded border-solid border-textColor border-2">

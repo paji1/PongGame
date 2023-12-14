@@ -65,19 +65,45 @@ export class RoomsService {
 						roompassword: Room.password,
 						roomtypeof: Room.type,
 					},
+					select: {
+						id:true,
+						name:true,
+						roomtypeof:true,
+						updated_at:true,
+					}
 				});
-				await trx.rooms_members.create({
+				const user = await trx.rooms_members.create({
 					data: {
 						roomid: newroom.id,
 						userid: Requester,
 						permission: user_permission.owner,
 					},
+					select:
+							{
+								id:true,
+								roomid:true,
+								permission:true,
+								isblocked:true,
+								isBanned:true,
+								ismuted:true,
+								created_at:true,
+								user_id:{
+									select:{
+										id:true,
+										nickname: true,
+										avatar: true,
+									}
+								}
+							}
 				});
+				
+				newroom["rooms_members"] = new Array(1).fill(user);
+				return newroom;
 			});
+			return {region:"room" ,action:"new", data:result}
 		} catch (e) {
 			throw new HttpException("Transaction Failed", HttpStatus.BAD_REQUEST);
 		}
-		throw new HttpException(`Room: ${Room.name} created`, HttpStatus.OK);
 	}
 	/**
 	 * 
@@ -144,17 +170,18 @@ export class RoomsService {
 		console.log(Room.password, validate.roompassword);
 		if (Room.password !== validate.roompassword) throw new HttpException("Wrong Password", HttpStatus.UNAUTHORIZED);
 		try {
-			await this.prisma.rooms_members.create({
+				await this.prisma.rooms_members.create({
 				data: {
 					roomid: room,
 					userid: Requester,
 					permission: user_permission.participation,
 				},
+				
 			});
+
 		} catch (e) {
 			throw new HttpException("database error", 400);
 		}
-		return "";
 	}
 	/**
 	 *
@@ -216,9 +243,9 @@ export class RoomsService {
 	 */
 	async block_user(user: number ,targeted: number, roomtarget: number) {
 		try {
-			await this.prisma.$transaction(async (trx) =>
+			const data = await this.prisma.$transaction(async (trx) =>
 			{
-				await trx.rooms_members.update({
+				const data = await trx.rooms_members.update({
 					where: {
 						combination: {
 							roomid: roomtarget,
@@ -235,13 +262,13 @@ export class RoomsService {
 						initiator: user,
 						reciever: targeted
 					}});
+				return data;
 			}
-
 			)
+			return {region:"chat",action:"norm", data:data}
 		} catch {
 			throw new HttpException("Block: Unsuccesfull", HttpStatus.NOT_FOUND);
 		}
-		throw new HttpException("Block: Success", HttpStatus.OK);
 
 	}
 	/**
@@ -252,9 +279,9 @@ export class RoomsService {
 	 */
 	async unblock_user(user: number, targeted: number, roomtarget: number) {
 		try {
-			await this.prisma.$transaction(async (trx) =>
+			const data = await this.prisma.$transaction(async (trx) =>
 			{
-				await trx.rooms_members.update({
+				const data = await trx.rooms_members.update({
 					where: {
 						combination: {
 							roomid: roomtarget,
@@ -273,12 +300,14 @@ export class RoomsService {
 						reciever: targeted
 					}}
 					);
+					return data
 			}
 			)
+			return {region:"chat",action:"norm", data:data}
+
 		} catch {
 			throw new HttpException("unBlock: unsucessfull", HttpStatus.NOT_FOUND);
 		}
-		throw new HttpException("unBlock: Success", HttpStatus.OK);
 	}
 	/**
 	 * 
@@ -302,11 +331,10 @@ export class RoomsService {
 					}
 				},
 			});
-
+			return {region:"chat",action:"kick", data:change}
 		} catch (e) {
 			throw new HttpException("kick: unsucessfull", 400);
 		}
-		throw new HttpException("kick:  succes", 201);
 	}
 	/**
 	 * 
@@ -316,7 +344,7 @@ export class RoomsService {
 	 */
 	async mute_user(targeted: number, room: number) {
 		try {
-			 await this.prisma.rooms_members.update({
+			const data = await this.prisma.rooms_members.update({
 				where: {
 					combination: {
 						roomid: room,
@@ -331,10 +359,11 @@ export class RoomsService {
 					ismuted: true,
 				},
 			});
+			return {region:"chat",action:"norm", data:data}
+			
 		} catch (e){
 			throw new HttpException("Mute: unsucesfull (owner and admins can't be muted OR user not in room)",500);
 		}
-		throw new HttpException("Mute: succes",201);
 		
 	}
 	/**
@@ -345,7 +374,7 @@ export class RoomsService {
 	 */
 	async unmute_user(targeted: number, roomtarget: number) {
 		try {
-			await this.prisma.rooms_members.update({
+			const data = await this.prisma.rooms_members.update({
 				where: {
 					combination: {
 						roomid: roomtarget,
@@ -359,10 +388,10 @@ export class RoomsService {
 					ismuted: false,
 				},
 			});
+			return {region:"chat",action:"norm", data:data}
 		} catch {
 			throw  new HttpException("Mute: unsucesfull",500);;
 		}
-		throw new HttpException("Mute:  succes",201);
 
 	}
 	/**
@@ -372,7 +401,7 @@ export class RoomsService {
 	 */
 	async ban_user(targeted: number, room: number) {
 		try {
-			 await this.prisma.rooms_members.update({
+			const data =  await this.prisma.rooms_members.update({
 				where: {
 					combination: {
 						roomid: room,
@@ -387,10 +416,10 @@ export class RoomsService {
 					isBanned: true,
 				},
 			});
+			return {region:"chat",action:"norm", data:data}
 		} catch (e){
 			throw new HttpException("Ban: unsucesfull (owner and admins can't be banned OR user not in room)",500);
 		}
-		throw new HttpException("Ban: succes",201);
 		
 	}
 	/**
@@ -401,7 +430,7 @@ export class RoomsService {
 	 */
 	async unban_user(targeted: number, roomtarget: number) {
 		try {
-			await this.prisma.rooms_members.update({
+			const data =  await this.prisma.rooms_members.update({
 				where: {
 					combination: {
 						roomid: roomtarget,
@@ -415,10 +444,10 @@ export class RoomsService {
 					isBanned: false,
 				},
 			});
+			return {region:"chat",action:"norm", data:data}
 		} catch {
 			throw  new HttpException("Ban:  unsucesfull",500);;
 		}
-		throw new HttpException("Ban:   succes",201);
 
 	}
 	/**
@@ -430,7 +459,7 @@ export class RoomsService {
 	 */
 		async give_room_admin(room: number, user: number) {
 			try {
-				await this.prisma.rooms_members.update({
+				const data =  await this.prisma.rooms_members.update({
 					where: {
 						combination: {
 							roomid: room,
@@ -443,10 +472,10 @@ export class RoomsService {
 						permission: user_permission.admin,
 					},
 				});
+				return {region:"chat",action:"norm", data:data}
 			} catch (e) {
 				throw new HttpException("User: Failiure",400)
 			}
-			throw new HttpException("User: garanting admin success",201)
 		}
 		/**
 		 *
@@ -456,7 +485,7 @@ export class RoomsService {
 		 */
 		async revoke_room_admin(room: number, user: number) {
 			try {
-				await this.prisma.rooms_members.update({
+				const data =  await this.prisma.rooms_members.update({
 					where: {
 						combination: {
 							roomid: room,
@@ -467,18 +496,17 @@ export class RoomsService {
 						permission: user_permission.participation,
 					},
 				});
-				
+				return {region:"chat",action:"norm", data:data}
 			} catch (e) {
 				throw new HttpException("User: Failiure",400)
 			}
-			throw new HttpException("User: removed admin",201)
 		}
 		async giveOwnership(owner : number, room: number, user: number) {
 			try {
-				await this.prisma.$transaction(async (trx) =>
+				const changes = await this.prisma.$transaction(async (trx) =>
 				{
 				
-					await trx.rooms_members.update({
+					const data = await trx.rooms_members.update({
 						where:
 						{
 
@@ -487,13 +515,14 @@ export class RoomsService {
 								roomid:room,
 								userid:owner
 							},
+						},
+						data:
+						{
+							permission: user_permission.participation,
 						}
-						,
-						data:{
-							permission:user_permission.participation,
-						}
+					
 					})
-					await trx.rooms_members.update({
+					const data2 = await trx.rooms_members.update({
 						where:
 						{
 
@@ -502,21 +531,20 @@ export class RoomsService {
 								roomid:room,
 								userid:user
 							},
+						},
+						data:
+						{
+							permission: user_permission.owner,
 						}
-						,
-						data:{
-							permission:user_permission.owner,
-							isBanned:false,
-							ismuted:false,
-						}
+						
 					})
-	
+					return [data,data2]
 				})
+				return {region:"chat",action:"ownership", data:changes}
 				
 			} catch (e) {
 				throw new HttpException("failed to give up ownership",400)
 			}
-			throw new HttpException("wertok fchanel",201)
 		}
 }
 

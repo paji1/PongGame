@@ -92,6 +92,8 @@ export class MessagesService {
 					{
 						select:
 						{
+							id:true,
+							roomid:true,
 							permission:true,
 							isblocked:true,
 							isBanned:true,

@@ -1,9 +1,57 @@
 import { toast } from "react-toastify";
 import { messages, roommessages } from "../../types/messages"
-import { room } from "../../types/room"
+import { member, room } from "../../types/room"
+import { backendretun } from "../../types/backendreturn";
 
-const updateRooms = (rooms: room[]) =>
+export const roomseventssetter = (roommember: backendretun | null, rooms: room[] | null, setRoomState: any , room: backendretun | null) =>
 {
+	console.log("entry")
+	if (!rooms)
+		return ;
+	const rooms2 = rooms.slice()
+	console.log(roommember, "warbak kayen", room)
+	if (roommember)
+	{	
+		const changeuserproperties = (member:member, array: room[], action :string) =>
+		{
+			const index = array.findIndex((ob:room) => ob.id === member.roomid);
+			const userindex = array[index].rooms_members.findIndex((mem:member) => mem.id === member.id);
+			const back = array[index].rooms_members[userindex].user_id;
+			array[index].rooms_members[userindex] = member;
+			array[index].rooms_members[userindex].user_id = back;
+			if (action ==="kick")
+				array[index].rooms_members = array[index].rooms_members.filter((mem:member) => mem.id != member.id);
+		}
+		switch (roommember.action)
+		{
+			case "kick":
+					changeuserproperties(roommember.data as member, rooms2, "kick")
+					break 
+			case "norm":
+				changeuserproperties(roommember.data as member, rooms2, "")
+				break;
+			case "ownership":
+				const arr = roommember.data as member[]
+				console.log(arr, "salam cv")
+				changeuserproperties(arr[0], rooms2, "")
+				changeuserproperties(arr[1] , rooms2, "")
+				break;
+		}
+		setRoomState(rooms2)
+		return ;
+	}
+	if(room)
+	{
+		switch (room.action)
+		{
+			case "new":
+				const newroom  = room.data as room
+				rooms2.unshift(newroom)
+				break ;
+		}
+		setRoomState(rooms2);
+		return ;
+	}
 
 }
 
