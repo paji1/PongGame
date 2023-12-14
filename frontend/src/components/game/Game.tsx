@@ -1,3 +1,7 @@
+import { useEffect, useRef } from "react"
+import { GamePlay } from "./GamePlay"
+
+
 const MAX_SCORE = 7
 
 const ScoreAnchor = ({isActive, direction}: {isActive: boolean, direction: string}) => (
@@ -44,7 +48,23 @@ const Ball = () => {
 
 const PlayGround = () => {
 	const position = {zbi: 'test'}
+	// const playerPaddleRef = useRef<HTMLDivElement>(null)
+	// const oppPaddleRef = useRef<HTMLDivElement>(null)
+	// const playGroundRef = useRef<HTMLDivElement>(null)
+	// let x = 0
 
+	// useEffect(() => {
+	// 	playGroundRef.current?.addEventListener('mousemove', (event: MouseEvent) => {
+	// 		if (!playGroundRef.current || !playerPaddleRef.current)
+	// 		return
+	// 		const y = playGroundRef.current.offsetHeight / 2
+	// 		playerPaddleRef.current.style.height = y + 'px'
+	// 	})
+	// 	return () => {
+	// 		// Remove the event listener when the component unmounts
+	// 		playGroundRef.current?.removeEventListener('mousemove', handleMouseMove);
+	// 	  };
+	// }, [])
 
 	return (
 		<div id="play-ground" className={`absolute w-3/4 h-3/4 top-[12.5%] right-[12.5%]
@@ -61,11 +81,30 @@ const PlayGround = () => {
 
 const GameField = () => {
 
+	const gameFieldRef = useRef(null)
+	const bgColor = '#24BEC8'
+
+	useEffect(() => {
+		if (!gameFieldRef.current)
+			return;
+		const game = new GamePlay(gameFieldRef.current)
+		game.start(bgColor)
+
+		window.addEventListener('resize', () => game.screenResizingHandler(bgColor))
+
+		return () => {
+			game.detachCanvas()
+			window.removeEventListener('resize', () => game.screenResizingHandler(bgColor))
+		}
+	}, [])
+
+	
 	return (
-		<div className="w-full h-full bg-sucessColor overflow-hidden relative">
-			<PlayGround />
+		<div ref={gameFieldRef} id="game-field" className="w-full h-full overflow-hidden relative">
+			{/* <PlayGround />
 			<PointsScreen direction="right" />
-			<PointsScreen direction="left" />
+			<PointsScreen direction="left" /> */}
+			{/* <canvas id='game-play'></canvas> */}
 		</div>
 	)
 }
