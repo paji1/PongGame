@@ -18,14 +18,15 @@ const ButtonComponent = () => {
 }
 
 const GameFooter = () => (
-	<div className={`border-solid border-textColor border-4 shadow-gameShadow w-full h-22
+	<div className={`border-solid border-textColor border-4 shadow-gameShadow h-22
+	sm:w-[576px] md:w-[691px] lg:w-[921px] xl:w-[1152px] 2xl:w-[1346px] w-[281px]
 	bg-textColor font-pixelify text-background flex items-center justify-evenly
 	rounded-b`}>
-		<div className={`flex flex-row gap-1 sm:gap-4 lg:gap-10 py-2`}>
+		<div className={`sm:flex sm:flex-row gap-1 sm:gap-4 lg:gap-10 py-2 hidden`}>
 			<ButtonComponent />
 			<ButtonComponent />
 		</div>
-		<div>
+		<div className={`flex flex-col gap-3 p-4 box-border`}>
 			<p className={`text-center capitalize text-xl`}>
 				transcendence
 			</p>
@@ -36,28 +37,36 @@ const GameFooter = () => (
 		<div className={`md:flex md:flex-row gap-1 sm:gap-4 lg:gap-10 py-2 hidden `}>
 			<ButtonComponent />
 		</div>
-		{/* <ButtonComponent /> */}
     </div>
 )
+
+const GameBody = ({isReady}: {isReady: boolean}) => {
+	return (
+		<div className={`border-[.5rem] border-solid border-textColor
+		sm:w-[576px] md:w-[691px] lg:w-[921px] xl:w-[1152px] 2xl:w-[1346px] w-[281px]
+		sm:h-[324px] md:h-[389px] lg:h-[518px] xl:h-[648px] 2xl:h-[757px] h-[500px]`}>
+			{isReady ? <GameFrame /> : <GameSetup />}
+		</div>
+	)
+}
 
 const GameFrame = () => {
 
 	return (
-		<div className={`border-solid border-textColor border-[.5rem] w-full
-		h-[576px] sm:h-[324px] md:h-[389px] lg:h-[518px] xl:h-[648px] 2xl:h-[757px]
-		rounded-t `}>
+		<div className={`border-solid border-textColor border-[.5rem]
+		sm:h-[324px] md:h-[389px] lg:h-[518px] xl:h-[648px] 2xl:h-[757px]
+		
+		rounded-t rotate-90 sm:rotate-0 w-full h-[576px]`}>
 			<GameField />
 		</div>
 	)
 }
 
 const GameUI = () => (
-	<div id="game-ui" className={`flex flex-col items-center
-		h-screen`}>
-		<div className={`flex flex-col items-center p-1 sm:p-5 mt-6 inset-0
-			w-[85%] sm:w-[576px] md:w-[691px] lg:w-[921px] xl:w-[1152px] 2xl:w-[1346px]`}>
-			{/* <GameSetup /> */}
-			<GameFrame />
+	<div id="game-ui" className={`flex flex-col items-center h-auto inset-0`}>
+		<div className={`flex flex-col items-center p-1 sm:p-5 mt-6
+			`}>
+			<GameBody isReady={false} />
 			<GameFooter />
 		</div>
 	</div>
@@ -65,11 +74,11 @@ const GameUI = () => (
 
 const GameMain = () => {
 	return (
-		<div className="overflow-hidden">
+		<div className="">
 			<Navbar />
-			<GameUI />
 			<NotificationBar />
 			<SideBar />
+			<GameUI />
 		</div>
 	)
 }
