@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react"
 import { EDifficulty, EMatchingType, IQueue, ADifficultyHandle, AMatchingHandle, DifficultyContext } from "../Context/QueueingContext"
 import Lottie from "lottie-web"
 
-const queueingQuery = (queueing: IQueue, inviteUsername: string): boolean => {
+const queueingQuery = (queueing: IQueue, inviteUsername?: string): boolean => {
 
 	const isValidInput = (input: string): boolean => {
 		const regex = /^[a-zA-Z0-9_]+$/
@@ -20,7 +20,7 @@ const queueingQuery = (queueing: IQueue, inviteUsername: string): boolean => {
 		if (!isValidInput(inviteUsername))
 			return false
 	}
-	
+
 	return true
 }
 
@@ -65,7 +65,12 @@ const ConfigElems = () => {
 		const start = startButtonRef.current as HTMLButtonElement
 		const search = searchForFriendRef.current as HTMLInputElement
 		
-		start.addEventListener('click', () => queueingQuery(queueingParams, search.value))
+		start.addEventListener('click', () => {
+			if (search)
+			queueingQuery(queueingParams, search.value)
+		else
+			queueingQuery(queueingParams)
+		})
 	}, [difficulty, matchingType])
 
 	return (
