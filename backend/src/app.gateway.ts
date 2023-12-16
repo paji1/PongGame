@@ -19,43 +19,45 @@ import { AdjacencyList } from "./common/classes/adjacent";
 import { subscribe } from "diagnostics_channel";
 import { stat } from "fs";
 import { action, statusDto } from "./Dto/status.dto";
+import { AtGuard } from "./common/guards";
+import { WsSecureguard } from "./common/guards/WsSecureguard.guard";
+import { GetCurrentUserId } from "./common/decorators";
 
 @WebSocketGateway({ transports: ["websocket"] })
 @UsePipes(new ValidationPipe())
 @UseFilters(WsValidationExeption)
 @UseGuards(WsInRoomGuard)
-export class AppGateway implements OnModuleInit, OnModuleDestroy {
+@UseGuards(AtGuard)
+
+export class AppGateway  {
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly chat: ChatService,
 	) {
-		this.state = new AdjacencyList();
 	}
 
 	@WebSocketServer()
 	server: Server;
-	state: AdjacencyList;
 	id: string;
-	onModuleInit() {}
-	onModuleDestroy() {}
+
 
 	async handleConnection(client , ) {
 		// console.log(`Client connecter ${client.id}`);
-		console.log(client.handshake.headers);
+		console.log(client.request.headers)
+
 		const user_rooms = await this.getRooms(1);
-		console.log(this.state);
 		for (let i = 0; i < user_rooms.length; i++) {
 			client.join(user_rooms[i].rooms.id.toString());
 		}
 	}
 	handleDisconnect(client) {
 		console.log(`Client disconnected ${client.id}`);
-		this.state.delNode(1, client.id);
 	}
 	@SubscribeMessage("chat")
-	// @inRoom()
-	async onMessage(@ConnectedSocket() client, @MessageBody() message: ChatSocketDto) {
-		console.log(message);
+	@inRoom()
+	async onMessage(@ConnectedSocket() client, @MessageBody() message: ChatSocketDto, @GetCurrentUserId() id:number) {
+		console.log(id, "number");
+
 		const res = await this.prisma.$transaction(async (trx) => {
 			const msgid = await trx.messages.create({
 				data: { sender_id: 1, room_id: message.Destination, messages: message.Message },
@@ -71,24 +73,10 @@ export class AppGateway implements OnModuleInit, OnModuleDestroy {
 				},
 			});
 		});
-		console.log(res);
 		if (res) this.server.to(message.Destination.toString()).emit("chat", res);
 		else client.emit("ChatError", "error sending message");
 	}
-	@SubscribeMessage("status")
-	async onrequest(@ConnectedSocket() client, @MessageBody() status: statusDto) {
-		if (status.action == action.update) {
-			this.state.changeStatus(1, status.status);
-		}
-		if (status.action === action.get) {
-			const retstatus = {
-				user: status.user,
-				status: this.state.getstatus(1),
-			};
-			this.state.addvertices(status.user, client.i);
-			client.emit("status", retstatus);
-		}
-	}
+	
 	async getRooms(user) {
 		const data = await this.prisma.rooms_members.findMany({
 			where: {

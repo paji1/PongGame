@@ -6,8 +6,6 @@ import { UsersService } from './users.service';
 export class UsersController {
     constructor (private readonly users: UsersService)
     {}
-   
-
     @Get()
     async getuser(@GetCurrentUserId() id:number)
     {

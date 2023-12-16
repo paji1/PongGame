@@ -141,7 +141,6 @@ const MessageBar = ({ roomnumber }: { roomnumber: number }) => {
 				if (e.status >= 400) toast.error(`code: ${e.status} - ${e.statusText}`);
 			})
 			.catch(() => toast.error(`network error`));
-
 		input.target.value = "";
 		settextmessage(input.target.value);
 		toast.error("websocket failure message sent via http");

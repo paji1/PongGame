@@ -2,6 +2,7 @@ import { Injectable, CanActivate, ExecutionContext, Query, ArgumentsHost } from 
 import { Reflector } from "@nestjs/core";
 import { user_permission, roomtype } from "@prisma/client";
 import { ChatSocketDto } from "src/Dto/ChatSocketFormat.dto";
+import { JwtPayloadWithRt } from "src/auth/types";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
@@ -11,14 +12,22 @@ export class WsInRoomGuard implements CanActivate {
 		private readonly prisma: PrismaService,
 	) {}
 	async canActivate(context: ExecutionContext) {
+		const isPublic = this.reflect.getAllAndOverride("isPublic", [context.getHandler(), context.getClass()]);
+		if (isPublic) return true;
 		const inroom = this.reflect.getAllAndOverride<boolean>("inRoom", [context.getHandler(), context.getClass()]);
 		const client = context.switchToWs().getClient();
+		const request = context.switchToHttp().getRequest()
+
 		const data: ChatSocketDto = context.switchToWs().getData();
 		/**
 		 * user id should be handled
 		 */
 		console.log("tfiltrat");
-		const userid = 1;
+		const key : keyof JwtPayloadWithRt | undefined = "sub";
+		var userid =  request.user["sub"];
+		console.log("malmalmlamlamlmalamlamlamla" , userid)
+		if (typeof userid != "number" )
+			return false
 		if (typeof inroom === "undefined") return true;
 		if (typeof data.Destination != "number" || Number.isNaN(data.Destination)) {
 			client.emit("ChatError", "invalid data");
