@@ -39,10 +39,9 @@ export class AppGateway implements OnModuleInit, OnModuleDestroy {
 	onModuleInit() {}
 	onModuleDestroy() {}
 
-	async handleConnection(client) {
-		console.log(`Client connecter ${client.id}`);
-		console.log(client.handshake.headers.cookie);
-		this.state.newNode(1, client.id, "online");
+	async handleConnection(client , ) {
+		// console.log(`Client connecter ${client.id}`);
+		console.log(client.handshake.headers);
 		const user_rooms = await this.getRooms(1);
 		console.log(this.state);
 		for (let i = 0; i < user_rooms.length; i++) {

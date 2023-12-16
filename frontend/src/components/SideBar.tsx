@@ -12,6 +12,7 @@ import { SocketContext } from "./Context/SocketContext";
 import { toast } from "react-toastify";
 import { roomseventssetter, updateMessages } from "./sidebar/updater";
 import { backendretun } from "../types/backendreturn";
+import { ip } from "../network/ipaddr";
 
 const SideBar = () => {
 	const socket = useContext(SocketContext);
@@ -31,7 +32,30 @@ const SideBar = () => {
 			roomseventssetter(null,  roomsState, setRoomsState , data)
 
 	}
-
+	const messageevents = (message : messages|null , mesagat: any | null ) =>
+	{
+		console.log(mesagat, message)
+		if (message != null)
+		{
+			updateMessages(message, chatState, setChatState);
+			return 
+		}
+		if (mesagat != null)
+		{
+			const roomid = mesagat.id;
+			const messagate = mesagat.messages as messages[]
+			console.log(roomid, messagate, "mamamak");
+			console.log(mesagat, "ji")
+			const newmessage = chatState?.slice();
+			if (newmessage === undefined)
+				return ;
+			const index = newmessage.findIndex((ob: roommessages) => ob.id === mesagat.id)
+			console.log(index)		
+			console.log("new", newmessage[index].messages.concat(messagate))	
+			newmessage[index].messages =newmessage[index].messages.concat(messagate)
+			setChatState(newmessage)
+		}
+	}
 	const friendroom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof === "chat") : null;
 	const grouproom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof !== "chat") : null;
 	useMessages(false, setChatState);
@@ -41,7 +65,7 @@ const SideBar = () => {
 	const currentroom = Array.isArray(roomsState) ? roomsState.find((ob: room) => ob.id === chatSelector) : null;
 	socket.off("connect").on("connect", () => console.log("conected"));
 	socket.off("chat").on("chat", (data: messages) => {
-		updateMessages(data, chatState, setChatState);
+		messageevents(data, null)
 	});
 	socket.off("ChatError").on("ChatError", (data) => toast.error(data));
 	const toggleChatBar = () => seIsOpen(!isOpen);
@@ -49,6 +73,7 @@ const SideBar = () => {
 		if (chatSelector !== -1)
 			return (
 				<ChatBar
+					chatupdater={messageevents}
 					refresh={roomevents}
 					roomselector={setChatSelector}
 					room={typeof currentroom === "undefined" ? null : currentroom}
@@ -140,7 +165,10 @@ const CreateRoom = ({refresh}: {refresh:any}) => {
 			name: name,
 			type: type,
 		};
-		const data = fetch(`http://localhost:3001/chat/creation`, {
+		const data = fetch("http://" + ip + "3001/chat/creation", {
+		
+				credentials: 'include',
+		
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",

@@ -3,6 +3,7 @@ import { member, room } from "../../types/room";
 import Profile from "../../assets/profile.png";
 import { toast } from "react-toastify";
 import { currentUser } from "../Context/AuthContext";
+import { ip } from "../../network/ipaddr";
 
 const filter = (str: string) => {
 	if (str === "participation") return "participant";
@@ -11,7 +12,7 @@ const filter = (str: string) => {
 const Action = (userid: number, roomid: number, action: boolean, endpoint: string , refresh: any) => {
 	const how: string = action ? "POST" : "PATCH";
 	console.log(how);
-	const data = fetch(`http://localhost:3001/chat/${endpoint}?room=${roomid}&target=${userid}`, { method: how })
+	const data = fetch(`http://${ip}3001/chat/${endpoint}?room=${roomid}&target=${userid}`, { method: how,credentials: 'include' })
 		.then((data) => data.json())
 		.then((data) => {
 			let res = data.statusCode;
@@ -27,7 +28,7 @@ const Action = (userid: number, roomid: number, action: boolean, endpoint: strin
 
 const byby = (userid: number, roomid: number, action: boolean, endpoint: string, refresh: any) => {
 	const how: string = action ? "PATCH" : "DELETE";
-	const data = fetch(`http://localhost:3001/chat/${endpoint}?room=${roomid}&target=${userid}`, { method: how })
+	const data = fetch(`http://${ip}3001/chat/${endpoint}?room=${roomid}&target=${userid}`, { method: how ,credentials: 'include',})
 		.then((data) => data.json())
 		.then((data) => {
 			let res = data.statusCode;
@@ -44,7 +45,7 @@ const byby = (userid: number, roomid: number, action: boolean, endpoint: string,
 const deleteRoom = (roomid: number, refresh: any) => {
 	const how: string = "DELETE";
 	console.log(how);
-	const data = fetch(`http://localhost:3001/chat/creation?room=${roomid}`, { method: how })
+	const data = fetch(`http://${ip}3001/chat/creation?room=${roomid}`, { method: how })
 		.then((data) => data.json())
 		.then((data) => {
 			let res = data.statusCode;
@@ -205,7 +206,8 @@ const ChangeRoomType = ({ room }: { room: room | null }) => {
 			name: name,
 			type: type,
 		};
-		const data = fetch(`http://localhost:3001/chat/modify?room=${room}`, {
+		const data = fetch(`http://${ip}3001/chat/modify?room=${room}`, {
+			credentials: 'include',
 			method: "PATCH",
 			headers: {
 				"Content-Type": "application/json",

@@ -46,6 +46,7 @@ export class AuthController {
 	@HttpCode(HttpStatus.OK)
 	async signinLocal(@Body() dto: AuthDto, @Res() res: Response): Promise<void> {
 		const tokens = await this.authService.signinLocal(dto);
+		console.log(dto);
 		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}
 

@@ -3,11 +3,12 @@ import Profile from "../../assets/profile.png";
 import { useContext, useState } from "react";
 import { currentUser } from "../Context/AuthContext";
 import { toast } from "react-toastify";
+import { ip } from "../../network/ipaddr";
 
 const blockAction = ( refresh:any,userid: number, roomid: number, action: boolean) => {
 	const how: string = action ? "POST" : "PATCH";
 	console.log(how);
-	const data = fetch(`http://localhost:3001/chat/block?room=${roomid}&target=${userid}`, { method: how })
+	const data = fetch(`http://${ip}3001/chat/block?room=${roomid}&target=${userid}`, { method: how ,credentials: 'include',})
 		.then((data) => data.json())
 		.then((data) => {
 			let res = data.statusCode;

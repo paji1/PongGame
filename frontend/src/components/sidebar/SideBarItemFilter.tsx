@@ -9,6 +9,7 @@ const SideBarItemFilter = ({
 	rooms,
 	query,
 	roomselector,
+	
 }: {
 	rooms: room[] | null;
 	query: string;

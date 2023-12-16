@@ -108,4 +108,38 @@ export class MessagesService {
 			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
 		}
 	}
+
+	async satisfy(Requester : number, room: number, ofsset:number)
+	{
+		const conversation = await this.prisma.rooms.findUnique({
+			where: {
+					id: room,		
+			},
+			select: {
+				id: true,
+				messages: {
+					select: {
+						created_at: true,
+						messages: true,
+						senderid: {
+							select: {
+								id: true,
+								nickname: true,
+								avatar: true,
+							},
+						},
+					},
+					orderBy: {
+						created_at: "desc",
+					},
+					take: 30,
+					skip: ofsset
+				},
+			},
+					
+
+		});
+		console.log(ofsset)
+		return conversation;
+	}
 }

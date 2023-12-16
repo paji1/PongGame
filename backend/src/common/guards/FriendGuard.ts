@@ -14,8 +14,7 @@ export class FriendGuard implements CanActivate {
 		const friend = +request.query["friend"];
 		const Guarded = this.reflect.getAllAndOverride<boolean>("Friend", [context.getHandler(), context.getClass()]);
 
-		console.log(Guarded);
-		console.log("salam");
+		
 		if (typeof Guarded === "undefined") return true;
 		const user = 1;
 		if (Number.isNaN(friend)) return false;

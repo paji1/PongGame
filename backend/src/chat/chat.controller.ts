@@ -6,6 +6,8 @@ import { IsNotEmpty, MinLength, MaxLength, ValidateIf, IsEnum, IsString, IsNumbe
 import { RoomPermitions } from "src/common/decorators/RoomPermitions.decorator";
 import { RoomType } from "src/common/decorators/RoomType.decorator";
 import { IsFriend } from "src/common/decorators/Friend.decorator";
+import { query } from "express";
+import { GetCurrentUser, GetCurrentUserId } from "src/common/decorators";
 
 @Controller("chat")
 export class ChatController {
@@ -15,25 +17,32 @@ export class ChatController {
 	 *
 	 */
 	@Get("town")
-	async getHumanRooms() {
-		return this.service.messages.get_rooms(1);
+	async getHumanRooms(@GetCurrentUserId() id:number) {
+		return this.service.messages.get_rooms(id);
 	}
 	/**
 	 *
 	 *
 	 */
 	@Get("comunication")
-	async humanFetchMessage() {
+	async humanFetchMessage(@GetCurrentUserId() id:number) {
 		console.log("hi");
-		return await this.service.messages.get_messages(1);
+		return await this.service.messages.get_messages(id);
 	}
 	/**
 	 *
 	 */
 	@Post("comunication")
 	@RoomPermitions(user_permission.owner, user_permission.admin, user_permission.participation, user_permission.chat)
-	async humanSentMessage(@Query("room") room: number, @Body() message: MessageDto) {
-		return await this.service.messages.send_message(1, room, message.text);
+	async humanSentMessage(@Query("room") room: number, @Body() message: MessageDto, @GetCurrentUserId() id:number) {
+		return await this.service.messages.send_message(id, room, message.text);
+	}
+	@Get("paginate")
+	// @RoomPermitions(user_permission.owner, user_permission.admin, user_permission.participation, user_permission.chat)
+	async humansatisfy(@Query("room") room: number,@Query("offset") ofsset:number, @GetCurrentUserId() id:number)
+	{
+		console.log(room, ofsset)
+		return await this.service.messages.satisfy(id,room, ofsset);
 	}
 
 	/**
@@ -62,8 +71,8 @@ export class ChatController {
 	 *
 	 */
 	@Post("creation")
-	async roomAddExistance(@Body() Room: RoomDto) {
-		return await this.service.rooms.create_room(1, Room);
+	async roomAddExistance(@Body() Room: RoomDto , @GetCurrentUserId() id:number) {
+		return await this.service.rooms.create_room(id, Room);
 	}
 	/**
 	 * @description
@@ -80,8 +89,8 @@ export class ChatController {
 	 */
 	@Post("humans")
 	@RoomType(roomtype.protected, roomtype.public)
-	async roomHumansJoin(@Query("room") room: number, @Body() Room: RoomDto) {
-		return await this.service.rooms.join_room(1, room, Room);
+	async roomHumansJoin(@Query("room") room: number, @Body() Room: RoomDto, @GetCurrentUserId() id:number) {
+		return await this.service.rooms.join_room(id, room, Room);
 	}
 	/**
 	 * @description
@@ -89,8 +98,8 @@ export class ChatController {
 	@Delete("humans")
 	@RoomPermitions(user_permission.admin, user_permission.participation)
 	@RoomType(roomtype.protected, roomtype.public, roomtype.private)
-	async roomHumansLeave(@Query("room") room: number) {
-		return await this.service.rooms.leave_room(1, room);
+	async roomHumansLeave(@Query("room") room: number, @GetCurrentUserId() id:number) {
+		return await this.service.rooms.leave_room(id, room);
 	}
 
 	/**
@@ -102,16 +111,16 @@ export class ChatController {
 	@Patch("modify")
 	@RoomPermitions(user_permission.owner)
 	@RoomType(roomtype.protected, roomtype.public, roomtype.private)
-	async roomHumansmodify(@Query("room") room: number, @Body() Room: RoomDto) {
+	async roomHumansmodify(@Query("room") room: number, @Body() Room: RoomDto , @GetCurrentUserId() id:number) {
 		console.log(room, "dtrodzeb");
-		return await this.service.rooms.modify_room(1, room, Room);
+		return await this.service.rooms.modify_room(id, room, Room);
 	}
 	@Post("humans/invite")
 	@IsFriend()
 	@RoomPermitions(user_permission.owner, user_permission.admin)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
-	async roomHumanInvite(@Query("room") room: number, @Query("friend") friend: number) {
-		return await this.service.rooms.invite_room(1, friend, room);
+	async roomHumanInvite(@Query("room") room: number, @Query("friend") friend: number , @GetCurrentUserId() id:number) {
+		return await this.service.rooms.invite_room(id, friend, room);
 	}
 
 	/**
@@ -120,9 +129,9 @@ export class ChatController {
 	@Post("block")
 	@RoomPermitions(user_permission.chat)
 	@RoomType(roomtype.chat)
-	async HumanBlock(@Query("room") room: number, @Query("target") target: number) {
+	async HumanBlock(@Query("room") room: number, @Query("target") target: number, @GetCurrentUserId() id:number) {
 		//block_user
-		return await this.service.rooms.block_user(1, target, room);
+		return await this.service.rooms.block_user(id, target, room);
 	}
 	/**
 	 * @description
@@ -130,9 +139,9 @@ export class ChatController {
 	@Patch("block")
 	@RoomPermitions(user_permission.chat)
 	@RoomType(roomtype.chat)
-	async humanUnblock(@Query("room") room: number, @Query("target") target: number) {
+	async humanUnblock(@Query("room") room: number, @Query("target") target: number, @GetCurrentUserId() id:number) {
 		// unblock_user
-		return await this.service.rooms.unblock_user(1, target, room);
+		return await this.service.rooms.unblock_user(id, target, room);
 	}
 
 	/**
@@ -207,7 +216,7 @@ export class ChatController {
 	@Patch("lwert")
 	@RoomPermitions(user_permission.owner)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
-	async giveOwnership(@Query("room") room: number, @Query("target") user: number) {
-		return await this.service.rooms.giveOwnership(1, room, user);
+	async giveOwnership(@Query("room") room: number, @Query("target") user: number, @GetCurrentUserId() id:number) {
+		return await this.service.rooms.giveOwnership(id, room, user);
 	}
 }

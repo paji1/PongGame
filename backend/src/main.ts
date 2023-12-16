@@ -11,7 +11,13 @@ import * as cookieParser from "cookie-parser";
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
 	app.use(cookieParser());
-	app.use(cors());
+	app.enableCors({
+		origin: [
+		  'http://10.12.7.4:3000',
+		],
+		methods: ["GET", "POST", "DELETE","PATCH" ],
+		credentials: true,
+	  });
 	app.useGlobalPipes(
 		new ValidationPipe({
 			whitelist: true,

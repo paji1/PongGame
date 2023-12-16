@@ -1,6 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext, Query } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { user_permission, roomtype } from "@prisma/client";
+import { JwtPayloadWithRt } from "src/auth/types";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
@@ -10,6 +11,8 @@ export class RoomGuard implements CanActivate {
 		private readonly prisma: PrismaService,
 	) {}
 	async canActivate(context: ExecutionContext) {
+		const isPublic = this.reflect.getAllAndOverride("isPublic", [context.getHandler(), context.getClass()]);
+		if (isPublic) return true;
 		const request = context.switchToHttp().getRequest();
 		const room = +request.query["room"];
 		const roomtypes = this.reflect.getAllAndOverride<roomtype[]>("RoomType", [
@@ -20,8 +23,9 @@ export class RoomGuard implements CanActivate {
 			context.getHandler(),
 			context.getClass(),
 		]);
-		console.log("jat request");
-		const user = 1;
+		
+		const key : keyof JwtPayloadWithRt | undefined = "sub";
+		var user =  request.user[key];
 		if (typeof roomtypes !== "undefined") {
 			if (Number.isNaN(room)) return false;
 			const roomdata = await this.prisma.rooms.findUnique({
