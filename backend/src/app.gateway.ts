@@ -61,8 +61,6 @@ export class AppGateway  {
 	@SubscribeMessage("chat")
 	@inRoom()
 	async onMessage(@ConnectedSocket() client, @MessageBody() message: ChatSocketDto, @GetCurrentUserId() id:number) {
-		console.log(id, "number");
-
 		const res = await this.prisma.$transaction(async (trx) => {
 			const msgid = await trx.messages.create({
 				data: { sender_id: id, room_id: message.Destination, messages: message.Message },

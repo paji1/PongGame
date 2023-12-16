@@ -22,7 +22,7 @@ export class AtStrategy extends PassportStrategy(Strategy, "jwt") {
 		if (req.cookies && "atToken" in req.cookies && req.cookies.atToken.length > 0) {
 			return req.cookies.atToken;
 		}
-		console.log(req.request.headers.cookie.search("atToken"));
+		console.log("tokenpos", req.request.headers.cookie.search("atToken"));
 		if (req.request.headers.cookie && req.request.headers.cookie.search("atToken")  != -1 && req.request.headers.cookie.length > 0) {
 			const on = req.request.headers.cookie.split("; ")[0].replace("=", ":")
 			return on.split(":")[1];

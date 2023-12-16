@@ -23,9 +23,10 @@ export class RoomGuard implements CanActivate {
 			context.getHandler(),
 			context.getClass(),
 		]);
-		
 		const key : keyof JwtPayloadWithRt | undefined = "sub";
 		var user =  request.user[key];
+		if (user == undefined)
+			return false
 		if (typeof roomtypes !== "undefined") {
 			if (Number.isNaN(room)) return false;
 			const roomdata = await this.prisma.rooms.findUnique({

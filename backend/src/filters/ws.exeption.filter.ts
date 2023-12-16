@@ -6,7 +6,7 @@ import { Socket } from "dgram";
 export class WsValidationExeption extends BaseWsExceptionFilter {
 	catch(exception: HttpException, host: ArgumentsHost) {
 		// Here you have the exception and you can check the data
-		console.log("what");
+		console.log("WsValidationExeption");
 		const response = exception["response"]["message"];
 		const jj = host.switchToWs();
 		const kk: Socket = jj.getClient();
