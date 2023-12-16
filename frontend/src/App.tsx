@@ -142,7 +142,10 @@ const App = () => {
 	if (!user)
 		getuser(setuser)
 	if (user)
-		socket.connect()
+		{
+			socket.connect()
+			socket.emit("init")
+		}
 	return (
 		<div>
 			<ToastContainer />

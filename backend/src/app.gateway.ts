@@ -41,17 +41,22 @@ export class AppGateway  {
 	id: string;
 
 
-	async handleConnection(client , ) {
+	async handleConnection(client ) {
 		// console.log(`Client connecter ${client.id}`);
-		console.log(client.request.headers)
-
-		const user_rooms = await this.getRooms(1);
-		for (let i = 0; i < user_rooms.length; i++) {
-			client.join(user_rooms[i].rooms.id.toString());
-		}
+		
+		
 	}
 	handleDisconnect(client) {
 		console.log(`Client disconnected ${client.id}`);
+	}
+
+	@SubscribeMessage("init")
+	async init(@ConnectedSocket() client, @GetCurrentUserId() id:number)
+	{
+		const user_rooms = await this.getRooms(id);
+		for (let i = 0; i < user_rooms.length; i++) {
+			client.join(user_rooms[i].rooms.id.toString());
+		}
 	}
 	@SubscribeMessage("chat")
 	@inRoom()
@@ -60,7 +65,7 @@ export class AppGateway  {
 
 		const res = await this.prisma.$transaction(async (trx) => {
 			const msgid = await trx.messages.create({
-				data: { sender_id: 1, room_id: message.Destination, messages: message.Message },
+				data: { sender_id: id, room_id: message.Destination, messages: message.Message },
 			});
 			await trx.rooms.update({ where: { id: message.Destination }, data: { updated_at: msgid.created_at } });
 			return await trx.messages.findUnique({
