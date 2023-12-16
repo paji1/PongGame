@@ -33,7 +33,7 @@ const CheckButton = ({_key, text, color, selected, clickHandler}:
 			selected: string
 		}
 	) => (
-	<button className={`font-pixelify border-solid border-[.2rem] py-1 w-64 rounded-full
+	<button className={`font-pixelify border-solid border-[.2rem] py-1 w-56 sm:w-64 rounded-full
 		${selected === _key ? `bg-${color} text-background border-textColor` : `border-${color} text-${color} bg-background`}
 		hover:text-background hover:border-${color} hover:bg-${color} shadow-buttonShadow capitalize`}
 		
@@ -74,7 +74,7 @@ const ConfigElems = () => {
 	}, [difficulty, matchingType])
 
 	return (
-		<div className={`flex flex-col lg:gap-8 md:gap-5 sm:gap-2 gap-8 border z-50`}>
+		<div className={`flex flex-col lg:gap-8 md:gap-5 sm:gap-2 gap-8 border z-0 text-sm md:text-base lg:text-lg`}>
 			<div className={`flex  flex-col gap-2 items-center justify-evenly`}>
 				<CheckButton clickHandler={difficultyHandeler} text="easy" color="sucessColor" _key={EDifficulty.EASY} selected={difficulty} />
 				<CheckButton clickHandler={difficultyHandeler} text="medium" color="secondary" _key={EDifficulty.MEDIUM} selected={difficulty} />
@@ -85,11 +85,11 @@ const ConfigElems = () => {
 				<CheckButton clickHandler={matchingTypeHandeler} text="With a friend" color="[#9A73A6]" _key={EMatchingType.INVITE} selected={matchingType} />
 			</div>
 			{matchingType === EMatchingType.INVITE ? (<input type="text" placeholder="Who..." ref={searchForFriendRef}
-				className={`px-2 py-1 w-64 border-solid border-textColor border-[.2rem] font-pixelify
+				className={`px-2 py-1 w-56 sm:w-64 border-solid border-textColor border-[.2rem] font-pixelify
 				rounded-full focus:outline-none shadow-buttonShadow`} />) : null}
 			<div className={`flex  flex-col gap-2 items-center justify-evenly`}>
 				<button ref={startButtonRef} className={`py-1 border-solid border-textColor border-[.2rem] bg-buttonColor
-				rounded-full focus:outline-none font-pixelify shadow-buttonShadow w-64`}>
+				rounded-full focus:outline-none font-pixelify shadow-buttonShadow w-56 sm:w-64`}>
 					Start
 				</button>
 			</div>
@@ -132,7 +132,7 @@ const GameSetup = () => {
 		
 	return (
 		<DifficultyContext.Provider value={[difficulty, setDifficulty]}>
-			<div id="game-setup-frame" className={`h-full w-full justify-center items-center z-50 flex flex-row`}>
+			<div id="game-setup-frame" className={`h-full w-full justify-center items-center z-0 flex flex-row`}>
 				<div className={`flex w-1/2 h-full items-center justify-center`}>
 					<ConfigElems />
 				</div>

@@ -23,7 +23,7 @@ const SideBar = () => {
 		<section
 			className={`fixed inset-y-0 right-0 bg-background border-l-2 border-solid 
 			sm:w-[85%] md:w-1/2 lg:w-1/2 xl:w-[35%] 2xl:w-[30%] w-[90%] transition-all duration-300
-			font-pixelify
+			font-pixelify z-50
 			${isOpen ? 'transform translate-x-0' : 'transform translate-x-full'}`}
 		>
 			<div className={`flex flex-col gap-2 h-full max-h-full min-h-full `}>

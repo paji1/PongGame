@@ -1,7 +1,8 @@
+import { useEffect, useRef } from "react";
 import Navbar from "../Navbar";
 import NotificationBar from "../notifbar/NotificationBar";
 import SideBar from "../sidebar/SideBar";
-import GameField from "./Game";
+// import GameField from "./Game";
 import GameSetup from "./GameSetup";
 
 const ButtonComponent = () => {
@@ -41,11 +42,14 @@ const GameFooter = () => (
 )
 
 const GameBody = ({isReady}: {isReady: boolean}) => {
+
+	const gameBodyRef = useRef(null)
+
 	return (
-		<div className={`border-[.5rem] border-solid border-textColor
+		<div ref={gameBodyRef} className={`border-[.5rem] border-solid border-textColor
 		sm:w-[576px] md:w-[691px] lg:w-[921px] xl:w-[1152px] 2xl:w-[1346px] w-[281px]
 		sm:h-[324px] md:h-[389px] lg:h-[518px] xl:h-[648px] 2xl:h-[757px] h-[500px]`}>
-			{isReady ? <GameFrame /> : <GameSetup />}
+			{isReady ? null: <GameSetup />}
 		</div>
 	)
 }
@@ -53,11 +57,8 @@ const GameBody = ({isReady}: {isReady: boolean}) => {
 const GameFrame = () => {
 
 	return (
-		<div className={`border-solid border-textColor border-[.5rem]
-		sm:h-[324px] md:h-[389px] lg:h-[518px] xl:h-[648px] 2xl:h-[757px]
-		
-		rounded-t rotate-90 sm:rotate-0 w-full h-[576px]`}>
-			<GameField />
+		<div className={`rounded-t rotate-90 sm:rotate-0 w-full h-full`}>
+			
 		</div>
 	)
 }
