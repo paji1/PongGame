@@ -22,11 +22,9 @@ export class WsInRoomGuard implements CanActivate {
 		/**
 		 * user id should be handled
 		 */
-		console.log("at wsroomguard")
 
 		const key : keyof JwtPayloadWithRt | undefined = "sub";
 		var userid =  request.user["sub"];
-		console.log("wsinroomguard" , userid, data.Destination)
 		if (typeof userid != "number" )
 			return false
 		if (typeof inroom === "undefined") return true;
@@ -38,7 +36,6 @@ export class WsInRoomGuard implements CanActivate {
 		const check = await this.prisma.rooms_members.findUnique({
 			where: { combination: { roomid: data.Destination, userid: userid } },
 		});
-		console.log(check);
 		if (!check) {
 			client.emit("ChatError", "user not in room");
 			return false;

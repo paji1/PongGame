@@ -42,12 +42,10 @@ export class AppGateway  {
 
 
 	async handleConnection(client ) {
-		// console.log(`Client connecter ${client.id}`);
 		
 		
 	}
 	handleDisconnect(client) {
-		console.log(`Client disconnected ${client.id}`);
 	}
 
 	@SubscribeMessage("init")
@@ -57,7 +55,6 @@ export class AppGateway  {
 		for (let i = 0; i < user_rooms.length; i++) {
 			client.join(user_rooms[i].rooms.id.toString());
 		}
-		console.log(this.server.sockets.adapter)
 	}
 	@SubscribeMessage("chat")
 	@inRoom()
@@ -77,7 +74,6 @@ export class AppGateway  {
 				},
 			});
 		});
-		console.log("return to front ", res)
 		if (res) this.server.to(message.Destination.toString()).emit("chat", res);
 		else client.emit("ChatError", "error sending message");
 	}

@@ -16,7 +16,6 @@ export class WsSecureguard implements CanActivate {
 		/**
 		 * user id should be handled
 		 */
-		console.log("socket zaaaaaaaaabiio");
 	
 		return true;
 	}

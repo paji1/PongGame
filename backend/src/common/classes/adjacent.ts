@@ -40,13 +40,11 @@ export class AdjacencyList implements IAdjacencyList {
 			user: user,
 			status: userdata.status,
 		};
-		console.log(userdata);
 		userdata.vertices.map(async (sockid: string, index: number) => {
 			const client = server.sockets.sockets.get(sockid);
 			if (client === undefined) inconsistence.push(index);
 			else client.emit("status", retstatus);
 		});
-		console.log(inconsistence);
 		/**
 		 * todo: delete incostincencies
 		 */

@@ -16,7 +16,6 @@ export class Invite implements CanActivate {
 			context.getHandler(),
 			context.getClass(),
 		]);
-		console.log("at isinviteguard")
 
 		if (typeof invitemeta === "undefined") return true;
 		if (typeof invitation === "undefined") return false;

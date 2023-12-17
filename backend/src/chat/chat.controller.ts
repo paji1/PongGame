@@ -26,7 +26,6 @@ export class ChatController {
 	 */
 	@Get("comunication")
 	async humanFetchMessage(@GetCurrentUserId() id:number) {
-		console.log("hi");
 		return await this.service.messages.get_messages(id);
 	}
 	/**
@@ -41,7 +40,6 @@ export class ChatController {
 	@RoomPermitions(user_permission.owner, user_permission.admin, user_permission.participation, user_permission.chat)
 	async humansatisfy(@Query("room") room: number,@Query("offset") ofsset:number, @GetCurrentUserId() id:number)
 	{
-		console.log(room, ofsset)
 		return await this.service.messages.satisfy(id,room, ofsset);
 	}
 
@@ -112,7 +110,6 @@ export class ChatController {
 	@RoomPermitions(user_permission.owner)
 	@RoomType(roomtype.protected, roomtype.public, roomtype.private)
 	async roomHumansmodify(@Query("room") room: number, @Body() Room: RoomDto , @GetCurrentUserId() id:number) {
-		console.log(room, "dtrodzeb");
 		return await this.service.rooms.modify_room(id, room, Room);
 	}
 	@Post("humans/invite")

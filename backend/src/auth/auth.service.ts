@@ -97,7 +97,6 @@ export class AuthService {
 	}
 
 	async logout(user42: string, @Res() res: Response): Promise<boolean> {
-		console.log("user42", user42);
 		res.cookie("atToken", "", { expires: new Date(Date.now()) });
 		await this.prisma.user.updateMany({
 			where: {

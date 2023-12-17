@@ -5,7 +5,6 @@ import { backendretun } from "../../types/backendreturn";
 
 export const roomseventssetter = (roommember: backendretun | null, rooms: room[] | null, setRoomState: any , room: backendretun | null) =>
 {
-	console.log("entry")
 	if (!rooms)
 		return ;
 	const rooms2 = rooms.slice()
@@ -40,7 +39,6 @@ export const roomseventssetter = (roommember: backendretun | null, rooms: room[]
 	}
 	if(room)
 	{
-		console.log("hna", room)
 		switch (room.action)
 		{
 			case "new":
@@ -79,6 +77,5 @@ export const updateMessages = (newmsg:messages,  messages: roommessages[] | null
     		    msgarray.messages.unshift(newmsg);
     		newversion[index] = msgarray;
     		setChatState(newversion)
-    		console.log(newversion, "newest")
     
 }

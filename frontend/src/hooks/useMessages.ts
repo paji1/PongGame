@@ -14,7 +14,6 @@ const useMessages = (updater: boolean, setmessages: any) => {
 			{
 				if (!Array.isArray(data))
 					toast.error(data.message)
-				console.log("fetched messages")
 				setmessages(data) 
 			})
 			.catch(() => toast.error(`messages: network error`))

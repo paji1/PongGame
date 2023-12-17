@@ -9,7 +9,6 @@ export class MessagesService {
 		const membership = await this.prisma.rooms_members.findUnique({
 			where: { combination: { userid: Requester, roomid: room } },
 		});
-		console.log("hnayahnaya");
 		if (membership.isblocked || membership.ismuted) throw new HttpException("cant send message", 403);
 		const conv = this.prisma.$transaction(async (t) => {
 			const msg = await t.messages.create({
@@ -102,7 +101,6 @@ export class MessagesService {
 					},
 				},
 			});
-			console.log(data, "hba");
 			return data;
 		} catch {
 			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
@@ -139,7 +137,6 @@ export class MessagesService {
 					
 
 		});
-		console.log(ofsset)
 		return conversation;
 	}
 }

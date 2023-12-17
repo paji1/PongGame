@@ -25,7 +25,6 @@ const SideBar = () => {
 	const [roomsUpdater, updateRooms] = useState(false);
 	const roomevents = (data: backendretun) =>
 	{
-		console.log(data, "hna")
 		if (data.region === "chat")
 			roomseventssetter(data, roomsState, setRoomsState , null)
 		else if(data.region === "room")
@@ -42,8 +41,6 @@ const SideBar = () => {
 							messages: new Array(0)
 						}
 						newstate.push(chat);
-						console.log(chat)
-						console.log(newstate)
 						setChatState(newstate)
 					}
 					socket.emit("init", {})
@@ -52,7 +49,6 @@ const SideBar = () => {
 	}
 	const messageevents = (message : messages|null , mesagat: any | null ) =>
 	{
-		console.log(mesagat, message)
 		if (message != null)
 		{
 			updateMessages(message, chatState, setChatState);
@@ -62,14 +58,10 @@ const SideBar = () => {
 		{
 			const roomid = mesagat.id;
 			const messagate = mesagat.messages as messages[]
-			console.log(roomid, messagate, "mamamak");
-			console.log(mesagat, "ji")
 			const newmessage = chatState?.slice();
 			if (newmessage === undefined)
 				return ;
 			const index = newmessage.findIndex((ob: roommessages) => ob.id === mesagat.id)
-			console.log(index)		
-			console.log("new", newmessage[index].messages.concat(messagate))	
 			newmessage[index].messages =newmessage[index].messages.concat(messagate)
 			setChatState(newmessage)
 		}
@@ -84,7 +76,6 @@ const SideBar = () => {
 	socket.off("connect").on("connect", () => console.log("conected"));
 	socket.off("chat").on("chat", (data: messages) => {
 		messageevents(data, null)
-		console.log(data, "hoho")
 	});
 	socket.off("ChatError").on("ChatError", (data) => toast.error(data));
 	const toggleChatBar = () => seIsOpen(!isOpen);

@@ -11,7 +11,6 @@ const filter = (str: string) => {
 };
 const Action = (userid: number, roomid: number, action: boolean, endpoint: string , refresh: any) => {
 	const how: string = action ? "POST" : "PATCH";
-	console.log(how);
 	const data = fetch(`http://${ip}3001/chat/${endpoint}?room=${roomid}&target=${userid}`, { method: how,credentials: 'include' })
 		.then((data) => data.json())
 		.then((data) => {
@@ -44,13 +43,10 @@ const byby = (userid: number, roomid: number, action: boolean, endpoint: string,
 
 const deleteRoom = (roomid: number, refresh: any) => {
 	const how: string = "DELETE";
-	console.log(how);
 	const data = fetch(`http://${ip}3001/chat/creation?room=${roomid}`, { method: how , credentials: 'include'})
 		.then((data) => data.json())
 		.then((data) => {
 			let res = data.statusCode;
-			console.log(res);
-			console.log(data)
 			if (res === undefined) {
 				refresh(data)
 				toast(`action delete succes`);
@@ -218,7 +214,6 @@ const ChangeRoomType = ({ room }: { room: room | null }) => {
 			.then((data) => data.json())
 			.then((data) => {
 				let res = data.statusCode;
-				console.log(data);
 				if (res < 400) toast(data.message);
 				if (res >= 400 && Array.isArray(data.message)) data.message.map((e: string) => toast.error(e));
 				else if (res >= 400) toast.error(data.message);
@@ -271,7 +266,6 @@ const RoomSettings = ({ returnf, refresh, returnbutton, room }: {returnf:any,  r
 			let nickname = ob.user_id.nickname.toLowerCase();
 			if (user?.id === ob.user_id.id && !userState) {
 				setUserState(ob);
-				console.log(ob.permission);
 			}
 			if (nickname.includes(query.toLowerCase()))
 				return <RoomsettingItem returnf={returnf} refresh={refresh} user={ob} roomid={room.id} userPerm={userState} />;

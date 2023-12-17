@@ -71,7 +71,6 @@ const ChatBar = ({
 
 					return ;
 				}
-				console.log(data, "wataliazabi");
 				chatupdater(null, data)
 			}
 			else toast.error(data.message);
@@ -112,7 +111,6 @@ const MessageBar = ({ roomnumber }: { roomnumber: number }) => {
 	const sendSocket = (input: any) => {
 		input.preventDefault();
 		if (!textmessage.length) return;
-		console.log(roomnumber)
 		const messsage: SocketMessage = {
 			Destination: roomnumber,
 			Message: textmessage,
@@ -138,7 +136,6 @@ const MessageBar = ({ roomnumber }: { roomnumber: number }) => {
 			}),
 		})
 			.then((e: any) => {
-				console.log(e);
 				if (e.status >= 400) toast.error(`code: ${e.status} - ${e.statusText}`);
 			})
 			.catch(() => toast.error(`network error`));

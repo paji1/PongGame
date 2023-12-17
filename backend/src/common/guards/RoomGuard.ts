@@ -19,7 +19,6 @@ export class RoomGuard implements CanActivate {
 			context.getHandler(),
 			context.getClass(),
 		]);
-		console.log("at roomguard")
 
 		const roompermition = this.reflect.getAllAndOverride<user_permission[]>("RoomPermitions", [
 			context.getHandler(),
@@ -27,7 +26,6 @@ export class RoomGuard implements CanActivate {
 		]);
 		const key : keyof JwtPayloadWithRt | undefined = "sub";
 		var user =  request.user[key];
-		console.log("roomguard user", user, room)
 		if (user == undefined)
 		return false
 	if (typeof roomtypes !== "undefined") {

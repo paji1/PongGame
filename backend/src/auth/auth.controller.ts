@@ -37,7 +37,6 @@ export class AuthController {
 	@Post("local/signup")
 	@HttpCode(HttpStatus.CREATED)
 	async signupLocal(@Body() dto: AuthDto, @Res() res: Response): Promise<void> {
-		console.log(dto)
 		const tokens = await this.authService.signupLocal(dto);
 		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}
@@ -47,7 +46,6 @@ export class AuthController {
 	@HttpCode(HttpStatus.OK)
 	async signinLocal(@Body() dto: AuthDto, @Res() res: Response): Promise<void> {
 		const tokens = await this.authService.signinLocal(dto);
-		console.log(dto);
 		
 		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}
@@ -57,7 +55,6 @@ export class AuthController {
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(AuthGuard("intra"))
 	intraLogin(@Body() user: any) {
-		console.log("first");
 	}
 
 	@Get("callback_42")

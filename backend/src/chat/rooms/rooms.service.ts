@@ -49,14 +49,12 @@ export class RoomsService {
 	 * @returns on succes it returns a json to the client on failure it retruns BAD_REQUEST
 	 */
 	async create_room(Requester: number, Room: RoomDto) {
-		console.log("wslat lhna");
 		if (Room.type === roomtype.chat) throw new HttpException("Action Not Allowed", HttpStatus.BAD_GATEWAY);
 		if (Room.type === roomtype.protected && Room.password.length < 9)
 			throw new HttpException("please provide a better password", HttpStatus.BAD_REQUEST);
 		if (Room.type !== roomtype.protected) Room.password = "";
 		if (Room.type === roomtype.protected) Room.password = createHash("sha256").update(Room.password).digest("hex");
 
-		console.log("nigga hi");
 		try {
 			const result = await this.prisma.$transaction(async (trx) => {
 				const newroom = await trx.rooms.create({
@@ -108,7 +106,6 @@ export class RoomsService {
 	 *
 	 */
 	async modify_room(Requester: number, room: number, Room: RoomDto) {
-		console.log("wslat lhna");
 		if (Room.type === roomtype.chat) throw new HttpException("Action Not Allowed", HttpStatus.BAD_GATEWAY);
 		if (Room.type === roomtype.protected && Room.password.length < 9)
 			throw new HttpException("please provide a better password", HttpStatus.BAD_REQUEST);
@@ -162,7 +159,6 @@ export class RoomsService {
 		if (Room.type === roomtype.protected && Room.password.length > 9)
 			Room.password = createHash("sha256").update(Room.password).digest("hex");
 		if (Room.type === roomtype.public) Room.password = "";
-		console.log(Room.password, validate.roompassword);
 		if (Room.password !== validate.roompassword) throw new HttpException("Wrong Password", HttpStatus.UNAUTHORIZED);
 		try {
 			await this.prisma.rooms_members.create({
