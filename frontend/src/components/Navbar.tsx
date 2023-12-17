@@ -55,7 +55,7 @@ const LoggedNavBar: React.FC<isOpen> = (props) => (
 				<SearchBar />
 			</li>
 			<li key={2} className={`uppercase font-pixelify cursor-pointer py-2 h-auto`}>
-				<MainButton name={`start a game`} url={`start.com`} />
+				<MainButton name={`start a game`} url={`/game`} />
 			</li>
 		</ul>
 	</nav>
@@ -119,6 +119,7 @@ const Navbar = () => {
 					</svg>
 				</button>
 			</div>
+
 		</div>
 	);
 };

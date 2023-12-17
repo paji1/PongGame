@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react"
 import { EDifficulty, EMatchingType, IQueue, ADifficultyHandle, AMatchingHandle, DifficultyContext } from "../Context/QueueingContext"
 import Lottie from "lottie-web"
+import { SocketContext } from "../Context/SocketContext"
 
 const queueingQuery = (queueing: IQueue, inviteUsername?: string): boolean => {
 
@@ -54,6 +55,7 @@ const ConfigElems = () => {
 	const difficultyHandeler = (s: EDifficulty) => setDifficulty(s)
 
 	const matchingTypeHandeler = (s: EMatchingType) => setMatchingType(s)
+	const socketCtx = useContext(SocketContext)
 
 	useEffect(() => {
 		const queueingParams: IQueue = {
@@ -66,10 +68,19 @@ const ConfigElems = () => {
 		const search = searchForFriendRef.current as HTMLInputElement
 		
 		start.addEventListener('click', () => {
+			let res: boolean
 			if (search)
-			queueingQuery(queueingParams, search.value)
-		else
-			queueingQuery(queueingParams)
+				res = queueingQuery(queueingParams, search.value)
+			else
+				res = queueingQuery(queueingParams)
+			if (res)
+			{
+				socketCtx.emit('queueing', queueingParams)
+
+			}
+
+
+
 		})
 	}, [difficulty, matchingType])
 
