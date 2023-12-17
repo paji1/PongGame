@@ -145,7 +145,7 @@ const App = () => {
 	if (user)
 		{
 			socket.connect()
-			socket.emit("init")
+			socket.emit("init", {})
 		}
 	return (
 		<div>

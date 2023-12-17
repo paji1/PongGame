@@ -29,7 +29,25 @@ const SideBar = () => {
 		if (data.region === "chat")
 			roomseventssetter(data, roomsState, setRoomsState , null)
 		else if(data.region === "room")
-			roomseventssetter(null,  roomsState, setRoomsState , data)
+			{
+				roomseventssetter(null,  roomsState, setRoomsState , data)
+				if (data.action === "new")
+					{
+						if (!chatState)
+							return ;
+						const newstate = chatState.slice();
+						const room = data.data as room
+						const chat:roommessages = {
+							id: room.id,
+							messages: new Array(0)
+						}
+						newstate.push(chat);
+						console.log(chat)
+						console.log(newstate)
+						setChatState(newstate)
+					}
+					socket.emit("init", {})
+			}
 
 	}
 	const messageevents = (message : messages|null , mesagat: any | null ) =>
@@ -66,6 +84,7 @@ const SideBar = () => {
 	socket.off("connect").on("connect", () => console.log("conected"));
 	socket.off("chat").on("chat", (data: messages) => {
 		messageevents(data, null)
+		console.log(data, "hoho")
 	});
 	socket.off("ChatError").on("ChatError", (data) => toast.error(data));
 	const toggleChatBar = () => seIsOpen(!isOpen);

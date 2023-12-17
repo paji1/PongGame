@@ -112,6 +112,7 @@ const MessageBar = ({ roomnumber }: { roomnumber: number }) => {
 	const sendSocket = (input: any) => {
 		input.preventDefault();
 		if (!textmessage.length) return;
+		console.log(roomnumber)
 		const messsage: SocketMessage = {
 			Destination: roomnumber,
 			Message: textmessage,

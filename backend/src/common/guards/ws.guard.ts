@@ -26,10 +26,11 @@ export class WsInRoomGuard implements CanActivate {
 
 		const key : keyof JwtPayloadWithRt | undefined = "sub";
 		var userid =  request.user["sub"];
-		console.log("malmalmlamlamlmalamlamlamla" , userid)
+		console.log("wsinroomguard" , userid, data.Destination)
 		if (typeof userid != "number" )
 			return false
 		if (typeof inroom === "undefined") return true;
+		console
 		if (typeof data.Destination != "number" || Number.isNaN(data.Destination)) {
 			client.emit("ChatError", "invalid data");
 			return false;

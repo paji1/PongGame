@@ -9,7 +9,6 @@ export const roomseventssetter = (roommember: backendretun | null, rooms: room[]
 	if (!rooms)
 		return ;
 	const rooms2 = rooms.slice()
-	console.log(roommember, "warbak kayen", room)
 	if (roommember)
 	{	
 		const changeuserproperties = (member:member, array: room[], action :string) =>
