@@ -5,15 +5,21 @@ import { ValidationPipe } from "@nestjs/common";
 // import { Logger } from '@nestjs/common';
 import * as winston from "winston";
 import * as cookieParser from "cookie-parser";
+import { ConfigService } from "@nestjs/config";
+
 
 // declare const module: any;
-
+const conf: ConfigService = new ConfigService()
+const ip = conf.get<string>("ip");
+console.log("ip is: ", ip)
 async function bootstrap() {
+	
 	const app = await NestFactory.create(AppModule);
 	app.use(cookieParser());
 	app.enableCors({
 		origin: [
-		  'http://10.12.7.4:3000',
+		  `http://${ip}:3000`,
+		  'http://localhost:3000'
 		],
 		methods: ["GET", "POST", "DELETE","PATCH" ],
 		credentials: true,

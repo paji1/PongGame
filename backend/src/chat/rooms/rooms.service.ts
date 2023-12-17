@@ -141,11 +141,10 @@ export class RoomsService {
 	async delete_room(room: number) {
 		try {
 			const result = await this.prisma.rooms.delete({ where: { id: room } });
-			console.log(result, await this.prisma.rooms.findUnique({ where: { id: room } }));
+			 return { region: "room", action: "delete", data: result };
 		} catch {
 			throw new HttpException("Room: delete unsucsessfull", HttpStatus.NOT_FOUND);
 		}
-		throw new HttpException("Room: deleted", 200);
 	}
 	/**
 	 *

@@ -28,13 +28,13 @@ const Action = (userid: number, roomid: number, action: boolean, endpoint: strin
 
 const byby = (userid: number, roomid: number, action: boolean, endpoint: string, refresh: any) => {
 	const how: string = action ? "PATCH" : "DELETE";
-	const data = fetch(`http://${ip}3001/chat/${endpoint}?room=${roomid}&target=${userid}`, { method: how ,credentials: 'include',})
+	const data = fetch(`http://${ip}3001/chat/${endpoint}?room=${roomid}&target=${userid}`, { method: how ,credentials: 'include'})
 		.then((data) => data.json())
 		.then((data) => {
 			let res = data.statusCode;
 			if ( res === undefined) {
 				
-				refresh(data, null)
+				refresh(data)
 				toast(`action ${endpoint} succes`);
 			}
 			else toast.error(data.message);
@@ -45,14 +45,14 @@ const byby = (userid: number, roomid: number, action: boolean, endpoint: string,
 const deleteRoom = (roomid: number, refresh: any) => {
 	const how: string = "DELETE";
 	console.log(how);
-	const data = fetch(`http://${ip}3001/chat/creation?room=${roomid}`, { method: how })
+	const data = fetch(`http://${ip}3001/chat/creation?room=${roomid}`, { method: how , credentials: 'include'})
 		.then((data) => data.json())
 		.then((data) => {
 			let res = data.statusCode;
 			console.log(res);
-			if (res < 400) {
-				
-				refresh(null, data)
+			console.log(data)
+			if (res === undefined) {
+				refresh(data)
 				toast(`action delete succes`);
 			}
 			else toast.error(data.message);
@@ -82,7 +82,7 @@ const MuteButton = ({ room, roomuser,refresh }: { room: number; roomuser: member
 			mute
 		</button>
 	);
-const DeleteRoom = ({refresh , room }: { refresh: any, room: number }) => <button onClick={() => deleteRoom(room,refresh)}>delete room</button>;
+const DeleteRoom = ({ returnf, refresh , room }: { returnf:any, refresh: any, room: number }) => <button onClick={() =>{ deleteRoom(room,refresh) ;returnf(-1)}}>delete room</button>;
 const KickButton = ({refresh , room, roomuser }: {refresh: any, room: number; roomuser: member }) => (
 	<button onClick={() => Action(roomuser.user_id.id, room, true, "kick",refresh)}>kick</button>
 );
@@ -104,19 +104,21 @@ const OwnershipButton = ({ refresh, room, roomuser }: { refresh: any, room: numb
 	<button onClick={() => byby(roomuser.user_id.id, room, true, "lwert",refresh)}>give owner</button>
 );
 
-const LeaveButton = ({ refresh ,room, roomuser }: {refresh: any, room: number; roomuser: member }) => (
-	<button onClick={() => byby(roomuser.user_id.id, room, false, "humans",refresh)}>leave room</button>
+const LeaveButton = ({ returnf, refresh ,room, roomuser }: {returnf:any, refresh: any, room: number; roomuser: member }) => (
+	<button onClick={() => {byby(roomuser.user_id.id, room, false, "humans",refresh); returnf(false)}}>leave room</button>
 );
 /**
  *
  * @param param0
  */
 const RoomsettingItem = ({
+	returnf,
 	refresh,
 	user,
 	roomid,
 	userPerm,
 }: {
+	returnf : any
 	refresh: any;
 	user: member;
 	roomid: number;
@@ -127,10 +129,9 @@ const RoomsettingItem = ({
 	if (expand && userPerm?.permission === "participation")
 		more = (
 			<div className="flex flex-col">
-				{userPerm.user_id.id === user.user_id.id ? <LeaveButton refresh={refresh} room={roomid} roomuser={user} /> : <></>}
+				{userPerm.user_id.id === user.user_id.id ? <LeaveButton returnf={returnf} refresh={refresh} room={roomid} roomuser={user} /> : <></>}
 			</div>
 		);
-	console.log(userPerm, user);
 	if (expand && userPerm?.permission === "owner") {
 		more = (
 			<div className="flex flex-col">
@@ -148,7 +149,7 @@ const RoomsettingItem = ({
 						<OwnershipButton refresh={refresh} room={roomid} roomuser={user} />
 					</>
 				) : (
-					<DeleteRoom refresh={refresh} room={roomid} />
+					<DeleteRoom returnf={returnf}refresh={refresh} room={roomid} />
 				)}
 			</div>
 		);
@@ -260,7 +261,7 @@ const ChangeRoomType = ({ room }: { room: room | null }) => {
 		</form>
 	);
 };
-const RoomSettings = ({ refresh, returnbutton, room }: { refresh: any; returnbutton: any; room: room | null }) => {
+const RoomSettings = ({ returnf, refresh, returnbutton, room }: {returnf:any,  refresh: any; returnbutton: any; room: room | null }) => {
 	const [userState, setUserState] = useState<member | null>(null);
 	const [query, setQuery] = useState("");
 	const user = useContext(currentUser);
@@ -273,7 +274,7 @@ const RoomSettings = ({ refresh, returnbutton, room }: { refresh: any; returnbut
 				console.log(ob.permission);
 			}
 			if (nickname.includes(query.toLowerCase()))
-				return <RoomsettingItem refresh={refresh} user={ob} roomid={room.id} userPerm={userState} />;
+				return <RoomsettingItem returnf={returnf} refresh={refresh} user={ob} roomid={room.id} userPerm={userState} />;
 		});
 	}
 	const setQueryonchange = (object: any) => {

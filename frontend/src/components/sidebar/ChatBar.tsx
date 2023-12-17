@@ -45,7 +45,7 @@ const ChatBar = ({
 	}
 	if (config)
 		return room?.roomtypeof !== "chat" ? (
-			<RoomSettings refresh={refresh} returnbutton={setConfig} room={room} />
+			<RoomSettings returnf={roomselector} refresh={refresh} returnbutton={setConfig} room={room} />
 		) : (
 			<FriendSetting refresh={refresh} returnbutton={setConfig} room={room} />
 		);

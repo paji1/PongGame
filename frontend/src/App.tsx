@@ -30,6 +30,7 @@ const Signup = () =>
 	const setusername = (e: any) => setuser(e.target.value);
 	const setpass = (e: any) => setPassword(e.target.value);
 	const signup = async () => {
+	
 		const res = await fetch("http://" + ip + "3001/auth/local/signup", {
 			method: "POST"
 			, headers: { "Content-Type": "application/json" }
@@ -166,28 +167,3 @@ const App = () => {
 
 export default App;
 
-const submit = () => {
-	const res = fetch("http://" + ip +"3001/auth/local/signin", {
-		method: "POST"
-		, headers: { "Content-Type": "application/json" }
-		,  credentials: 'include'
-		, body: JSON.stringify({
-			user42: "tahatahafialmataha",
-			password: "123456"
-		})
-	}
-	).then(res => {
-		return res;
-	}).then(res => console.log(res))
-
-
-}
-const test = () => {
-	const res = fetch("http://" + ip +" 3001/auth/hello", {
-		method: "POST"
-		, headers: { "Content-Type": "application/json" }, credentials: "include",
-	}
-	)
-
-
-}

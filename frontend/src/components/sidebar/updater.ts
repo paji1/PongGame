@@ -32,7 +32,6 @@ export const roomseventssetter = (roommember: backendretun | null, rooms: room[]
 				break;
 			case "ownership":
 				const arr = roommember.data as member[]
-				console.log(arr, "salam cv")
 				changeuserproperties(arr[0], rooms2, "")
 				changeuserproperties(arr[1] , rooms2, "")
 				break;
@@ -42,12 +41,17 @@ export const roomseventssetter = (roommember: backendretun | null, rooms: room[]
 	}
 	if(room)
 	{
+		console.log("hna", room)
 		switch (room.action)
 		{
 			case "new":
 				const newroom  = room.data as room
 				rooms2.unshift(newroom)
 				break ;
+			case "delete":
+					const newroo  = room.data as room
+					setRoomState(rooms2.filter((room:room) => room.id != newroo.id));
+					return;
 		}
 		setRoomState(rooms2);
 		return ;

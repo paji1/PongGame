@@ -22,7 +22,8 @@ export class WsInRoomGuard implements CanActivate {
 		/**
 		 * user id should be handled
 		 */
-		console.log("tfiltrat");
+		console.log("at wsroomguard")
+
 		const key : keyof JwtPayloadWithRt | undefined = "sub";
 		var userid =  request.user["sub"];
 		console.log("malmalmlamlamlmalamlamlamla" , userid)

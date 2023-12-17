@@ -9,10 +9,10 @@ export class AtGuard extends AuthGuard("jwt") {
 	}
 
 	canActivate(context: ExecutionContext) {
-		console.log("AtGuard what")
 		const isPublic = this.reflector.getAllAndOverride("isPublic", [context.getHandler(), context.getClass()]);
-	
+		
 		if (isPublic) return true;
+		console.log("at AtGuard ")
 		return super.canActivate(context);
 	}
 }

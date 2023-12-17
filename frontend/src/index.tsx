@@ -8,16 +8,20 @@ import "react-toastify/dist/ReactToastify.css";
 import { SocketContext } from "./components/Context/SocketContext";
 import { Socket, io } from "socket.io-client";
 import { ip } from "./network/ipaddr";
+import GameMain from "./components/game";
 
 const socket: Socket = io(`ws://${ip}3001`, { autoConnect: false, transports: ["websocket"] });
 
 
-const router = createBrowserRouter([
-	{
-		path: "/",
-		element: <App />,
+const router = createBrowserRouter([{
+	path: "/",
+	element: <App />
 	},
-]);
+	{
+		path: "/game",
+		element: <GameMain />
+	}
+])
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(

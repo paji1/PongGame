@@ -38,7 +38,7 @@ export class ChatController {
 		return await this.service.messages.send_message(id, room, message.text);
 	}
 	@Get("paginate")
-	// @RoomPermitions(user_permission.owner, user_permission.admin, user_permission.participation, user_permission.chat)
+	@RoomPermitions(user_permission.owner, user_permission.admin, user_permission.participation, user_permission.chat)
 	async humansatisfy(@Query("room") room: number,@Query("offset") ofsset:number, @GetCurrentUserId() id:number)
 	{
 		console.log(room, ofsset)
