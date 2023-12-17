@@ -97,4 +97,9 @@ export class AppGateway  {
 		});
 		return data;
 	}
+
+	@SubscribeMessage('queueing')
+	 async queueing (@MessageBody() queue: any, @GetCurrentUserId() id: number) {
+		console.log('-> queueing:', queue)
+	}
 }

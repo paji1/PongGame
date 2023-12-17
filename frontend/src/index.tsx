@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "./index.css";
 import App from "./App";
 import * as ReactDOM from "react-dom/client";
@@ -9,23 +9,16 @@ import { SocketContext } from "./components/Context/SocketContext";
 import { Socket, io } from "socket.io-client";
 import { ip } from "./network/ipaddr";
 import GameMain from "./components/game";
+import { CurrentUser } from "./components/Context/AuthContext";
 
 const socket: Socket = io(`ws://${ip}3001`, { autoConnect: false, transports: ["websocket"] });
 
 
-const router = createBrowserRouter([{
-	path: "/",
-	element: <App />
-	},
-	{
-		path: "/game",
-		element: <GameMain />
-	}
-])
+
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(
 	<SocketContext.Provider value={socket}>
-			<RouterProvider router={router} />
+			<App />
 	</SocketContext.Provider>
 );

@@ -74,11 +74,12 @@ const GameUI = () => (
 )
 
 const GameMain = () => {
+
 	return (
 		<div className="">
-			<Navbar />
+			{/* <Navbar />
 			<NotificationBar />
-			<SideBar />
+			<SideBar /> */}
 			<GameUI />
 		</div>
 	)
