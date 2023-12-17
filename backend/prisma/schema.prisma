@@ -67,7 +67,6 @@ model matchhistory {
   updated_at DateTime   @updatedAt
   player1_id user       @relation("player1", fields: [player1], references: [id])
   player2_id user       @relation("player2", fields: [player2], references: [id])
-  invite     invites[]
 }
 
 model rooms {
@@ -133,13 +132,11 @@ model invites {
   status      actionstatus
   issuer      Int
   reciever    Int
-  game        String?
   room        Int?
   created_at  DateTime      @default(now())
   issuer_id   user          @relation("issuer", fields: [issuer], references: [id])
   reciever_id user          @relation("reciever", fields: [reciever], references: [id])
   room_id     rooms?        @relation(fields: [room], references: [id])
-  game_id     matchhistory? @relation(fields: [game], references: [id])
 }
 
 enum user_permission {

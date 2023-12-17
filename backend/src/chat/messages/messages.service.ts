@@ -5,37 +5,63 @@ import { PrismaService } from "src/prisma/prisma.service";
 @Injectable()
 export class MessagesService {
 	constructor(private readonly prisma: PrismaService) {}
-	async send_message(Requester: number , room: number, message: string) {
-		const membership = await this.prisma.rooms_members.findUnique({where:{combination :{userid: Requester,roomid : room,}}});
-		if (membership.isblocked || membership.ismuted)
-			throw new HttpException("cant send message", 403);
-		const msg = await this.prisma.messages.create({
-			data: {
-				sender_id: Requester,
-				room_id: room,
-				messages: message,
-			},
+	async send_message(Requester: number, room: number, message: string) {
+		const membership = await this.prisma.rooms_members.findUnique({
+			where: { combination: { userid: Requester, roomid: room } },
 		});
-		return msg;
+		console.log("hnayahnaya");
+		if (membership.isblocked || membership.ismuted) throw new HttpException("cant send message", 403);
+		const conv = this.prisma.$transaction(async (t) => {
+			const msg = await t.messages.create({
+				data: {
+					sender_id: Requester,
+					room_id: room,
+					messages: message,
+				},
+			});
+			await t.rooms.update({
+				where: {
+					id: room,
+				},
+				data: {
+					updated_at: msg.created_at,
+				},
+			});
+			return msg;
+		});
+		return conv;
 	}
-	async get_messages(Requester: number , room: number,) {
-		const membership = await this.prisma.rooms_members.findUnique({where:{combination :{userid: Requester,roomid : room,}}});
-		if (membership.isblocked)
-			throw new HttpException("Unauthorized", 401);
-		const conversation = await this.prisma.messages.findMany({
+	async get_messages(Requester: number) {
+		const conversation = await this.prisma.rooms.findMany({
 			where: {
-				room_id: room,
-			},
-			select: {
-				senderid: {
-					select: {
-						id:true,
-						avatar: true,
-						nickname: true,
+				rooms_members: {
+					some: {
+						userid: Requester,
 					},
 				},
-				created_at: true,
-				messages: true,
+			},
+			select: {
+				id: true,
+				messages: {
+					select: {
+						created_at: true,
+						messages: true,
+						senderid: {
+							select: {
+								id: true,
+								nickname: true,
+								avatar: true,
+							},
+						},
+					},
+					orderBy: {
+						created_at: "desc",
+					},
+					take: 30,
+				},
+			},
+			orderBy: {
+				updated_at: "desc",
 			},
 		});
 		return conversation;
@@ -43,40 +69,77 @@ export class MessagesService {
 
 	async get_rooms(id: number) {
 		try {
-			const data = await this.prisma.rooms_members.findMany({
+			const data = await this.prisma.rooms.findMany({
 				where: {
-					userid: id,
+					rooms_members: {
+						some: {
+							userid: id,
+						},
+					},
 				},
 				select: {
-					rooms: {
+					id: true,
+					name: true,
+					roomtypeof: true,
+					updated_at: true,
+					rooms_members: {
 						select: {
 							id: true,
-							name: true,
-							roomtypeof: true,
+							roomid: true,
+							permission: true,
+							isblocked: true,
+							isBanned: true,
+							ismuted: true,
 							created_at: true,
-							rooms_members: {
-								where: {
-									id: {
-										not: id,
-									},
-								},
+							user_id: {
 								select: {
-									user_id: {
-										select: {
-											avatar: true,
-											user42: true,
-											nickname: true,
-										},
-									},
+									id: true,
+									nickname: true,
+									avatar: true,
 								},
 							},
 						},
 					},
 				},
 			});
+			console.log(data, "hba");
 			return data;
 		} catch {
 			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
 		}
+	}
+
+	async satisfy(Requester : number, room: number, ofsset:number)
+	{
+		const conversation = await this.prisma.rooms.findUnique({
+			where: {
+					id: room,		
+			},
+			select: {
+				id: true,
+				messages: {
+					select: {
+						created_at: true,
+						messages: true,
+						senderid: {
+							select: {
+								id: true,
+								nickname: true,
+								avatar: true,
+							},
+						},
+					},
+					orderBy: {
+						created_at: "desc",
+					},
+					take: 30,
+					skip: ofsset
+				},
+			},
+					
+
+		});
+		console.log(ofsset)
+		return conversation;
 	}
 }

@@ -17,15 +17,23 @@ export class AtStrategy extends PassportStrategy(Strategy, "jwt") {
 		});
 	}
 
-	private static extractJWT(req: RequestType): string | null {
-		// console.log("coockies", req.cookies);
+	private static extractJWT(req: RequestType| any): string | null {
+		
 		if (req.cookies && "atToken" in req.cookies && req.cookies.atToken.length > 0) {
+			
 			return req.cookies.atToken;
+		}
+		console.log("tokenpos", req.request.headers.cookie.search("atToken"));
+		console.log("nigga here")
+		if ( req.request.headers.cookie && req.request.headers.cookie.search("atToken")  != -1 && req.request.headers.cookie.length > 0) {
+			const on = req.request.headers.cookie.split("; ")[0].replace("=", ":")
+			return on.split(":")[1];
 		}
 		return null;
 	}
-
+	
 	validate(payload: JwtPayload) {
+		
 		return payload;
 	}
 }

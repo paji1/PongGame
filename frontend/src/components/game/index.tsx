@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import Navbar from "../Navbar";
 import NotificationBar from "../notifbar/NotificationBar";
-import SideBar from "../sidebar/SideBar";
+import SideBar from "../SideBar";
 // import GameField from "./Game";
 import GameSetup from "./GameSetup";
 

@@ -11,16 +11,19 @@ import { FriendGuard } from "src/common/guards/FriendGuard";
 
 @Module({
 	exports: [ChatService],
-	providers: [ChatService, RoomsService,
-	{
-		provide:APP_GUARD,
-		useClass: RoomGuard
-	},
-	{
-		provide:APP_GUARD,
-		useClass: FriendGuard
-	}
-],
+	providers: [
+		ChatService,
+		RoomsService,
+
+		{
+			provide: APP_GUARD,
+			useClass: RoomGuard,
+		},
+		{
+			provide: APP_GUARD,
+			useClass: FriendGuard,
+		},
+	],
 	controllers: [ChatController],
 
 	imports: [RoomsModule, MessagesModule, PrismaModule],

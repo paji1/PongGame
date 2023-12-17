@@ -24,7 +24,7 @@
       - .env
       ports:
         - 3001:8001
-        # - 5555:5555
+        - 5555:5555
       volumes:
         - ./backend/src:/code/src:rw
         - back-notused:/code/prisma/migrations
