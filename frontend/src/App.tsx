@@ -7,6 +7,8 @@ import { currentUser, CurrentUser } from "./components/Context/AuthContext";
 import { log } from "console";
 import { ip } from "./network/ipaddr";
 import { SocketContext } from "./components/Context/SocketContext";
+import GameMain from "./components/game";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 const getuser = (setuser:any)=>
 	{
@@ -137,6 +139,25 @@ const Signin = ({setUser} : {setUser: any}) =>
 		</form>
 	);
 }
+
+// TODO: this is a temporary trqi3a 
+const Dashboard = () => (
+	<div>
+		DASHBOARD azbi
+	</div>
+)
+
+const router = createBrowserRouter([
+	{
+		path: '/',
+		element: <Dashboard />
+	},
+	{
+		path: "/game",
+		element: <GameMain />
+	}
+])
+
 const App = () => {
 	const [user, setuser] = useState<CurrentUser | null >(null)
 	const socket = useContext(SocketContext)
@@ -155,6 +176,8 @@ const App = () => {
 					<Navbar />
 					<SideBar />
 					<NotificationBar />
+					<RouterProvider router={router} />
+					
 				</currentUser.Provider > :
 			<>
 				<Signup  />
