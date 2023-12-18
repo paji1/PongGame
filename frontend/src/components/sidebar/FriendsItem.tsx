@@ -14,7 +14,6 @@ const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; gl
 		room.rooms_members[0].user_id.id === user?.id
 			? room.rooms_members[1].user_id.nickname.toLowerCase()
 			: room.rooms_members[0].user_id.nickname.toLowerCase();
-	console.log(name, room);
 	const display = name.length > 15 ? name.substring(0, 15) : name;
 
 	return (

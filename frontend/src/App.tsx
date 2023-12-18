@@ -9,6 +9,7 @@ import { ip } from "./network/ipaddr";
 import { SocketContext } from "./components/Context/SocketContext";
 import GameMain from "./components/game";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import Dashboard from "./components/Dashboard/Dashboard";
 
 const getuser = (setuser:any)=>
 	{
@@ -141,11 +142,6 @@ const Signin = ({setUser} : {setUser: any}) =>
 }
 
 // TODO: this is a temporary trqi3a 
-const Dashboard = () => (
-	<div>
-		DASHBOARD azbi
-	</div>
-)
 
 const router = createBrowserRouter([
 	{
@@ -171,7 +167,7 @@ const App = () => {
 	return (
 		<div>
 			<ToastContainer />
-			{user ?
+			{/* {user ? */}
 					<currentUser.Provider value={user}>
 					<Navbar />
 					<SideBar />
@@ -179,10 +175,11 @@ const App = () => {
 					<RouterProvider router={router} />
 					
 				</currentUser.Provider > :
-			<>
-				<Signup  />
-				<Signin setUser={setuser} />
-			</>}
+			{/* // <>
+			// 	<Signup  />
+			// 	<Signin setUser={setuser} />
+			// </> */}
+			{/* } */}
 			
 		</div>
 	);

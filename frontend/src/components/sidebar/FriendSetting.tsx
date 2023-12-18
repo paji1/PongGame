@@ -7,12 +7,10 @@ import { ip } from "../../network/ipaddr";
 
 const blockAction = ( refresh:any,userid: number, roomid: number, action: boolean) => {
 	const how: string = action ? "POST" : "PATCH";
-	console.log(how);
 	const data = fetch(`http://${ip}3001/chat/block?room=${roomid}&target=${userid}`, { method: how ,credentials: 'include',})
 		.then((data) => data.json())
 		.then((data) => {
 			let res = data.statusCode;
-			console.log(res);
 			if (res === undefined)
 			{
 				refresh(data, null)

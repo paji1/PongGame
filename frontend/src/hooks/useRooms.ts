@@ -12,7 +12,6 @@ export default function useRooms(rerender: boolean, setRooms: any) {
 			.then((data) => {
 				if (!Array.isArray(data))
 					toast.error(data.message)
-				console.log("fetched rooms")
 				setRooms(data)
 			}
 			)
