@@ -17,19 +17,17 @@ import { RoomsettingItem } from "./settingsAux/settingsitems";
  */
 
 
-const RoomSettings = ({ returnf, returnbutton, room }: {returnf:any,   returnbutton: any; room: room | null }) => {
+const RoomSettings = ({ returnf, returnbutton, room }: {returnf:any,returnbutton: any; room: room | null }) => {
 	const [userState, setUserState] = useState<member | null>(null);
 	const [query, setQuery] = useState("");
 	const user = useContext(currentUser);
 	var list;
 	if (room) {
+		let thisuser =  room.rooms_members.find((ob: member) => ob.user_id.id === user?.id)
 		list = room.rooms_members.map((ob: member, index: number) => {
 			let nickname = ob.user_id.nickname.toLowerCase();
-			if (user?.id === ob.user_id.id && !userState) {
-				setUserState(ob);
-			}
 			if (nickname.includes(query.toLowerCase()))
-				return <RoomsettingItem returnf={returnf}  user={ob} roomid={room.id} userPerm={userState} />;
+				return <RoomsettingItem returnf={returnf}  user={ob} roomid={room.id} userPerm={thisuser} />;
 		});
 	}
 	const setQueryonchange = (object: any) => {

@@ -20,13 +20,11 @@ export const RoomsettingItem = ({
 	returnf : any
 	user: member;
 	roomid: number;
-	userPerm: member | null;
+	userPerm: member| undefined;
 }) => {
 	const [expand, setExpand] = useState(false);
 	var more;
-    const [permission, setperm] = useState(userPerm?.permission);
-    if (permission != userPerm?.permission)
-        setperm(userPerm?.permission) 
+
 
 	const socket = useContext(SocketContext);
 
