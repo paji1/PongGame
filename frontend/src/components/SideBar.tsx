@@ -54,7 +54,6 @@ const SideBar = () => {
 			{
 				return;
 			}
-		console.log(roomessg, "oldest");
 		roomessg.messages = roomessg.messages.concat(message.messages);
 		newstate[index] = roomessg;
 		setChatState(newstate);
@@ -68,6 +67,7 @@ const SideBar = () => {
 					roomselector={setChatSelector}
 					room={typeof currentroom === "undefined" ? null : currentroom}
 					conversation={typeof currentchat === "undefined" ? null : currentchat}
+					dopagin={currentchat?.messages.length === 30}
 				/>
 			);
 		switch (searchSelection) {

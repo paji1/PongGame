@@ -17,15 +17,17 @@ const ChatBar = ({
 	room,
 	roomselector,
 	conversation,
+	dopagin,
 }: {
 	pajinationf: any,
 	room: room | null;
 	roomselector: any;
 	conversation: roommessages | null;
+	dopagin: boolean
 }) => {
 	let messages;
 	const [config, setConfig] = useState(false);
-	const [pajination, setpaginate] = useState(true)
+	const [pajination, setpaginate] = useState(dopagin)
 	const user: CurrentUser | null = useContext(currentUser);
 	if (conversation && typeof conversation.messages !== "undefined") {
 		messages = conversation.messages.map((obj: messages, index) => {
