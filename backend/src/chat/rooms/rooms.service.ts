@@ -205,28 +205,7 @@ export class RoomsService {
 	 *
 	 */
 
-	async invite_room(Requester: number, affected: number, room: number) {
-		const member = await this.prisma.rooms_members.findUnique({
-			where: {
-				combination: {
-					roomid: room,
-					userid: affected,
-				},
-			},
-		});
-		if (member) throw new HttpException("User already exist", 404);
-		try {
-			this.prisma.invites.create({
-				data: {
-					issuer: Requester,
-					reciever: affected,
-					room: room,
-					type: invitetype.Room,
-					status: actionstatus.pending,
-				},
-			});
-		} catch (error) {}
-	}
+	
 
 	/**
 	 *
@@ -722,6 +701,32 @@ export class RoomsService {
 			return { region: "room", action: "new", data: res };
 		} catch (e) {
 			throw new HttpException("failed to acept invite", HttpStatus.BAD_REQUEST)
+		}
+	}
+	async invite_room(Requester: number, affected: number, room: number) {
+		const member = await this.prisma.rooms_members.findUnique({
+			where: {
+				combination: {
+					roomid: room,
+					userid: affected,
+				},
+			},
+		});
+		if (member)
+			return null
+		try {
+			const invite = await this.prisma.invites.create({
+				data: {
+					issuer: Requester,
+					reciever: affected,
+					room: room,
+					type: invitetype.Room,
+					status: actionstatus.pending,
+				},
+			});
+			return invite;
+		} catch (error) {
+			null
 		}
 	}
 }

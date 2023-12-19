@@ -342,6 +342,38 @@ export class ChatGateway {
 
 
 
+	@SubscribeMessage("INVITE")
+	@RoomType(roomtype.private)
+	async inviteroom(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
+	{
+		const friend = await this.prisma.user.findUnique({
+			where:{
+				nickname:Message.What
+			}
+		});
+		if (!friend)
+		{
+			client.emit("error", `failed to ${Message.What}`);
+			return ;
+		}
+		const friendship = await this.prisma.friendship.findFirst({
+			where: {
+				OR: [
+					{ initiator: id, reciever: friend.id },
+					{ initiator: friend.id, reciever: id },
+				],
+			},
+		});
+		const res = await this.service.rooms.invite_room(id, friend.id, Message.room);
+		if (!res)
+		{
+			client.emit("error", `failed to ${Message.What}`);
+			return ;
+		}
+		//inform the target
+	}
+
+
 
 
 
