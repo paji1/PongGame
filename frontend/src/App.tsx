@@ -167,7 +167,7 @@ const App = () => {
 	return (
 		<div>
 			<ToastContainer />
-			{/* {user ? */}
+			{user ?
 					<currentUser.Provider value={user}>
 					<Navbar />
 					<SideBar />
@@ -175,11 +175,11 @@ const App = () => {
 					<RouterProvider router={router} />
 					
 				</currentUser.Provider > :
-			{/* // <>
-			// 	<Signup  />
-			// 	<Signin setUser={setuser} />
-			// </> */}
-			{/* } */}
+			 <>
+			 	<Signup  />
+			 	<Signin setUser={setuser} />
+			 </> 
+			}
 			
 		</div>
 	);

@@ -11,11 +11,18 @@ import {
 	isString,
 } from "class-validator";
 
-export class ChatSocketDto {
+
+
+export class ActionDTO
+{
 	@IsNumber()
-	Destination: number;
+	target: number;
+
+	@IsNumber()
+	room: number
+
 	@IsString()
 	@IsNotEmpty()
-	@MinLength(3)
-	Message: string;
+	What: string;
 }
+
