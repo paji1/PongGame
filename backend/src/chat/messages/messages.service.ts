@@ -6,30 +6,43 @@ import { PrismaService } from "src/prisma/prisma.service";
 export class MessagesService {
 	constructor(private readonly prisma: PrismaService) {}
 	async send_message(Requester: number, room: number, message: string) {
-		const membership = await this.prisma.rooms_members.findUnique({
-			where: { combination: { userid: Requester, roomid: room } },
-		});
-		console.log("hnayahnaya");
-		if (membership.isblocked || membership.ismuted) throw new HttpException("cant send message", 403);
-		const conv = this.prisma.$transaction(async (t) => {
-			const msg = await t.messages.create({
-				data: {
-					sender_id: Requester,
-					room_id: room,
-					messages: message,
-				},
-			});
-			await t.rooms.update({
-				where: {
-					id: room,
-				},
-				data: {
-					updated_at: msg.created_at,
-				},
-			});
-			return msg;
-		});
-		return conv;
+		try {
+			const conv = this.prisma.$transaction(async (t) => {
+				const msg = await t.messages.create({
+					data: {
+						sender_id: Requester,
+						room_id: room,
+						messages: message,
+					},
+					select:
+					{
+						room_id:true,
+						created_at:true,
+						messages:true,
+						senderid: {
+							select:
+							{
+								id:true,
+								avatar:true,
+								nickname:true,
+							}
+						}
+					}
+				});
+				await t.rooms.update({
+					where: {
+						id: room,
+					},
+					data: {
+						updated_at: msg.created_at,
+					},
+				});
+				return msg;
+			})
+			return conv;
+		} catch (error) {
+			return null
+		}
 	}
 	async get_messages(Requester: number) {
 		const conversation = await this.prisma.rooms.findMany({
@@ -102,7 +115,6 @@ export class MessagesService {
 					},
 				},
 			});
-			console.log(data, "hba");
 			return data;
 		} catch {
 			throw new HttpException("Database error", HttpStatus.NOT_FOUND);

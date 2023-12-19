@@ -3,6 +3,7 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { invitetype, user_permission, roomtype, actionstatus } from "@prisma/client";
 import { createHash } from "crypto";
 import { RoomDto } from "../../Dto/rooms.dto";
+import { error } from "console";
 
 @Injectable()
 export class RoomsService {
@@ -17,7 +18,7 @@ export class RoomsService {
 	 */
 	async create_chat(creator: number, reciever: number) {
 		try {
-			const re = await this.prisma.$transaction(async (trx) => {
+			const result = await this.prisma.$transaction(async (trx) => {
 				const newroom = await trx.rooms.create({
 					data: { roomtypeof: roomtype.chat },
 				});
@@ -36,10 +37,10 @@ export class RoomsService {
 					],
 				});
 			});
+			return { region: "room", action: "new", data: result };
 		} catch (e) {
 			throw new HttpException("Transaction Failed", HttpStatus.BAD_REQUEST);
 		}
-		throw new HttpException("chat created", HttpStatus.OK);
 	}
 
 	/**
@@ -49,13 +50,11 @@ export class RoomsService {
 	 * @returns on succes it returns a json to the client on failure it retruns BAD_REQUEST
 	 */
 	async create_room(Requester: number, Room: RoomDto) {
-		console.log("wslat lhna");
-		if (Room.type === roomtype.chat) throw new HttpException("Action Not Allowed", HttpStatus.BAD_GATEWAY);
+		if (Room.type === roomtype.chat) throw new Error("Action Not Allowed");
 		if (Room.type === roomtype.protected && Room.password.length < 9)
-			throw new HttpException("please provide a better password", HttpStatus.BAD_REQUEST);
+			throw new Error("please provide a better password");
 		if (Room.type !== roomtype.protected) Room.password = "";
 		if (Room.type === roomtype.protected) Room.password = createHash("sha256").update(Room.password).digest("hex");
-
 		console.log("nigga hi");
 		try {
 			const result = await this.prisma.$transaction(async (trx) => {
@@ -99,9 +98,9 @@ export class RoomsService {
 				newroom["rooms_members"] = new Array(1).fill(user);
 				return newroom;
 			});
-			return { region: "room", action: "new", data: result };
+			return result
 		} catch (e) {
-			throw new HttpException("Transaction Failed", HttpStatus.BAD_REQUEST);
+			throw new Error("Transaction Failed");
 		}
 	}
 	/**
@@ -116,7 +115,7 @@ export class RoomsService {
 		if (Room.type === roomtype.protected) Room.password = createHash("sha256").update(Room.password).digest("hex");
 
 		try {
-			await this.prisma.rooms.update({
+			const result = await this.prisma.rooms.update({
 				where: { id: room },
 				data: {
 					name: Room.name,
@@ -124,10 +123,10 @@ export class RoomsService {
 					roompassword: Room.password,
 				},
 			});
+			return { region: "room", action: "mod", data: result };
 		} catch (e) {
 			throw new HttpException("failed to modify room", HttpStatus.BAD_REQUEST);
 		}
-		throw new HttpException(`Room: ${Room.name} modified`, HttpStatus.OK);
 	}
 
 	/**
@@ -141,9 +140,9 @@ export class RoomsService {
 	async delete_room(room: number) {
 		try {
 			const result = await this.prisma.rooms.delete({ where: { id: room } });
-			 return { region: "room", action: "delete", data: result };
+			return result ;
 		} catch {
-			throw new HttpException("Room: delete unsucsessfull", HttpStatus.NOT_FOUND);
+			null
 		}
 	}
 	/**
@@ -165,7 +164,7 @@ export class RoomsService {
 		console.log(Room.password, validate.roompassword);
 		if (Room.password !== validate.roompassword) throw new HttpException("Wrong Password", HttpStatus.UNAUTHORIZED);
 		try {
-			await this.prisma.rooms_members.create({
+			const res = await this.prisma.rooms_members.create({
 				data: {
 					roomid: room,
 					userid: Requester,
@@ -184,18 +183,22 @@ export class RoomsService {
 	 */
 	async leave_room(Requester: number, room: number) {
 		try {
-			await this.prisma.rooms_members.delete({
+			const result = await this.prisma.rooms_members.delete({
 				where: {
 					combination: {
 						roomid: room,
 						userid: Requester,
 					},
 				},
+				select: {
+					rooms: true
+				}
+
 			});
+			return { region: "room", action: "delete", data: result.rooms };
 		} catch (e) {
 			throw new HttpException("Error Leaving Room", 400);
 		}
-		throw new HttpException("User left Room", 400);
 	}
 
 	/**
@@ -245,6 +248,22 @@ export class RoomsService {
 					data: {
 						isblocked: true,
 					},
+					select: {
+						id: true,
+						roomid: true,
+						permission: true,
+						isblocked: true,
+						isBanned: true,
+						ismuted: true,
+						created_at: true,
+						user_id: {
+							select: {
+								id: true,
+								nickname: true,
+								avatar: true,
+							},
+						},
+					},
 				});
 				await trx.blocked.create({
 					data: {
@@ -254,9 +273,9 @@ export class RoomsService {
 				});
 				return data;
 			});
-			return { region: "chat", action: "norm", data: data };
-		} catch {
-			throw new HttpException("Block: Unsuccesfull", HttpStatus.NOT_FOUND);
+			return data;
+		} catch (e) {
+			return null
 		}
 	}
 	/**
@@ -266,6 +285,7 @@ export class RoomsService {
 	 * @param roomtarget
 	 */
 	async unblock_user(user: number, targeted: number, roomtarget: number) {
+		
 		try {
 			const data = await this.prisma.$transaction(async (trx) => {
 				const data = await trx.rooms_members.update({
@@ -278,8 +298,24 @@ export class RoomsService {
 					data: {
 						isblocked: false,
 					},
+					select: {
+						id: true,
+						roomid: true,
+						permission: true,
+						isblocked: true,
+						isBanned: true,
+						ismuted: true,
+						created_at: true,
+						user_id: {
+							select: {
+								id: true,
+								nickname: true,
+								avatar: true,
+							},
+						},
+					},
 				});
-				const entry = await trx.blocked.deleteMany({
+					await trx.blocked.deleteMany({
 					where: {
 						initiator: user,
 						reciever: targeted,
@@ -287,9 +323,9 @@ export class RoomsService {
 				});
 				return data;
 			});
-			return { region: "chat", action: "norm", data: data };
+			return data;
 		} catch {
-			throw new HttpException("unBlock: unsucessfull", HttpStatus.NOT_FOUND);
+			return null
 		}
 	}
 	/**
@@ -310,10 +346,26 @@ export class RoomsService {
 						},
 					},
 				},
+				select: {
+					id: true,
+					roomid: true,
+					permission: true,
+					isblocked: true,
+					isBanned: true,
+					ismuted: true,
+					created_at: true,
+					user_id: {
+						select: {
+							id: true,
+							nickname: true,
+							avatar: true,
+						},
+					},
+				},
 			});
-			return { region: "chat", action: "kick", data: change };
+			return change ;
 		} catch (e) {
-			throw new HttpException("kick: unsucessfull", 400);
+			return null;
 		}
 	}
 	/**
@@ -337,10 +389,26 @@ export class RoomsService {
 				data: {
 					ismuted: true,
 				},
+				select: {
+					id: true,
+					roomid: true,
+					permission: true,
+					isblocked: true,
+					isBanned: true,
+					ismuted: true,
+					created_at: true,
+					user_id: {
+						select: {
+							id: true,
+							nickname: true,
+							avatar: true,
+						},
+					},
+				},
 			});
-			return { region: "chat", action: "norm", data: data };
+			return data;
 		} catch (e) {
-			throw new HttpException("Mute: unsucesfull (owner and admins can't be muted OR user not in room)", 500);
+			null
 		}
 	}
 	/**
@@ -364,10 +432,26 @@ export class RoomsService {
 				data: {
 					ismuted: false,
 				},
+				select: {
+					id: true,
+					roomid: true,
+					permission: true,
+					isblocked: true,
+					isBanned: true,
+					ismuted: true,
+					created_at: true,
+					user_id: {
+						select: {
+							id: true,
+							nickname: true,
+							avatar: true,
+						},
+					},
+				},
 			});
-			return { region: "chat", action: "norm", data: data };
+			return data;
 		} catch {
-			throw new HttpException("Mute: unsucesfull", 500);
+			return null
 		}
 	}
 	/**
@@ -390,10 +474,26 @@ export class RoomsService {
 				data: {
 					isBanned: true,
 				},
+				select: {
+					id: true,
+					roomid: true,
+					permission: true,
+					isblocked: true,
+					isBanned: true,
+					ismuted: true,
+					created_at: true,
+					user_id: {
+						select: {
+							id: true,
+							nickname: true,
+							avatar: true,
+						},
+					},
+				},
 			});
-			return { region: "chat", action: "norm", data: data };
+			return data;
 		} catch (e) {
-			throw new HttpException("Ban: unsucesfull (owner and admins can't be banned OR user not in room)", 500);
+			
 		}
 	}
 	/**
@@ -417,10 +517,26 @@ export class RoomsService {
 				data: {
 					isBanned: false,
 				},
+				select: {
+					id: true,
+					roomid: true,
+					permission: true,
+					isblocked: true,
+					isBanned: true,
+					ismuted: true,
+					created_at: true,
+					user_id: {
+						select: {
+							id: true,
+							nickname: true,
+							avatar: true,
+						},
+					},
+				},
 			});
-			return { region: "chat", action: "norm", data: data };
+			return data;
 		} catch {
-			throw new HttpException("Ban:  unsucesfull", 500);
+			return null
 		}
 	}
 	/**
@@ -444,10 +560,26 @@ export class RoomsService {
 					ismuted: false,
 					permission: user_permission.admin,
 				},
+				select: {
+					id: true,
+					roomid: true,
+					permission: true,
+					isblocked: true,
+					isBanned: true,
+					ismuted: true,
+					created_at: true,
+					user_id: {
+						select: {
+							id: true,
+							nickname: true,
+							avatar: true,
+						},
+					},
+				},
 			});
-			return { region: "chat", action: "norm", data: data };
+			return data 
 		} catch (e) {
-			throw new HttpException("User: Failiure", 400);
+			null
 		}
 	}
 	/**
@@ -468,10 +600,26 @@ export class RoomsService {
 				data: {
 					permission: user_permission.participation,
 				},
+				select: {
+					id: true,
+					roomid: true,
+					permission: true,
+					isblocked: true,
+					isBanned: true,
+					ismuted: true,
+					created_at: true,
+					user_id: {
+						select: {
+							id: true,
+							nickname: true,
+							avatar: true,
+						},
+					},
+				},
 			});
-			return { region: "chat", action: "norm", data: data };
+			return data 
 		} catch (e) {
-			throw new HttpException("User: Failiure", 400);
+			null
 		}
 	}
 	async giveOwnership(owner: number, room: number, user: number) {
@@ -498,12 +646,28 @@ export class RoomsService {
 					data: {
 						permission: user_permission.owner,
 					},
+					select: {
+						id: true,
+						roomid: true,
+						permission: true,
+						isblocked: true,
+						isBanned: true,
+						ismuted: true,
+						created_at: true,
+						user_id: {
+							select: {
+								id: true,
+								nickname: true,
+								avatar: true,
+							},
+						},
+					},
 				});
 				return [data, data2];
 			});
-			return { region: "chat", action: "ownership", data: changes };
+			return changes;
 		} catch (e) {
-			throw new HttpException("failed to give up ownership", 400);
+			null;
 		}
 	}
 	/**
