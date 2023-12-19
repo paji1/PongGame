@@ -35,7 +35,10 @@ export const update = (
     		        msgarray.messages.unshift(newmsg);
                 newchatState[index] = msgarray;
                 let roomindex = newroomstate.findIndex((ob: room) => ob.id === newmsg.room_id);
-                newroomstate[index].messages[0].messages = newmsg.messages;
+                if (newroomstate[index].messages === undefined)
+                    newroomstate[index].messages = new Array(1).fill({messages: newmsg.messages})
+                else
+                    newroomstate[index].messages[0].messages = newmsg.messages;
                 setRoomsState(newroomstate);
                 break ;
         }
