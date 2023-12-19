@@ -46,12 +46,17 @@ const SideBar = () => {
 		if (chatState === null)
 			return ;
 		const newstate = chatState.slice();
-		const index = newstate.findIndex((on:roommessages) => on.id = message.id);
-		if (index === undefined)
+		
+		const roomessg = newstate.find((on:roommessages) => on.id === message.id);
+		const index = newstate.findIndex((on:roommessages) => on.id === message.id);
+
+		if (roomessg === undefined)
 			{
 				return;
 			}
-		newstate[index].messages = newstate[index].messages.concat(message.messages);
+		console.log(roomessg, "oldest");
+		roomessg.messages = roomessg.messages.concat(message.messages);
+		newstate[index] = roomessg;
 		setChatState(newstate);
 	} 
 	const toggleChatBar = () => seIsOpen(!isOpen);
