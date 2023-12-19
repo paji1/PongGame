@@ -13,17 +13,13 @@ import { ip } from "../../network/ipaddr";
 
 
 const ChatBar = ({
-	refresh,
 	room,
 	roomselector,
 	conversation,
-	chatupdater
 }: {
-	refresh: any;
 	room: room | null;
 	roomselector: any;
 	conversation: roommessages | null;
-	chatupdater:any
 }) => {
 	let messages;
 	const [config, setConfig] = useState(false);
@@ -45,9 +41,9 @@ const ChatBar = ({
 	}
 	if (config)
 		return room?.roomtypeof !== "chat" ? (
-			<RoomSettings returnf={roomselector} refresh={refresh} returnbutton={setConfig} room={room} />
+			<RoomSettings returnf={roomselector}  returnbutton={setConfig} room={room} />
 		) : (
-			<FriendSetting refresh={refresh} returnbutton={setConfig} room={room} />
+			<FriendSetting  returnbutton={setConfig} room={room} />
 		);
 		const getMoreMessages = (room: number| undefined)=>
 		{
@@ -68,10 +64,9 @@ const ChatBar = ({
 				{
 					setpaginate(false);
 					toast(`reached the  top`);
-
 					return ;
 				}
-				chatupdater(null, data)
+				toast.error("youforget to fetch here")
 			}
 			else toast.error(data.message);
 		})
@@ -111,12 +106,12 @@ const MessageBar = ({ roomnumber }: { roomnumber: number }) => {
 	const sendSocket = (input: any) => {
 		input.preventDefault();
 		if (!textmessage.length) return;
-		const messsage: SocketMessage = {
-			Destination: roomnumber,
-			Message: textmessage,
+		const messsage = {
+			target: -1,
+			room: roomnumber,
+			What: textmessage,
 		};
-		socket.emit("chat", messsage);
-
+		socket.emit("CHAT", messsage);
 		input.target.value = "";
 		settextmessage(input.target.value);
 	};

@@ -2,80 +2,92 @@ import { toast } from "react-toastify";
 import { messages, roommessages } from "../../types/messages"
 import { member, room } from "../../types/room"
 import { backendretun } from "../../types/backendreturn";
+import { CurrentUser } from "../Context/AuthContext";
 
-export const roomseventssetter = (roommember: backendretun | null, rooms: room[] | null, setRoomState: any , room: backendretun | null) =>
+
+export const update = (
+    data : backendretun,
+    roomsState: room[] | null,
+    setRoomsState: any,
+    chatState: roommessages[] | null,
+    setchatState:any,
+    user: CurrentUser | null
+    ) =>
 {
-	if (!rooms)
-		return ;
-	const rooms2 = rooms.slice()
-	if (roommember)
-	{	
-		const changeuserproperties = (member:member, array: room[], action :string) =>
+    console.log(data)
+    if (!user)
+        return ;
+    if (data.region == "CHAT" && chatState && roomsState)
+    {
+        var newchatState = chatState.slice();
+        switch (data.action)
+        {
+            case "NEW":
+                let newmsg = data.data as messages
+                console.log(newmsg)
+                let index = chatState.findIndex((ob: roommessages) => ob.id === newmsg.room_id)
+    		    const msgarray = chatState[index];
+    		    if (typeof msgarray.messages === "undefined")
+    		    {
+    		        msgarray.messages = new Array(1).fill(newmsg);
+    		    }
+    		    else
+    		        msgarray.messages.unshift(newmsg);
+                newchatState[index] = msgarray;
+                break ;
+        }
+        setchatState(newchatState)
+    }
+    const changeuserproperties = (member:member, array: room[] , action:string) =>
 		{
 			const index = array.findIndex((ob:room) => ob.id === member.roomid);
 			const userindex = array[index].rooms_members.findIndex((mem:member) => mem.id === member.id);
 			const back = array[index].rooms_members[userindex].user_id;
 			array[index].rooms_members[userindex] = member;
 			array[index].rooms_members[userindex].user_id = back;
-			if (action ==="kick")
-				array[index].rooms_members = array[index].rooms_members.filter((mem:member) => mem.id != member.id);
 		}
-		switch (roommember.action)
-		{
-			case "kick":
-					changeuserproperties(roommember.data as member, rooms2, "kick")
-					break 
-			case "norm":
-				changeuserproperties(roommember.data as member, rooms2, "")
-				break;
-			case "ownership":
-				const arr = roommember.data as member[]
-				changeuserproperties(arr[0], rooms2, "")
-				changeuserproperties(arr[1] , rooms2, "")
-				break;
-		}
-		setRoomState(rooms2)
-		return ;
-	}
-	if(room)
-	{
-		switch (room.action)
-		{
-			case "new":
-				const newroom  = room.data as room
-				rooms2.unshift(newroom)
-				break ;
-			case "delete":
-					const newroo  = room.data as room
-					setRoomState(rooms2.filter((room:room) => room.id != newroo.id));
-					return;
-		}
-		setRoomState(rooms2);
-		return ;
-	}
-
-}
-
-export const updateMessages = (newmsg:messages,  messages: roommessages[] | null, setChatState: any) =>
-{
- 
-    if (!messages)
-    		    return ;
-    		const index = messages.findIndex((ob: roommessages) => ob.id === newmsg.room_id)
-    		const msgarray = messages.find((ob: roommessages) => ob.id === newmsg.room_id)
-    		if (!msgarray)
-    		{
-				toast.error("bingo");
-    		    return 
-    		}
-			const  newversion = messages.slice();
-    		if (typeof msgarray.messages === "undefined")
-    		{
-    		    msgarray.messages = new Array(1).fill(newmsg);
-    		}
-    		else
-    		    msgarray.messages.unshift(newmsg);
-    		newversion[index] = msgarray;
-    		setChatState(newversion)
-    
+    if (data.region == "ROOM" && roomsState && chatState)
+    {
+        var newroomState = roomsState.slice();
+        switch (data.action)
+        {
+            case "update":
+                const member = data.data as member;
+                const index = newroomState.findIndex((ob:room) => ob.id === member.roomid);
+                const userindex = newroomState[index].rooms_members.findIndex((mem:member) => mem.id === member.id);
+                const back = newroomState[index].rooms_members[userindex].user_id;
+                newroomState[index].rooms_members[userindex] = member;
+                newroomState[index].rooms_members[userindex].user_id = back;
+                break ;
+            case "KICK":
+                const member1 = data.data as member;
+                console.log(member1 ,user)
+                if (member1.user_id.id === user.id)
+                {
+                    newroomState = newroomState.filter((ob:room)=> ob.id !== member1.roomid);
+                    var newchatStatetmp1 = chatState.filter((chat: roommessages)=> chat.id !== member1.roomid);
+                    setchatState(newchatStatetmp1);
+                }else{
+                    const index = newroomState.findIndex((ob:room) => ob.id === member1.roomid);
+                    newroomState[index].rooms_members = newroomState[index].rooms_members.filter((mem:member)=> mem.id !== member1.id)
+                }
+                break;
+            case "DELETE":
+                const room = data.data as room;
+                const newchatStatetmp = chatState?.filter((chat:roommessages) => chat.id !== room.id);
+                newroomState = newroomState.filter((ob:room)=> ob.id !== room.id);
+                setchatState(newchatStatetmp);
+                break ;
+            case "NEW":
+                const room1 = data.data as room;
+                var newchatStatetmp1 = chatState?.slice();
+                const messaged: roommessages = {id: room1.id, messages: new Array()}
+                newchatStatetmp1 = newchatStatetmp1.concat(messaged);
+                newroomState  = newroomState.concat(room1);
+                console.log(newroomState, newchatStatetmp1);
+                setchatState(newchatStatetmp1);
+                break ;
+        }
+        setRoomsState(newroomState)
+    }
 }

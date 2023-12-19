@@ -10,81 +10,42 @@ import { messages, roommessages } from "../types/messages";
 import useMessages from "../hooks/useMessages";
 import { SocketContext } from "./Context/SocketContext";
 import { toast } from "react-toastify";
-import { roomseventssetter, updateMessages } from "./sidebar/updater";
 import { backendretun } from "../types/backendreturn";
 import { ip } from "../network/ipaddr";
+import { update } from "./sidebar/updater";
+import { currentUser } from "./Context/AuthContext";
+import {  Socket} from 'socket.io-client';
+
 
 const SideBar = () => {
 	const socket = useContext(SocketContext);
+	const user = useContext(currentUser)
 	const [isOpen, seIsOpen] = useState(false);
 	const [searchSelection, setSearchSelection] = useState(1);
 	const [searchText, setSearchText] = useState("");
 	const [chatSelector, setChatSelector] = useState(-1);
 	const [roomsState, setRoomsState] = useState<room[] | null>(null);
 	const [chatState, setChatState] = useState<roommessages[] | null>(null);
-	const [roomsUpdater, updateRooms] = useState(false);
-	const roomevents = (data: backendretun) =>
-	{
-		if (data.region === "chat")
-			roomseventssetter(data, roomsState, setRoomsState , null)
-		else if(data.region === "room")
-			{
-				roomseventssetter(null,  roomsState, setRoomsState , data)
-				if (data.action === "new")
-					{
-						if (!chatState)
-							return ;
-						const newstate = chatState.slice();
-						const room = data.data as room
-						const chat:roommessages = {
-							id: room.id,
-							messages: new Array(0)
-						}
-						newstate.push(chat);
-						setChatState(newstate)
-					}
-					socket.emit("init", {})
-			}
-
-	}
-	const messageevents = (message : messages|null , mesagat: any | null ) =>
-	{
-		if (message != null)
-		{
-			updateMessages(message, chatState, setChatState);
-			return 
-		}
-		if (mesagat != null)
-		{
-			const roomid = mesagat.id;
-			const messagate = mesagat.messages as messages[]
-			const newmessage = chatState?.slice();
-			if (newmessage === undefined)
-				return ;
-			const index = newmessage.findIndex((ob: roommessages) => ob.id === mesagat.id)
-			newmessage[index].messages =newmessage[index].messages.concat(messagate)
-			setChatState(newmessage)
-		}
-	}
+	
+	
 	const friendroom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof === "chat") : null;
 	const grouproom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof !== "chat") : null;
 	useMessages(false, setChatState);
-	useRooms(roomsUpdater, setRoomsState);
-
+	useRooms(false, setRoomsState);
+	useEffect(()=> {	
+		roomsState?.map((ob:room) => socket.emit("JOIN", ob.id))
+	}, [roomsState])
 	const currentchat = Array.isArray(chatState) ? chatState.find((ob: roommessages) => ob.id === chatSelector) : null;
 	const currentroom = Array.isArray(roomsState) ? roomsState.find((ob: room) => ob.id === chatSelector) : null;
-	socket.off("connect").on("connect", () => console.log("conected"));
-	socket.off("chat").on("chat", (data: messages) => {
-		messageevents(data, null)
-	});
+	socket.off("ACTION").on("ACTION", (data) => update(data, roomsState, setRoomsState, chatState, setChatState, user))
 	socket.off("ChatError").on("ChatError", (data) => toast.error(data));
+	socket.off("NOTIFY").on("NOTIFY", (data) => toast.error(data));
+
 	const toggleChatBar = () => seIsOpen(!isOpen);
 	const RenderOption = () => {
 		if (chatSelector !== -1)
 			return (
 				<ChatBar
-					chatupdater={messageevents}
-					refresh={roomevents}
 					roomselector={setChatSelector}
 					room={typeof currentroom === "undefined" ? null : currentroom}
 					conversation={typeof currentchat === "undefined" ? null : currentchat}
@@ -98,7 +59,7 @@ const SideBar = () => {
 			case 2:
 				return (
 					<>
-						<CreateRoom refresh={roomevents}/>
+						<CreateRoom socket={socket}/>
 						<SideBarItemFilter rooms={grouproom} query="" roomselector={setChatSelector} />
 					</>
 				);
@@ -161,7 +122,7 @@ const SideBar = () => {
 	);
 };
 
-const CreateRoom = ({refresh}: {refresh:any}) => {
+const CreateRoom = ({socket}: {socket: Socket}) => {
 	const [clicked, click] = useState(false);
 	const [type, setType] = useState("public");
 	const [password, setPassword] = useState("");
@@ -175,28 +136,8 @@ const CreateRoom = ({refresh}: {refresh:any}) => {
 			name: name,
 			type: type,
 		};
-		const data = fetch("http://" + ip + "3001/chat/creation", {
 		
-				credentials: 'include',
-		
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(roomform),
-		})
-			.then((data) => data.json())
-			.then((data) => {
-				let res = data.statusCode;
-				if (res >= 400 && Array.isArray(data.message)) data.message.map((e: string) => toast.error(e));
-				else if (res >= 400) toast.error(data.message);
-				if (res === undefined)
-				{
-					refresh(data)
-					toast("room created")
-				}
-			})
-			// .catch((e) => toast.error(e.message+"niffa"));
+		socket.emit("NEW", roomform)
 		setPassword("");
 		setName("");
 		setType("public");
