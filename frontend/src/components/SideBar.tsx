@@ -26,15 +26,16 @@ const SideBar = () => {
 	const [chatSelector, setChatSelector] = useState(-1);
 	const [roomsState, setRoomsState] = useState<room[] | null>(null);
 	const [chatState, setChatState] = useState<roommessages[] | null>(null);
+	const [subscriberooms, setsubscriptrooms] = useState(false);
 	
-	
+	socket.off("connect").on("connect",() => setsubscriptrooms(!subscriberooms))
 	const friendroom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof === "chat") : null;
 	const grouproom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof !== "chat") : null;
 	useMessages(false, setChatState);
 	useRooms(false, setRoomsState);
 	useEffect(()=> {	
 		roomsState?.map((ob:room) => socket.emit("JOIN", ob.id))
-	}, [roomsState])
+	}, [roomsState, subscriberooms])
 	const currentchat = Array.isArray(chatState) ? chatState.find((ob: roommessages) => ob.id === chatSelector) : null;
 	const currentroom = Array.isArray(roomsState) ? roomsState.find((ob: room) => ob.id === chatSelector) : null;
 	socket.off("ACTION").on("ACTION", (data) => update(data, roomsState, setRoomsState, chatState, setChatState, user))
