@@ -5,14 +5,14 @@ import { Socket } from "socket.io-client";
 
 
 //this option fror private rooms only
-export const InviteButton = ({ type, socket}:{ type:string ,socket:Socket}) =>
+export const InviteButton = ({ roomid, type, socket}:{ roomid:number, type:string ,socket:Socket}) =>
 {
     const [friend , setfreind] = useState("");
     if (type!=="private")
         return <></>
     const invite = ()=>
     {
-        socket.emit("INVITE", {target:-1, room:-1, friend})
+        socket.emit("INVITE", {target:-1, room:roomid, friend})
         setfreind("")
     }
     return(

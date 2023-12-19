@@ -14,7 +14,6 @@ export const update = (
     user: CurrentUser | null
     ) =>
 {
-    console.log(data)
     if (!user)
         return ;
     if (data.region == "CHAT" && chatState && roomsState)
@@ -38,14 +37,7 @@ export const update = (
         }
         setchatState(newchatState)
     }
-    const changeuserproperties = (member:member, array: room[] , action:string) =>
-		{
-			const index = array.findIndex((ob:room) => ob.id === member.roomid);
-			const userindex = array[index].rooms_members.findIndex((mem:member) => mem.id === member.id);
-			const back = array[index].rooms_members[userindex].user_id;
-			array[index].rooms_members[userindex] = member;
-			array[index].rooms_members[userindex].user_id = back;
-		}
+ 
     if (data.region == "ROOM" && roomsState && chatState)
     {
         var newroomState = roomsState.slice();
@@ -61,7 +53,6 @@ export const update = (
                 break ;
             case "KICK":
                 const member1 = data.data as member;
-                console.log(member1 ,user)
                 if (member1.user_id.id === user.id)
                 {
                     newroomState = newroomState.filter((ob:room)=> ob.id !== member1.roomid);
@@ -84,7 +75,6 @@ export const update = (
                 const messaged: roommessages = {id: room1.id, messages: new Array()}
                 newchatStatetmp1 = newchatStatetmp1.concat(messaged);
                 newroomState  = newroomState.concat(room1);
-                console.log(newroomState, newchatStatetmp1);
                 setchatState(newchatStatetmp1);
                 break ;
         }

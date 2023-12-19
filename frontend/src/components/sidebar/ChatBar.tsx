@@ -13,10 +13,12 @@ import { ip } from "../../network/ipaddr";
 
 
 const ChatBar = ({
+	pajinationf,
 	room,
 	roomselector,
 	conversation,
 }: {
+	pajinationf: any,
 	room: room | null;
 	roomselector: any;
 	conversation: roommessages | null;
@@ -45,6 +47,7 @@ const ChatBar = ({
 		) : (
 			<FriendSetting  returnbutton={setConfig} room={room} />
 		);
+		
 		const getMoreMessages = (room: number| undefined)=>
 		{
 			if (room === undefined)
@@ -60,6 +63,8 @@ const ChatBar = ({
 			let res = data.statusCode;
 			if (typeof res  === "undefined")
 			{
+
+				pajinationf(data);
 				if (data.messages.length <= 29)
 				{
 					setpaginate(false);
@@ -105,6 +110,11 @@ const MessageBar = ({ roomnumber }: { roomnumber: number }) => {
 	};
 	const sendSocket = (input: any) => {
 		input.preventDefault();
+		if (!socket.connected)
+		{
+			toast.error("socket not conected");
+			return ;
+		}
 		if (!textmessage.length) return;
 		const messsage = {
 			target: -1,
@@ -115,33 +125,11 @@ const MessageBar = ({ roomnumber }: { roomnumber: number }) => {
 		input.target.value = "";
 		settextmessage(input.target.value);
 	};
-	const SendHttp = (input: any) => {
-		input.preventDefault();
-		if (!textmessage.length) return;
 
-		fetch(`http://${ip}3001/chat/comunication?room=${roomnumber}`, {
-			method: "POST",
-			credentials: 'include',
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				destination: roomnumber.toString(),
-				text: textmessage,
-			}),
-		})
-			.then((e: any) => {
-				if (e.status >= 400) toast.error(`code: ${e.status} - ${e.statusText}`);
-			})
-			.catch(() => toast.error(`network error`));
-		input.target.value = "";
-		settextmessage(input.target.value);
-		toast.error("websocket failure message sent via http");
-	};
 	return (
 		<form>
 			<input type="text" value={textmessage} onChange={setMessage} placeholder="write something here"></input>
-			<button onClick={socket.connected ? sendSocket : SendHttp}>sendMessage</button>
+			<button onClick={ sendSocket}>sendMessage</button>
 		</form>
 	);
 };

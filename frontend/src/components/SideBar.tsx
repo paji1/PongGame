@@ -41,11 +41,25 @@ const SideBar = () => {
 	socket.off("ChatError").on("ChatError", (data) => toast.error(data));
 	socket.off("NOTIFY").on("NOTIFY", (data) => toast.error(data));
 
+	const pajination = (message: roommessages) =>
+	{
+		if (chatState === null)
+			return ;
+		const newstate = chatState.slice();
+		const index = newstate.findIndex((on:roommessages) => on.id = message.id);
+		if (index === undefined)
+			{
+				return;
+			}
+		newstate[index].messages = newstate[index].messages.concat(message.messages);
+		setChatState(newstate);
+	} 
 	const toggleChatBar = () => seIsOpen(!isOpen);
 	const RenderOption = () => {
 		if (chatSelector !== -1)
 			return (
 				<ChatBar
+					pajinationf={pajination}
 					roomselector={setChatSelector}
 					room={typeof currentroom === "undefined" ? null : currentroom}
 					conversation={typeof currentchat === "undefined" ? null : currentchat}

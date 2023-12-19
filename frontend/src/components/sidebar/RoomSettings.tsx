@@ -1,22 +1,10 @@
 import { useContext, useState } from "react";
 import { member, room } from "../../types/room";
-import { toast } from "react-toastify";
 import { currentUser } from "../Context/AuthContext";
-import { ip } from "../../network/ipaddr";
 import { SocketContext } from "../Context/SocketContext";
-import { Socket } from "socket.io-client";
 import { ChangeRoomType } from "./settingsAux/changeRoomssetting";
 import { RoomsettingItem } from "./settingsAux/settingsitems";
 import { InviteButton } from "./settingsAux/InviteUser";
-
-
-
-
-/**
- *
- * @param param0
- */
-
 
 const RoomSettings = ({ returnf, returnbutton, room }: {returnf:any,returnbutton: any; room: room | null }) => {
 	const [query, setQuery] = useState("");
@@ -44,8 +32,8 @@ const RoomSettings = ({ returnf, returnbutton, room }: {returnf:any,returnbutton
 			<div>
 				<input type="text" value={query} onChange={setQueryonchange} placeholder="Finduser"></input>
 			</div>
-			<InviteButton type={room  ? room.roomtypeof : ""} socket={socket}/>
-			<div className="flex flex-col overflow-y-scroll gap-2  ">{list}</div>
+			<InviteButton roomid={room ? room.id : -1} type={room  ? room.roomtypeof : ""} socket={socket}/>
+			<div className="flex flex-col overflow-y-scroll gap-2 ">{list}</div>
 		</div>
 	);
 };
