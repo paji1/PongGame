@@ -7,6 +7,7 @@ import { SocketContext } from "../Context/SocketContext";
 import { Socket } from "socket.io-client";
 import { ChangeRoomType } from "./settingsAux/changeRoomssetting";
 import { RoomsettingItem } from "./settingsAux/settingsitems";
+import { InviteButton } from "./settingsAux/InviteUser";
 
 
 
@@ -18,12 +19,13 @@ import { RoomsettingItem } from "./settingsAux/settingsitems";
 
 
 const RoomSettings = ({ returnf, returnbutton, room }: {returnf:any,returnbutton: any; room: room | null }) => {
-	const [userState, setUserState] = useState<member | null>(null);
 	const [query, setQuery] = useState("");
 	const user = useContext(currentUser);
+	const socket = useContext(SocketContext)
 	var list;
+	var thisuser: member|undefined;
 	if (room) {
-		let thisuser =  room.rooms_members.find((ob: member) => ob.user_id.id === user?.id)
+		thisuser =  room.rooms_members.find((ob: member) => ob.user_id.id === user?.id)
 		list = room.rooms_members.map((ob: member, index: number) => {
 			let nickname = ob.user_id.nickname.toLowerCase();
 			if (nickname.includes(query.toLowerCase()))
@@ -38,10 +40,11 @@ const RoomSettings = ({ returnf, returnbutton, room }: {returnf:any,returnbutton
 			<div>
 				<button onClick={() => returnbutton(false)}> rja3 lchat </button>
 			</div>
-			<div>{userState?.permission === "owner" ? <ChangeRoomType room={room} /> : <></>}</div>
+			<div>{thisuser?.permission === "owner" ? <ChangeRoomType room={room} /> : <></>}</div>
 			<div>
 				<input type="text" value={query} onChange={setQueryonchange} placeholder="Finduser"></input>
 			</div>
+			<InviteButton type={room  ? room.roomtypeof : ""} socket={socket}/>
 			<div className="flex flex-col overflow-y-scroll gap-2  ">{list}</div>
 		</div>
 	);
