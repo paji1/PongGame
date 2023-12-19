@@ -4,11 +4,11 @@ import Profile from "../../assets/profile.png";
 import { messages } from "../../types/messages";
 import { currentUser } from "../Context/AuthContext";
 
-const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; glimpse: string | undefined }) => {
+const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; glimpse: messages[] }) => {
 	let preview;
 	const user = useContext(currentUser);
 
-	if (typeof glimpse !== "undefined") preview = glimpse.length > 25 ? glimpse.substring(0, 25) + "..." : glimpse;
+	if (Array.isArray(glimpse)) preview = glimpse[0].messages.length > 25 ? glimpse[0].messages.substring(0, 25) + "..." : glimpse[0].messages;
 	else preview = "Start A conversation";
 	const name =
 		room.rooms_members[0].user_id.id === user?.id

@@ -3,9 +3,9 @@ import { room } from "../../types/room";
 import ChatRoomAvatar from "../../assets/ChatRoomAvatar.png";
 import { messages } from "../../types/messages";
 
-const GroupItem = ({ selector, room, glimpse }: { selector: any; room: room; glimpse: string | undefined }) => {
+const GroupItem = ({ selector, room, glimpse }: { selector: any; room: room; glimpse:  messages[] }) => {
 	let preview;
-	if (typeof glimpse !== "undefined") preview = glimpse.length > 25 ? glimpse.substring(0, 25) + "..." : glimpse;
+	if (Array.isArray(glimpse)) preview = glimpse[0].messages.length > 25 ? glimpse[0].messages.substring(0, 25) + "..." : glimpse[0].messages;
 	else preview = "Start the conversation";
 	const name = room.name.length > 15 ? room.name.substring(0, 15) : room.name;
 	return (

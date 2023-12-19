@@ -19,6 +19,7 @@ export const update = (
     if (data.region == "CHAT" && chatState && roomsState)
     {
         var newchatState = chatState.slice();
+        var newroomstate = roomsState.slice();
         switch (data.action)
         {
             case "NEW":
@@ -33,6 +34,9 @@ export const update = (
     		    else
     		        msgarray.messages.unshift(newmsg);
                 newchatState[index] = msgarray;
+                let roomindex = newroomstate.findIndex((ob: room) => ob.id === newmsg.room_id);
+                newroomstate[index].messages[0].messages = newmsg.messages;
+                setRoomsState(newroomstate);
                 break ;
         }
         setchatState(newchatState)

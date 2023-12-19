@@ -22,7 +22,7 @@ type member_filler = {
 };
 
 export type room = {
-	messages: string
+	messages: messages[]
 	id: number;
 	name: string;
 	roomtypeof: string;
