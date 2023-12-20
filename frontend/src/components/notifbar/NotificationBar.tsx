@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useContext } from "react"
 import { ToggleButton } from "./ToggleButton"
 import { HoverDiv } from "../Common"
@@ -6,28 +6,42 @@ import { CurrentUser, currentUser } from "../Context/AuthContext"
 import profileplaceholder from "../../assets/profileplaceholder.png"
 import NotificationItem from "./NotificationItem"
 import { INotificaion, InviteType } from "../../types/NotificationItem"
+import { toast } from "react-toastify"
+import { ip } from "../../network/ipaddr"
 
 
 
 const NotificationBar = () => {
-	const [isOpen, seIsOpen] = useState(false)
-	const [ state, setState ] = useState(1)
+	const [isOpen, seIsOpen] = useState(false);
+	const [state, setState] = useState(1);
+	const [notification, setNotification] = useState<INotificaion[] | null>(null);	
 
-	const notif: INotificaion = {
-		initiator : {
-			id: 1,
-            nickname: "John",
-			user42: "MGS",
-            avatar: profileplaceholder
-		},
-		inviteDate: new Date(),
-		inviteType: InviteType.GAME,
-		status: 1
-	}
 
 	const toggleChatBar = () => seIsOpen(!isOpen)
 
 	const user: CurrentUser | null = useContext(currentUser)
+	useEffect (() =>
+	{
+		const fetchData = async () =>
+		{
+			fetch(`http://${ip}3001/invite`)
+			.then((data)=> data.json())
+			.then((data) =>
+			{
+				if (Array.isArray(data))
+					setNotification(data);
+
+			}
+			).catch((e) => toast.error(e.message));
+		}
+		fetchData();
+	},[]);
+
+	let a;
+	if(notification == null)
+		console.log("isnull")
+	else
+		a = notification.map((ha, key) => <NotificationItem key={key} notif={ha} />)
 
 	return (
 		<>
@@ -71,23 +85,7 @@ const NotificationBar = () => {
 				<hr className="my-1 h-0.5 border-t-0 bg-textColor opacity-100" />
 
 				<div className={`flex flex-col flex-1 py-3 min-h-[100px] gap-2 px-2 sm:px-3 overflow-y-scroll`}>
-
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					
+					{a}
 				</div>
 
 			</div>
