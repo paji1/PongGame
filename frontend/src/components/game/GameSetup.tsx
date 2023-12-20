@@ -2,27 +2,21 @@ import { useContext, useEffect, useRef, useState } from "react"
 import { EDifficulty, EMatchingType, IQueue, ADifficultyHandle, AMatchingHandle, DifficultyContext } from "../Context/QueueingContext"
 import Lottie from "lottie-web"
 import { SocketContext } from "../Context/SocketContext"
+import HomePage from "../HomePage/HomePage"
+import { Socket } from "socket.io-client"
 
-const queueingQuery = (queueing: IQueue, inviteUsername?: string): boolean => {
 
-	const isValidInput = (input: string): boolean => {
-		const regex = /^[a-zA-Z0-9_]+$/
-		return regex.test(input);
+const matchingHandler = (difficulty: EDifficulty, matchingType: EMatchingType, searchBar: HTMLInputElement | null, socketCtx: Socket) => {
+	const queue: IQueue = {
+		difficulty: difficulty,
+		matchingType: matchingType,
+		invite: ''
 	}
-
-	if (!Object.values(EDifficulty).includes(queueing.difficulty))
-		return false
-	if (!Object.values(EMatchingType).includes(queueing.matchingType))
-		return false
-	if (queueing.matchingType === EMatchingType.INVITE)
-	{
-		if (!inviteUsername || inviteUsername === '' || inviteUsername.length < 3)
-			return false
-		if (!isValidInput(inviteUsername))
-			return false
-	}
-
-	return true
+	console.log(`difficulty -> ${difficulty} | matchingType -> ${matchingType} | searchBar.value -> ${searchBar?.value}`)
+	if (matchingType === EMatchingType.INVITE && searchBar)
+		queue.invite = searchBar.value
+	console.log(queue)
+	socketCtx.emit('matching', queue)
 }
 
 const CheckButton = ({_key, text, color, selected, clickHandler}:
@@ -48,41 +42,22 @@ const CheckButton = ({_key, text, color, selected, clickHandler}:
 
 const ConfigElems = () => {
 	const [difficulty, setDifficulty] = useContext(DifficultyContext)
+	const [matchingType, setMatchingType] = useState(EMatchingType.RANDOM)
+	const [searchBar, setSearchBar] = useState<HTMLInputElement | null>(null)
 	const startButtonRef = useRef<HTMLButtonElement>(null);
 	const searchForFriendRef = useRef<HTMLInputElement>(null);
-	const [matchingType, setMatchingType] = useState(EMatchingType.RANDOM)
 
 	const difficultyHandeler = (s: EDifficulty) => setDifficulty(s)
-
 	const matchingTypeHandeler = (s: EMatchingType) => setMatchingType(s)
+
 	const socketCtx = useContext(SocketContext)
 
 	useEffect(() => {
-		const queueingParams: IQueue = {
-			difficulty: EDifficulty.EASY,
-			matchingType: EMatchingType.RANDOM
-		}
-		if (!startButtonRef || !searchForFriendRef)
-			return
-		const start = startButtonRef.current as HTMLButtonElement
-		const search = searchForFriendRef.current as HTMLInputElement
-		
-		start.addEventListener('click', () => {
-			let res: boolean
-			if (search)
-				res = queueingQuery(queueingParams, search.value)
-			else
-				res = queueingQuery(queueingParams)
-			if (res)
-			{
-				socketCtx.emit('queueing', queueingParams)
-
-			}
-
-
-
-		})
-	}, [difficulty, matchingType])
+		if (matchingType === EMatchingType.INVITE)
+			setSearchBar(searchForFriendRef.current)
+		else
+			setSearchBar(null)
+	}, [matchingType])
 
 	return (
 		<div className={`flex flex-col lg:gap-8 md:gap-5 sm:gap-2 gap-8 border z-0 text-sm md:text-base lg:text-lg`}>
@@ -97,10 +72,11 @@ const ConfigElems = () => {
 			</div>
 			{matchingType === EMatchingType.INVITE ? (<input type="text" placeholder="Who..." ref={searchForFriendRef}
 				className={`px-2 py-1 w-56 sm:w-64 border-solid border-textColor border-[.2rem] font-pixelify
-				rounded-full focus:outline-none shadow-buttonShadow`} />) : null}
+				rounded-full focus:outline-none shadow-buttonShadow focus:border-textColor focus:text-textColor`} required />) : null}
 			<div className={`flex  flex-col gap-2 items-center justify-evenly`}>
 				<button ref={startButtonRef} className={`py-1 border-solid border-textColor border-[.2rem] bg-buttonColor
-				rounded-full focus:outline-none font-pixelify shadow-buttonShadow w-56 sm:w-64`}>
+				rounded-full focus:outline-none font-pixelify shadow-buttonShadow w-56 sm:w-64`}
+				onClick={() => matchingHandler(difficulty, matchingType, searchBar, socketCtx)}>
 					Start
 				</button>
 			</div>

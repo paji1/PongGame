@@ -14,7 +14,7 @@ export enum EMatchingType {
 export interface IQueue {
 	difficulty: EDifficulty,
 	matchingType: EMatchingType,
-	invite?: string
+	invite: string
 }
 
 export type ADifficultyHandle = (s: EDifficulty) => any
