@@ -336,16 +336,18 @@ export class ChatGateway {
 
 
 
-	@SubscribeMessage("INVITE")
+	@SubscribeMessage("INVITEROOM")
 	@RoomType(roomtype.private)
 	@RoomStatus(Roomstattypes.NOTBAN)
-	async inviteroom(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
+	async inviteroom(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message:ActionDTO )
 	{
+		console.log(Message)
 		const friend = await this.prisma.user.findUnique({
 			where:{
-				nickname:Message.What
+				nickname: Message.What
 			}
 		});
+		console.log(friend)
 		if (!friend)
 		{
 			client.emit("ChatError", `failed to ${Message.What}`);

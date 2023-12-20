@@ -12,7 +12,8 @@ export const InviteButton = ({ roomid, type, socket}:{ roomid:number, type:strin
         return <></>
     const invite = ()=>
     {
-        socket.emit("INVITE", {target:-1, room:roomid, friend})
+        console.log({target:-1, room:roomid, what:friend})
+        socket.emit("INVITEROOM", {target:-1, room:roomid, What:friend})
         setfreind("")
     }
     return(
