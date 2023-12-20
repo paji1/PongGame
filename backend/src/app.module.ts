@@ -11,6 +11,7 @@ import { APP_GUARD } from "@nestjs/core";
 	imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, ChatModule, AuthModule, UsersModule],
 
 	providers: [
+		
 		{
 			provide: APP_GUARD,
 			useClass: AtGuard,

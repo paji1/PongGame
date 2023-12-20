@@ -82,16 +82,16 @@ model rooms {
 }
 
 model rooms_members {
-  id            Int             @id @unique @default(autoincrement())
-  roomid        Int
-  userid        Int
-  permission    user_permission
-  isblocked     Boolean         @default(false)
-  ismuted       Boolean         @default(false)
-  isBanned      Boolean         @default(false)
-  created_at    DateTime        @default(now())
-  user_id       user            @relation(fields: [userid], references: [id])
-  rooms         rooms           @relation(fields: [roomid], references: [id], onDelete: Cascade)
+  id         Int             @id @unique @default(autoincrement())
+  roomid     Int
+  userid     Int
+  permission user_permission
+  isblocked  Boolean         @default(false)
+  ismuted    Boolean         @default(false)
+  isBanned   Boolean         @default(false)
+  created_at DateTime        @default(now())
+  user_id    user            @relation(fields: [userid], references: [id])
+  rooms      rooms           @relation(fields: [roomid], references: [id], onDelete: Cascade)
 
   @@unique([roomid, userid], name: "combination")
 }
@@ -127,16 +127,16 @@ model achieved {
 }
 
 model invites {
-  id          Int           @id @unique @default(autoincrement())
+  id          Int          @id @unique @default(autoincrement())
   type        invitetype
   status      actionstatus
   issuer      Int
   reciever    Int
   room        Int?
-  created_at  DateTime      @default(now())
-  issuer_id   user          @relation("issuer", fields: [issuer], references: [id])
-  reciever_id user          @relation("reciever", fields: [reciever], references: [id])
-  room_id     rooms?        @relation(fields: [room], references: [id])
+  created_at  DateTime     @default(now())
+  issuer_id   user         @relation("issuer", fields: [issuer], references: [id])
+  reciever_id user         @relation("reciever", fields: [reciever], references: [id])
+  room_id     rooms?       @relation(fields: [room], references: [id])
 }
 
 enum user_permission {

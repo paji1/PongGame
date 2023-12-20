@@ -10,10 +10,12 @@ import { RoomType } from 'src/common/decorators/RoomType.decorator';
 import { ActionDTO } from 'src/Dto/Action.dto';
 import { ChatService } from './chat.service';
 import { RoomDto } from 'src/Dto/rooms.dto';
+import { RoomGuard } from 'src/common/guards/chat/RoomGuards.guard';
 
 
 @WebSocketGateway({ transports: ["websocket"] })
 @UsePipes(new ValidationPipe())
+@UseGuards(RoomGuard)
 @UseGuards(AtGuard)
 export class ChatGateway {
   constructor(
@@ -27,7 +29,6 @@ export class ChatGateway {
 	id: string;
 
 
-
 	async handleConnection(client, @GetCurrentUserId() id:number ) {
 		console.log(client.id, id);
 	}
@@ -38,8 +39,8 @@ export class ChatGateway {
 	@SubscribeMessage("JOIN")
 	@RoomPermitions(user_permission.owner, user_permission.admin,user_permission.participation ,user_permission.chat)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public, roomtype.chat)
-	async subscribeRoom(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: number) {
-		client.join(room.toString());
+	async subscribeRoom(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: {room:number }) {
+		client.join(room.room.toString());
 	}
 
 
@@ -70,8 +71,8 @@ export class ChatGateway {
 	async modify(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: RoomDto) {
 		try
 		{
-			const newroom = await this.service.rooms.modify_room(id,room.id, room);
-			this.server.to(room.id.toString()).emit("ACTION", {region: "ROOM", action:"MOD", data: newroom}) 
+			const newroom = await this.service.rooms.modify_room(id,room.room, room);
+			this.server.to(room.room.toString()).emit("ACTION", {region: "ROOM", action:"MOD", data: newroom}) 
 		}	
 		catch (e)
 		{
@@ -103,8 +104,6 @@ export class ChatGateway {
 	// @RoomStatus(userstatus.notblocked,userstatus.notmuted,notbanned)
 	async onMessage( @GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() message: ActionDTO)
 	{
-    console.log(message , "ja men bra")
-
 		const res = await this.service.messages.send_message(id,message.room, message.What);
 		if (!res)
 			{

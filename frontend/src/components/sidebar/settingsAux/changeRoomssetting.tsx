@@ -15,7 +15,7 @@ export const ChangeRoomType = ({ room }: { room: room | null }) => {
 	const createRoom = (e: any) => {
 		e.preventDefault();
 		const roomform = {
-			id:room?.id,
+			room:room?.id,
 			password: password,
 			name: name,
 			type: type,

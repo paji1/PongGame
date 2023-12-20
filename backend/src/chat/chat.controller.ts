@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { ChatService } from "./chat.service";
 import { user_permission, roomtype } from "@prisma/client";
 import { RoomDto, MessageDto } from "../Dto/rooms.dto";
@@ -6,7 +6,9 @@ import { RoomPermitions } from "src/common/decorators/RoomPermitions.decorator";
 import { RoomType } from "src/common/decorators/RoomType.decorator";
 import { IsFriend } from "src/common/decorators/Friend.decorator";
 import { GetCurrentUser, GetCurrentUserId } from "src/common/decorators";
+import { RoomGuard } from "src/common/guards/chat/RoomGuards.guard";
 
+@UseGuards(RoomGuard)
 @Controller("chat")
 export class ChatController {
 	constructor(private readonly service: ChatService) {}

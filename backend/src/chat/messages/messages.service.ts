@@ -162,7 +162,6 @@ export class MessagesService {
 					
 
 		});
-		console.log(ofsset)
 		return conversation;
 	}
 }

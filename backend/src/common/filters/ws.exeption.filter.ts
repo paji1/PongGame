@@ -1,6 +1,5 @@
 import { ArgumentsHost, BadRequestException, Catch, HttpException } from "@nestjs/common";
 import { BaseWsExceptionFilter, WsException } from "@nestjs/websockets";
-import { Socket } from "dgram";
 
 @Catch(HttpException)
 export class WsValidationExeption extends BaseWsExceptionFilter {
@@ -9,7 +8,7 @@ export class WsValidationExeption extends BaseWsExceptionFilter {
 		console.log("WsValidationExeption");
 		const response = exception["response"]["message"];
 		const jj = host.switchToWs();
-		const kk: Socket = jj.getClient();
+		const kk:  any= jj.getClient();
 		kk.emit("error", response);
 	}
 }

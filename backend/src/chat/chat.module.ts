@@ -7,13 +7,14 @@ import { MessagesModule } from "./messages/messages.module";
 import { PrismaModule } from "src/prisma/prisma.module";
 import { APP_GUARD } from "@nestjs/core";
 import { ChatGateway } from './chat.gateway';
+import { RoomGuard } from "src/common/guards/chat/RoomGuards.guard";
 
 @Module({
 	exports: [ChatService],
 	providers: [
 		ChatService,
 		RoomsService,
-		ChatGateway,
+		ChatGateway
 	],
 	controllers: [ChatController],
 

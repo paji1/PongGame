@@ -34,7 +34,7 @@ const SideBar = () => {
 	useMessages(false, setChatState);
 	useRooms(false, setRoomsState);
 	useEffect(()=> {	
-		roomsState?.map((ob:room) => socket.emit("JOIN", ob.id))
+		roomsState?.map((ob:room) => socket.emit("JOIN", {room:ob.id}))
 	}, [roomsState, subscriberooms])
 	const currentchat = Array.isArray(chatState) ? chatState.find((ob: roommessages) => ob.id === chatSelector) : null;
 	const currentroom = Array.isArray(roomsState) ? roomsState.find((ob: room) => ob.id === chatSelector) : null;
@@ -152,7 +152,7 @@ const CreateRoom = ({socket}: {socket: Socket}) => {
 	const createRoom = (e: any) => {
 		e.preventDefault();
 		const roomform = {
-			id:-1,
+			room:-1,
 			password: password,
 			name: name,
 			type: type,
