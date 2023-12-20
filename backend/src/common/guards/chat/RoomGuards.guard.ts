@@ -4,7 +4,7 @@ import { user_permission, roomtype } from "@prisma/client";
 import { Console } from "console";
 import { JwtPayloadWithRt } from "src/auth/types";
 import { PrismaService } from "src/prisma/prisma.service";
-import { http } from "winston";
+import { Roomstattypes } from "src/types.ts/statustype";
 
 @Injectable()
 export class RoomGuard implements CanActivate {
@@ -23,7 +23,7 @@ export class RoomGuard implements CanActivate {
             context.getHandler(),
 			context.getClass(),
 		]);
-        const userState = this.reflect.getAllAndOverride<user_permission[]>("RoomPermitions", [
+        const userState = this.reflect.getAllAndOverride<Roomstattypes[]>("RoomStatus", [
             context.getHandler(),
 			context.getClass(),
 		]);
@@ -37,7 +37,6 @@ export class RoomGuard implements CanActivate {
             roomid = +request.query["room"]
         console.log("room guard debug: <<", request.user, reqType, roomid ,">>")
 
-        
 
         if (typeof types !== "undefined")
         {
@@ -83,6 +82,15 @@ export class RoomGuard implements CanActivate {
                     else
                         throw new HttpException("room doesnt exist", HttpStatus.BAD_REQUEST)
                     return false;
+                }
+                if (typeof userState !== "undefined" )
+                {
+                    if (membership.isblocked && userState.includes(Roomstattypes.NOTBLOCK))
+                        return false
+                    if (membership.isBanned && userState.includes(Roomstattypes.NOTBAN))
+                        return false
+                    if (membership.ismuted && userState.includes(Roomstattypes.NOTMUTE))
+                        return false
                 }
             }
             return true ;

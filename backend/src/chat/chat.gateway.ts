@@ -11,6 +11,8 @@ import { ActionDTO } from 'src/Dto/Action.dto';
 import { ChatService } from './chat.service';
 import { RoomDto } from 'src/Dto/rooms.dto';
 import { RoomGuard } from 'src/common/guards/chat/RoomGuards.guard';
+import { RoomStatus } from 'src/common/decorators/RoomStatus.deorator';
+import { Roomstattypes } from 'src/types.ts/statustype';
 
 
 @WebSocketGateway({ transports: ["websocket"] })
@@ -39,6 +41,7 @@ export class ChatGateway {
 	@SubscribeMessage("JOIN")
 	@RoomPermitions(user_permission.owner, user_permission.admin,user_permission.participation ,user_permission.chat)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public, roomtype.chat)
+	@RoomStatus(Roomstattypes.NOTBAN, Roomstattypes.NOTBLOCK)
 	async subscribeRoom(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: {room:number }) {
 		client.join(room.room.toString());
 	}
@@ -46,8 +49,6 @@ export class ChatGateway {
 
 
 	@SubscribeMessage("CREATE")
-	@RoomPermitions(user_permission.owner, user_permission.admin,user_permission.participation ,user_permission.chat)
-	@RoomType(roomtype.private, roomtype.protected, roomtype.public, roomtype.chat)
 	async createroom(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: RoomDto) {
 		console.log(room)
 		try
@@ -66,8 +67,8 @@ export class ChatGateway {
 
 
 	@SubscribeMessage("MOD")
-	@RoomPermitions(user_permission.owner, user_permission.admin,user_permission.participation ,user_permission.chat)
-	@RoomType(roomtype.private, roomtype.protected, roomtype.public, roomtype.chat)
+	@RoomPermitions(user_permission.owner)
+	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async modify(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: RoomDto) {
 		try
 		{
@@ -101,7 +102,7 @@ export class ChatGateway {
 	@SubscribeMessage("CHAT")
 	@RoomPermitions(user_permission.owner, user_permission.admin,user_permission.participation ,user_permission.chat)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public, roomtype.chat)
-	// @RoomStatus(userstatus.notblocked,userstatus.notmuted,notbanned)
+	@RoomStatus(Roomstattypes.NOTBAN, Roomstattypes.NOTBLOCK ,Roomstattypes.NOTMUTE)
 	async onMessage( @GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() message: ActionDTO)
 	{
 		const res = await this.service.messages.send_message(id,message.room, message.What);
@@ -127,7 +128,6 @@ export class ChatGateway {
 	@RoomPermitions(user_permission.chat)
 	@RoomType(roomtype.chat)
 	async block(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO) {
-    console.log(Message , "ja men bra")
 
 		let res;
 		if (Message.What === "BLOCK")
@@ -184,7 +184,6 @@ export class ChatGateway {
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async ban(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
 	{
-    console.log(Message , "ja men bra")
 
 		let res;
 		if (Message.What === "BAN")
@@ -216,8 +215,6 @@ export class ChatGateway {
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async mute(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
 	{
-    console.log(Message , "ja men bra")
-
 		let res;
 		if (Message.What === "MUTE")
 			res =  await this.service.rooms.mute_user(Message.target, Message.room);
@@ -228,7 +225,6 @@ export class ChatGateway {
 			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
-    	console.log(res)
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})
 		//inform the target
 	}
@@ -247,8 +243,6 @@ export class ChatGateway {
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async lwart(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
 	{
-    console.log(Message , "ja men bra")
-
 		const res =  await this.service.rooms.giveOwnership(id, Message.room, Message.target);
 		if (!res)
 		{
@@ -291,7 +285,7 @@ export class ChatGateway {
 
 
 	@SubscribeMessage("OUTDIWANA")
-	@RoomPermitions(user_permission.owner)
+	@RoomPermitions(user_permission.owner, user_permission.admin)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async outdiwana(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
 	{
@@ -311,7 +305,6 @@ export class ChatGateway {
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async leaveroom(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
 	{
-    console.log(Message , "ja men bra")
 
 		const res = await this.service.rooms.leave_room(Message.target, Message.room);
 		if (!res)
@@ -324,7 +317,7 @@ export class ChatGateway {
 		//inform the target
 	}
 
-  @SubscribeMessage("DELETE")
+  	@SubscribeMessage("DELETE")
 	@RoomPermitions(user_permission.owner)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async deleteroom(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
@@ -345,6 +338,7 @@ export class ChatGateway {
 
 	@SubscribeMessage("INVITE")
 	@RoomType(roomtype.private)
+	@RoomStatus(Roomstattypes.NOTBAN)
 	async inviteroom(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
 	{
 		const friend = await this.prisma.user.findUnique({
