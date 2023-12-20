@@ -29,25 +29,11 @@ export class ChatGateway {
 
 
 	async handleConnection(client, @GetCurrentUserId() id:number ) {
-		console.log(client.id);
+		console.log(client.id, id);
 	}
 	handleDisconnect(client) {
 		console.log(`Client disconnected ${client.id}`);
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	@SubscribeMessage("NEW")
@@ -254,6 +240,7 @@ export class ChatGateway {
 		if (!res)
 		{
 			client.emit("error", `failed to ${Message.What}`);
+			
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res[0]})

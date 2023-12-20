@@ -711,6 +711,7 @@ export class RoomsService {
 					userid: affected,
 				},
 			},
+			
 		});
 		if (member)
 			return null

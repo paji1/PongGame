@@ -28,17 +28,12 @@ export const update = (
                 let index = chatState.findIndex((ob: roommessages) => ob.id === newmsg.room_id)
     		    const msgarray = chatState[index];
     		    if (typeof msgarray.messages === "undefined")
-    		    {
     		        msgarray.messages = new Array(1).fill(newmsg);
-    		    }
     		    else
     		        msgarray.messages.unshift(newmsg);
                 newchatState[index] = msgarray;
                 let roomindex = newroomstate.findIndex((ob: room) => ob.id === newmsg.room_id);
-                if (newroomstate[roomindex].messages === undefined)
-                    newroomstate[roomindex].messages = new Array(1).fill({messages: newmsg.messages})
-                else
-                    newroomstate[roomindex].messages[0].messages = newmsg.messages;
+                newroomstate[roomindex]["messages"] = new Array(1).fill(newmsg);
                 setRoomsState(newroomstate);
                 break ;
         }

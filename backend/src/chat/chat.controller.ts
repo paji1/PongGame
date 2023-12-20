@@ -2,11 +2,9 @@ import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch,
 import { ChatService } from "./chat.service";
 import { user_permission, roomtype } from "@prisma/client";
 import { RoomDto, MessageDto } from "../Dto/rooms.dto";
-import { IsNotEmpty, MinLength, MaxLength, ValidateIf, IsEnum, IsString, IsNumber, Min } from "class-validator";
 import { RoomPermitions } from "src/common/decorators/RoomPermitions.decorator";
 import { RoomType } from "src/common/decorators/RoomType.decorator";
 import { IsFriend } from "src/common/decorators/Friend.decorator";
-import { query } from "express";
 import { GetCurrentUser, GetCurrentUserId } from "src/common/decorators";
 
 @Controller("chat")
@@ -31,6 +29,7 @@ export class ChatController {
 	}
 	/**
 	 *
+	 * 
 	 */
 	@Post("comunication")
 	@RoomPermitions(user_permission.owner, user_permission.admin, user_permission.participation, user_permission.chat)

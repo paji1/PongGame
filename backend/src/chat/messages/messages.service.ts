@@ -91,6 +91,17 @@ export class MessagesService {
 					},
 				},
 				select: {
+					messages:
+					{
+						select:
+						{
+							messages:true
+						},
+						orderBy:{
+							created_at:"desc"
+						},
+						take: 1
+					},
 					id: true,
 					name: true,
 					roomtypeof: true,

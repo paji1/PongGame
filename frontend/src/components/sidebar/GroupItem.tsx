@@ -1,12 +1,12 @@
-import React from "react";
 import { room } from "../../types/room";
 import ChatRoomAvatar from "../../assets/ChatRoomAvatar.png";
 import { messages } from "../../types/messages";
 
 const GroupItem = ({ selector, room, glimpse }: { selector: any; room: room; glimpse:  messages[] }) => {
 	let preview;
-	if (Array.isArray(glimpse)) preview = glimpse[0].messages.length > 25 ? glimpse[0].messages.substring(0, 25) + "..." : glimpse[0].messages;
-	else preview = "Start the conversation";
+	preview = "Start the conversation";
+	if (Array.isArray(glimpse) && glimpse.length ==1)
+		preview = (glimpse[0].messages.length > 25) ? glimpse[0].messages.substring(0,25) :  glimpse[0].messages
 	const name = room.name.length > 15 ? room.name.substring(0, 15) : room.name;
 	return (
 		<div className="flex flex-row mx-2 gap-3 p-2 rounded border-solid border-textColor border-2">

@@ -8,7 +8,7 @@ import { log } from "console";
 import { ip } from "./network/ipaddr";
 import { SocketContext } from "./components/Context/SocketContext";
 import GameMain from "./components/game";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { Link, RouterProvider, createBrowserRouter } from "react-router-dom";
 import Dashboard from "./components/Dashboard/Dashboard";
 
 const getuser = (setuser:any)=>
@@ -111,7 +111,10 @@ const Signin = ({setUser} : {setUser: any}) =>
 		getuser(setuser)
 	};
 	return (
+		<>
+		<button onClick={() => window.location.replace(`http://${ip}3001/auth/intra/login`)} className="btn btn-primary">intra</button>
 		<form>
+
 			signin
 			<div className={`flex items-start h-fill`}>
 				<input
@@ -121,7 +124,7 @@ const Signin = ({setUser} : {setUser: any}) =>
 					value={username}
 					placeholder="enter username."
 					required
-				></input>
+					></input>
 					<input
 					type="search"
 					id="search-dropdown"
@@ -130,14 +133,15 @@ const Signin = ({setUser} : {setUser: any}) =>
 					
 					placeholder="enter password"
 					required
-				></input>
+					></input>
 				<button
 					onClick={submitQuery}
-				>
+					>
 					login
 				</button>
 			</div>
 		</form>
+</>
 	);
 }
 
@@ -154,11 +158,20 @@ const router = createBrowserRouter([
 	}
 ])
 
+const  KarontdoIntra = async () => {
+	const res = await fetch(`http://localhost:3001/auth/intra/login`, {  mode: 'no-cors' ,method: "GET", credentials: "include",
+		headers: {
+		"Content-Type": "application/json"
+		},}, )
+	console.log(res)
+  };
+
 const App = () => {
 	const [user, setuser] = useState<CurrentUser | null >(null)
 	const socket = useContext(SocketContext)
 	if (!user)
 		getuser(setuser)
+		KarontdoIntra();
 	if (user)
 		{
 			socket.connect()
