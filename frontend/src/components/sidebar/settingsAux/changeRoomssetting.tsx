@@ -21,7 +21,7 @@ export const ChangeRoomType = ({ room }: { room: room | null }) => {
 			type: type,
 		};
 		console.log()
-		socket.emit("NEW", roomform)
+		socket.emit("MOD", roomform)
 
         toast.error("youforgot to set")
 		setPassword("");

@@ -60,7 +60,9 @@ export const update = (
                     newroomState = newroomState.filter((ob:room)=> ob.id !== member1.roomid);
                     var newchatStatetmp1 = chatState.filter((chat: roommessages)=> chat.id !== member1.roomid);
                     setchatState(newchatStatetmp1);
-                }else{
+                }
+                else
+                {
                     const index = newroomState.findIndex((ob:room) => ob.id === member1.roomid);
                     newroomState[index].rooms_members = newroomState[index].rooms_members.filter((mem:member)=> mem.id !== member1.id)
                 }
@@ -79,12 +81,11 @@ export const update = (
                 newroomState  = newroomState.concat(room1);
                 setchatState(newchatStatetmp1);
                 break ;
-            case   "MOD":
+            case "MOD":
                 const room2 = data.data as room
-                console.log(room2)
                 let indexr = newroomState.findIndex((ob:room) => ob.id = room2.id)
-                console.log(indexr)
-                newroomState[indexr] = room2 
+                newroomState[indexr].name =  room2.name;
+                newroomState[indexr].roomtypeof =  room2.roomtypeof;
                 break ;
         }
         setRoomsState(newroomState)

@@ -33,10 +33,18 @@ export class ChatGateway {
 	}
 	handleDisconnect(client) {
 		console.log(`Client disconnected ${client.id}`);
+	}	
+	
+	@SubscribeMessage("JOIN")
+	@RoomPermitions(user_permission.owner, user_permission.admin,user_permission.participation ,user_permission.chat)
+	@RoomType(roomtype.private, roomtype.protected, roomtype.public, roomtype.chat)
+	async subscribeRoom(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: number) {
+		client.join(room.toString());
 	}
 
 
-	@SubscribeMessage("NEW")
+
+	@SubscribeMessage("CREATE")
 	@RoomPermitions(user_permission.owner, user_permission.admin,user_permission.participation ,user_permission.chat)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public, roomtype.chat)
 	async createroom(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: RoomDto) {
@@ -44,13 +52,13 @@ export class ChatGateway {
 		try
 		{
 			const newroom = await this.service.rooms.create_room(id, room);
-			client.emit("ACTION", {region: "ROOM", action:"MOD", data: newroom}) 
-		}
+			client.emit("ACTION", {region: "ROOM", action:"NEW", data: newroom}) 
+		}	
 		catch (e)
 		{
-			client.emit("error", e.message);
-		}
-	}
+			client.emit("ChatError", e.message);
+		}	
+	}	
 
 
 
@@ -63,24 +71,14 @@ export class ChatGateway {
 		try
 		{
 			const newroom = await this.service.rooms.modify_room(id,room.id, room);
-			
-			client.emit("ACTION", {region: "ROOM", action:"MOD", data: newroom}) 
-		}
+			this.server.to(room.id.toString()).emit("ACTION", {region: "ROOM", action:"MOD", data: newroom}) 
+		}	
 		catch (e)
 		{
-			client.emit("error", e.message);
-		}
-	}
+			client.emit("ChatError", e.message);
+		}	
+	}	
 
-
-
-	@SubscribeMessage("JOIN")
-	@RoomPermitions(user_permission.owner, user_permission.admin,user_permission.participation ,user_permission.chat)
-	@RoomType(roomtype.private, roomtype.protected, roomtype.public, roomtype.chat)
-	async subscribeRoom(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: number) {
-		console.log("jooined room: ",room )
-		client.join(room.toString());
-	}
 
 
 
@@ -110,7 +108,7 @@ export class ChatGateway {
 		const res = await this.service.messages.send_message(id,message.room, message.What);
 		if (!res)
 			{
-				client.emit("error", "failed to send message");
+				client.emit("ChatError", "failed to send message");
 				return ;
 			}
 		this.server.to(message.room.toString()).emit("ACTION", {region: "CHAT", action:"NEW", data: res});
@@ -139,7 +137,7 @@ export class ChatGateway {
 			res = await this.service.rooms.unblock_user(id ,Message.target, Message.room);
 		if (!res)
 		{
-			client.emit("error", `failed to ${Message.What}`);
+			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})
@@ -165,7 +163,7 @@ export class ChatGateway {
 		const res =  await this.service.rooms.kick_room(Message.target, Message.room);
 		if (!res)
 		{
-			client.emit("error", `failed to ${Message.What}`);
+			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"KICK" , data: res})
@@ -196,7 +194,7 @@ export class ChatGateway {
 			res =  await this.service.rooms.unban_user(Message.target, Message.room);
 		if (!res)
 		{
-			client.emit("error", `failed to ${Message.What}`);
+			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})
@@ -228,7 +226,7 @@ export class ChatGateway {
 			res =  await this.service.rooms.unmute_user(Message.target, Message.room);
 		if (!res)
 		{
-			client.emit("error", `failed to ${Message.What}`);
+			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
     	console.log(res)
@@ -255,7 +253,7 @@ export class ChatGateway {
 		const res =  await this.service.rooms.giveOwnership(id, Message.room, Message.target);
 		if (!res)
 		{
-			client.emit("error", `failed to ${Message.What}`);
+			client.emit("ChatError", `failed to ${Message.What}`);
 
 			return ;
 		}
@@ -281,7 +279,7 @@ export class ChatGateway {
 		const res = await this.service.rooms.give_room_admin(Message.room, Message.target);
 		if (!res)
 		{
-			client.emit("error", `failed to ${Message.What}`);
+			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})		//inform the target
@@ -303,7 +301,7 @@ export class ChatGateway {
 		const res = await this.service.rooms.revoke_room_admin(Message.room, Message.target);
 		if (!res)
 		{
-			client.emit("error", `failed to ${Message.What}`);
+			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})		//inform the target
@@ -319,7 +317,7 @@ export class ChatGateway {
 		const res = await this.service.rooms.leave_room(Message.target, Message.room);
 		if (!res)
 		{
-			client.emit("error", `failed to ${Message.What}`);
+			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
 		console.log(res)
@@ -337,7 +335,7 @@ export class ChatGateway {
 		const res = await this.service.rooms.delete_room(Message.room);
 		if (!res)
 		{
-			client.emit("error", `failed to ${Message.What}`);
+			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"DELETE" , data: res})
@@ -357,7 +355,7 @@ export class ChatGateway {
 		});
 		if (!friend)
 		{
-			client.emit("error", `failed to ${Message.What}`);
+			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
 		const friendship = await this.prisma.friendship.findFirst({
@@ -371,34 +369,10 @@ export class ChatGateway {
 		const res = await this.service.rooms.invite_room(id, friend.id, Message.room);
 		if (!res)
 		{
-			client.emit("error", `failed to ${Message.What}`);
+			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
 		//inform the target
 	}
 
-
-
-
-
-	/********************** */
-
-	async getRooms(user) {
-		console.log("get", user)
-		const data = await this.prisma.rooms_members.findMany({
-			where: {
-				userid: user,
-			},
-			select: {
-				id:true,
-				userid:true,
-				rooms: {
-					select: {
-						id:true,
-					},
-				},
-			},
-		});
-		return data;
-	}
 }

@@ -158,7 +158,7 @@ const CreateRoom = ({socket}: {socket: Socket}) => {
 			type: type,
 		};
 		
-		socket.emit("NEW", roomform)
+		socket.emit("CREATE", roomform)
 		setPassword("");
 		setName("");
 		setType("public");
