@@ -171,7 +171,6 @@ const App = () => {
 	const socket = useContext(SocketContext)
 	if (!user)
 		getuser(setuser)
-		KarontdoIntra();
 	if (user)
 		{
 			socket.connect()

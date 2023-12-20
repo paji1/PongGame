@@ -39,7 +39,7 @@ export class RoomsService {
 			});
 			return { region: "room", action: "new", data: result };
 		} catch (e) {
-			throw new HttpException("Transaction Failed", HttpStatus.BAD_REQUEST);
+			return null
 		}
 	}
 
@@ -100,7 +100,7 @@ export class RoomsService {
 			});
 			return result
 		} catch (e) {
-			throw new Error("Transaction Failed");
+			return null
 		}
 	}
 	/**
@@ -125,7 +125,7 @@ export class RoomsService {
 			});
 			return { region: "room", action: "mod", data: result };
 		} catch (e) {
-			throw new HttpException("failed to modify room", HttpStatus.BAD_REQUEST);
+			return null
 		}
 	}
 
@@ -142,7 +142,7 @@ export class RoomsService {
 			const result = await this.prisma.rooms.delete({ where: { id: room } });
 			return result ;
 		} catch {
-			null
+			return null
 		}
 	}
 	/**
@@ -172,7 +172,7 @@ export class RoomsService {
 				},
 			});
 		} catch (e) {
-			throw new HttpException("database error", 400);
+			return null
 		}
 	}
 	/**
@@ -191,13 +191,26 @@ export class RoomsService {
 					},
 				},
 				select: {
-					rooms: true
-				}
+					id: true,
+					roomid: true,
+					permission: true,
+					isblocked: true,
+					isBanned: true,
+					ismuted: true,
+					created_at: true,
+					user_id: {
+						select: {
+							id: true,
+							nickname: true,
+							avatar: true,
+						},
+					},
+				},
 
 			});
-			return { region: "room", action: "delete", data: result.rooms };
+			return  result 
 		} catch (e) {
-			throw new HttpException("Error Leaving Room", 400);
+			return null
 		}
 	}
 
@@ -387,7 +400,7 @@ export class RoomsService {
 			});
 			return data;
 		} catch (e) {
-			null
+			return null
 		}
 	}
 	/**
@@ -472,7 +485,7 @@ export class RoomsService {
 			});
 			return data;
 		} catch (e) {
-			
+			return null
 		}
 	}
 	/**
@@ -558,7 +571,7 @@ export class RoomsService {
 			});
 			return data 
 		} catch (e) {
-			null
+			return null
 		}
 	}
 	/**
@@ -614,6 +627,22 @@ export class RoomsService {
 					data: {
 						permission: user_permission.participation,
 					},
+					select: {
+						id: true,
+						roomid: true,
+						permission: true,
+						isblocked: true,
+						isBanned: true,
+						ismuted: true,
+						created_at: true,
+						user_id: {
+							select: {
+								id: true,
+								nickname: true,
+								avatar: true,
+							},
+						},
+					},
 				});
 				const data2 = await trx.rooms_members.update({
 					where: {
@@ -646,7 +675,7 @@ export class RoomsService {
 			});
 			return changes;
 		} catch (e) {
-			null;
+			return null
 		}
 	}
 	/**
@@ -698,10 +727,9 @@ export class RoomsService {
 				});
 				return changes;
 			});
-			return { region: "room", action: "new", data: res };
+			return  res;
 		} catch (e) {
-			throw new HttpException("failed to acept invite", HttpStatus.BAD_REQUEST)
-		}
+			return null		}
 	}
 	async invite_room(Requester: number, affected: number, room: number) {
 		const member = await this.prisma.rooms_members.findUnique({

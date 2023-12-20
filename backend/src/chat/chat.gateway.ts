@@ -240,7 +240,7 @@ export class ChatGateway {
 		if (!res)
 		{
 			client.emit("error", `failed to ${Message.What}`);
-			
+
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res[0]})
@@ -300,12 +300,13 @@ export class ChatGateway {
 	{
     console.log(Message , "ja men bra")
 
-		const res = await this.service.rooms.leave_room(Message.room, Message.target);
+		const res = await this.service.rooms.leave_room(Message.target, Message.room);
 		if (!res)
 		{
 			client.emit("error", `failed to ${Message.What}`);
 			return ;
 		}
+		console.log(res)
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"KICK" , data: res})
 		//inform the target
 	}
