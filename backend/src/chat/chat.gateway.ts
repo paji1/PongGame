@@ -40,10 +40,11 @@ export class ChatGateway {
 	@RoomPermitions(user_permission.owner, user_permission.admin,user_permission.participation ,user_permission.chat)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public, roomtype.chat)
 	async createroom(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: RoomDto) {
+		console.log(room)
 		try
 		{
 			const newroom = await this.service.rooms.create_room(id, room);
-			client.emit("ACTION", {region: "ROOM", action:"NEW", data: newroom}) 
+			client.emit("ACTION", {region: "ROOM", action:"MOD", data: newroom}) 
 		}
 		catch (e)
 		{
@@ -55,6 +56,21 @@ export class ChatGateway {
 
 
 
+	@SubscribeMessage("MOD")
+	@RoomPermitions(user_permission.owner, user_permission.admin,user_permission.participation ,user_permission.chat)
+	@RoomType(roomtype.private, roomtype.protected, roomtype.public, roomtype.chat)
+	async modify(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: RoomDto) {
+		try
+		{
+			const newroom = await this.service.rooms.modify_room(id,room.id, room);
+			
+			client.emit("ACTION", {region: "ROOM", action:"MOD", data: newroom}) 
+		}
+		catch (e)
+		{
+			client.emit("error", e.message);
+		}
+	}
 
 
 

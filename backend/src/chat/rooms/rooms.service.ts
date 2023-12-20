@@ -122,8 +122,34 @@ export class RoomsService {
 					roomtypeof: Room.type,
 					roompassword: Room.password,
 				},
+				select: {
+					id: true,
+					name: true,
+					roomtypeof: true,
+					updated_at: true,
+					rooms_members:
+					{
+						select:{
+
+							id: true,
+							roomid: true,
+							permission: true,
+							isblocked: true,
+							isBanned: true,
+							ismuted: true,
+							created_at: true,
+							user_id: {
+								select: {
+									id: true,
+									nickname: true,
+									avatar: true,
+								},
+							},
+						}
+					}
+				},
 			});
-			return { region: "room", action: "mod", data: result };
+			return {result};
 		} catch (e) {
 			return null
 		}

@@ -79,6 +79,13 @@ export const update = (
                 newroomState  = newroomState.concat(room1);
                 setchatState(newchatStatetmp1);
                 break ;
+            case   "MOD":
+                const room2 = data.data as room
+                console.log(room2)
+                let indexr = newroomState.findIndex((ob:room) => ob.id = room2.id)
+                console.log(indexr)
+                newroomState[indexr] = room2 
+                break ;
         }
         setRoomsState(newroomState)
     }

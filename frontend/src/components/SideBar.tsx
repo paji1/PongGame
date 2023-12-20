@@ -152,6 +152,7 @@ const CreateRoom = ({socket}: {socket: Socket}) => {
 	const createRoom = (e: any) => {
 		e.preventDefault();
 		const roomform = {
+			id:-1,
 			password: password,
 			name: name,
 			type: type,

@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { room } from "../../../types/room";
 import { toast } from "react-toastify";
+import { SocketContext } from "../../Context/SocketContext";
 
 
 export const ChangeRoomType = ({ room }: { room: room | null }) => {
+	const socket = useContext(SocketContext)
 	const [clicked, click] = useState(false);
 	const [type, setType] = useState("public");
 	const [password, setPassword] = useState("");
@@ -13,15 +15,18 @@ export const ChangeRoomType = ({ room }: { room: room | null }) => {
 	const createRoom = (e: any) => {
 		e.preventDefault();
 		const roomform = {
+			id:room?.id,
 			password: password,
 			name: name,
 			type: type,
 		};
+		console.log()
+		socket.emit("NEW", roomform)
+
         toast.error("youforgot to set")
 		setPassword("");
 		setName("");
 		setType("public");
-		click(false);
 	};
 	return (
 		<form className="flex flex-col">
