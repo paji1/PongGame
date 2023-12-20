@@ -8,41 +8,48 @@ import NotificationItem from "./NotificationItem"
 import { INotificaion, InviteType } from "../../types/NotificationItem"
 import { toast } from "react-toastify"
 import { ip } from "../../network/ipaddr"
+import { SocketContext } from "../Context/SocketContext"
 
 
-
-const NotificationBar = () => {
-	const [isOpen, seIsOpen] = useState(false);
-	const [state, setState] = useState(1);
-	const [notification, setNotification] = useState<INotificaion[] | null>(null);	
-
-
-	const toggleChatBar = () => seIsOpen(!isOpen)
-
-	const user: CurrentUser | null = useContext(currentUser)
+const useInvites = (setNotification:any)=>
+{
 	useEffect (() =>
 	{
 		const fetchData = async () =>
 		{
-			fetch(`http://${ip}3001/invite`)
+			fetch(`http://${ip}3001/invite`, {credentials: "include"})
 			.then((data)=> data.json())
 			.then((data) =>
 			{
 				if (Array.isArray(data))
 					setNotification(data);
-
+				console.log(data)
 			}
 			).catch((e) => toast.error(e.message));
 		}
 		fetchData();
 	},[]);
+}
 
-	let a;
-	if(notification == null)
-		console.log("isnull")
-	else
-		a = notification.map((ha, key) => <NotificationItem key={key} notif={ha} />)
-
+const NotificationBar = () => {
+	const [isOpen, seIsOpen] = useState(false);
+	const [state, setState] = useState(1);
+	const [notification, setNotification] = useState<INotificaion[] | null>(null);
+	const socket = useContext(SocketContext);	
+	const toggleChatBar = () => seIsOpen(!isOpen)
+	const user: CurrentUser | null = useContext(currentUser)
+	useInvites(setNotification);
+	socket.off("INVITES").on("INVITES", (data:INotificaion) => 
+	{
+		if (!notification)
+			return ;
+		const newnotifstate = notification.slice();
+		newnotifstate.push(data);
+		setNotification(newnotifstate)
+	})
+	let invites;
+	if (notification)
+		invites = notification.map((ha, key) => <NotificationItem key={key} notif={ha} />)
 	return (
 		<>
 		{isOpen && (<HoverDiv toggleChatBar={toggleChatBar} />)}
@@ -85,7 +92,7 @@ const NotificationBar = () => {
 				<hr className="my-1 h-0.5 border-t-0 bg-textColor opacity-100" />
 
 				<div className={`flex flex-col flex-1 py-3 min-h-[100px] gap-2 px-2 sm:px-3 overflow-y-scroll`}>
-					{a}
+					{invites}
 				</div>
 
 			</div>
