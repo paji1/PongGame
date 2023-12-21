@@ -10,8 +10,8 @@ npx prisma migrate dev --name init --schema='/code/prisma/schema.prisma'
 npx prisma generate --schema='/code/prisma/schema.prisma'
 # fi
 
-# echo "seeding users ..."
-# /code/node_modules/.bin/ts-node /code/prisma/seed/scripts/userseeder.ts
+echo "seeding users ..."
+/code/node_modules/.bin/ts-node /code/prisma/seed/scripts/friends_seeder.ts
 # echo "seeding levels ..."
 # /code/node_modules/.bin/ts-node /code/prisma/seed/scripts/levelsseeder.ts
 # echo "seeding rooms ..."
