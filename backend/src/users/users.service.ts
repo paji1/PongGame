@@ -49,6 +49,7 @@ export class UsersService {
 				nickname:true,
 				user42:true,
 				avatar:true,
+				created_at:true
 			}
 		})
 	}

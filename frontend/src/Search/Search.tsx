@@ -1,11 +1,12 @@
 import { useContext, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ip } from "../network/ipaddr";
 import { room } from "../types/room";
 import IUser from "../types/User";
 import { Socket } from "socket.io-client";
 import { SocketContext } from "../components/Context/SocketContext";
+import Dashboard from "../components/Dashboard/Dashboard";
 
 
 
@@ -33,9 +34,16 @@ const RoomItem = ({room, socket} : {room:room, socket:Socket})  =>
 
 }
 
-const UserItem = () =>
+const UserItem = ({user} : {user: IUser}) =>
 {
-    return <p className='m-auto ring-black ring-2 p-4 w-full truncate'>hi</p>
+    return <div className='m-auto ring-black ring-2 p-4 w-full truncate'>
+        <p>{user.nickname}</p>
+        <p>Joined join{new Date(user.created_at).toDateString()}</p>
+        <Link to={{
+        			pathname: '/',
+        			search: `?query=${user.nickname}`,
+      				}}>visite profile</Link>
+    </div>
 }
 export  const SearchWindow = () => {
     const [params] = useSearchParams()
@@ -80,7 +88,7 @@ export  const SearchWindow = () => {
             }
             <h1 className='m-auto  p-2 truncate w-full'>users</h1>
             {
-                users ? users.map((ob: IUser) => <UserItem/> ) : <></>
+                users ? users.map((ob: IUser) => <UserItem user={ob}/> ) : <></>
             }
         </div>
     )
