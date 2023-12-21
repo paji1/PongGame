@@ -1,12 +1,12 @@
 export enum EDifficulty {
-	EASY = 'easy',
-	MEDIUM = 'medium',
-	HARD = 'hard',
+	EASY = 'EASY',
+	MEDIUM = 'MEDIUM',
+	HARD = 'HARD',
 }
 
 export enum EMatchingType {
-	RANDOM = 'random',
-	INVITE = 'invite',
+	RANDOM = 'RANDOM',
+	INVITE = 'INVITE',
 }
 
 export interface IQueue {
