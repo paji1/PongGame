@@ -3,6 +3,7 @@ import { messages, roommessages } from "../../types/messages"
 import { member, room } from "../../types/room"
 import { backendretun } from "../../types/backendreturn";
 import { CurrentUser } from "../Context/AuthContext";
+import { ip } from "../../network/ipaddr";
 
 
 export const update = (
@@ -87,7 +88,40 @@ export const update = (
                 newroomState[indexr].name =  room2.name;
                 newroomState[indexr].roomtypeof =  room2.roomtypeof;
                 break ;
+            case "JOIN":
+                const room3 = data.data as room
+                let indexer = newroomState.unshift(room3);
+                getmessages(room3.id, chatState, setchatState);
+                break ;
+            
         }
         setRoomsState(newroomState)
+    }
+}
+
+const getmessages = (room:number, chatState: roommessages[], setchatState:any ) => 
+{
+    {
+        if (room === undefined)
+        {
+            toast.error("la mabghitch")
+            return ;
+        }
+        const data = fetch(`http://${ip}3001/chat/paginate?room=${room}&offset=0`,{
+            credentials: 'include'
+        })
+            .then((data) => data.json())
+            .then((data) => {
+        let res = data.statusCode;
+        if (typeof res  === "undefined")
+        {
+
+           const newstate = chatState.slice();
+           newstate.unshift(data);
+           setchatState(newstate);
+        }
+        else toast.error(data.message);
+    })
+    .catch(() => toast.error(`network error`));
     }
 }

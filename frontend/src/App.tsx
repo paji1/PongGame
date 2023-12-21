@@ -8,8 +8,9 @@ import { log } from "console";
 import { ip } from "./network/ipaddr";
 import { SocketContext } from "./components/Context/SocketContext";
 import GameMain from "./components/game";
-import { Link, RouterProvider, createBrowserRouter } from "react-router-dom";
+import { BrowserRouter, Link, Route, RouterProvider, Routes, createBrowserRouter } from "react-router-dom";
 import Dashboard from "./components/Dashboard/Dashboard";
+import { SearchWindow } from "./Search/Search";
 
 const getuser = (setuser:any)=>
 	{
@@ -177,15 +178,23 @@ const App = () => {
 			socket.emit("init", {})
 		}
 	return (
+		
 		<div>
 			<ToastContainer />
 			{user ?
-					<currentUser.Provider value={user}>
+			<currentUser.Provider value={user}>
+				<div>
+				<BrowserRouter>
 					<Navbar />
 					<SideBar />
 					<NotificationBar />
-					<RouterProvider router={router} />
-					
+					<Routes>
+						<Route path="/search"  element={<SearchWindow/>} />
+						<Route path="/" element={<Dashboard/>}/>
+						<Route path="/game" element={<GameMain/>}/>
+					</Routes>
+				</BrowserRouter >
+				</div>
 				</currentUser.Provider > :
 			 <>
 			 	<Signup  />
@@ -194,6 +203,7 @@ const App = () => {
 			}
 			
 		</div>
+
 	);
 };
 

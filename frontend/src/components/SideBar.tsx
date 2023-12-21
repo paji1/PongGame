@@ -34,13 +34,13 @@ const SideBar = () => {
 	useMessages(false, setChatState);
 	useRooms(false, setRoomsState);
 	useEffect(()=> {	
-		roomsState?.map((ob:room) => socket.emit("JOIN", {room:ob.id}))
+		roomsState?.map((ob:room) => socket.emit("ROOMSUBSCRIBE", {room:ob.id}))
 	}, [roomsState, subscriberooms])
 	const currentchat = Array.isArray(chatState) ? chatState.find((ob: roommessages) => ob.id === chatSelector) : null;
 	const currentroom = Array.isArray(roomsState) ? roomsState.find((ob: room) => ob.id === chatSelector) : null;
 	socket.off("ACTION").on("ACTION", (data) => update(data, roomsState, setRoomsState, chatState, setChatState, user))
 	socket.off("ChatError").on("ChatError", (data) => toast.error(data));
-	socket.off("NOTIFY").on("NOTIFY", (data) => toast.error(data));
+	socket.off("NOTIFY").on("NOTIFY", (data) => toast(data));
 
 	const pajination = (message: roommessages) =>
 	{

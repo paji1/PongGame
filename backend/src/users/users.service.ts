@@ -32,4 +32,24 @@ export class UsersService {
 		return data;
 	}
 	//   async validate_user()
+
+
+
+	async getusersbyname(name:string)
+	{
+		return await this.prisma.user.findMany({
+			where:
+			{
+				nickname : {contains : name},
+				
+			},
+			select:
+			{
+				id:true,
+				nickname:true,
+				user42:true,
+				avatar:true,
+			}
+		})
+	}
 }

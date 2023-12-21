@@ -28,5 +28,5 @@ export type room = {
 	name: string;
 	roomtypeof: string;
 	rooms_members: member[];
-	created_at: Date;
+	created_at: string;
 };

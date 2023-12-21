@@ -94,7 +94,6 @@ export class RoomsService {
 						},
 					},
 				});
-
 				newroom["rooms_members"] = new Array(1).fill(user);
 				return newroom;
 			});
@@ -164,10 +163,11 @@ export class RoomsService {
 			where: { id: room },
 		});
 		if (validate.roomtypeof !== Room.type)
-			throw new HttpException("Nigga  one migga two nigga three", HttpStatus.UNAUTHORIZED);
-		if (Room.type === roomtype.protected && Room.password.length > 9)
-			Room.password = createHash("sha256").update(Room.password).digest("hex");
+		throw new HttpException("Nigga  one migga two nigga three", HttpStatus.UNAUTHORIZED);
+		if (Room.type === roomtype.protected && Room.password.length > 6)
+		Room.password = createHash("sha256").update(Room.password).digest("hex");
 		if (Room.type === roomtype.public) Room.password = "";
+		console.log("inservid", Room)
 		console.log(Room.password, validate.roompassword);
 		if (Room.password !== validate.roompassword) throw new HttpException("Wrong Password", HttpStatus.UNAUTHORIZED);
 		try {
@@ -177,7 +177,66 @@ export class RoomsService {
 					userid: Requester,
 					permission: user_permission.participation,
 				},
+				select: {
+					id: true,
+					roomid: true,
+					permission: true,
+					isblocked: true,
+					isBanned: true,
+					ismuted: true,
+					created_at: true,
+					user_id: {
+						select: {
+							id: true,
+							nickname: true,
+							avatar: true,
+						},
+					},
+				},
 			});
+			const roomret = await this.prisma.rooms.findUnique({
+				where:
+				{
+					id:room, 
+				},
+				select: {
+					id: true,
+					name: true,
+					roomtypeof: true,
+					updated_at: true,
+					messages:
+					{
+						select:
+						{
+							messages:true
+						},
+						orderBy:{
+							created_at:"desc"
+						},
+						take: 1
+					},
+					rooms_members:{
+						select:
+						{
+							id: true,
+							roomid: true,
+							permission: true,
+							isblocked: true,
+							isBanned: true,
+							ismuted: true,
+							created_at: true,
+							user_id: {
+								select: {
+									id: true,
+									nickname: true,
+									avatar: true,
+								},
+							},
+						}
+					}
+				},
+			})
+			return roomret;
 		} catch (e) {
 			return null
 		}
@@ -764,6 +823,46 @@ export class RoomsService {
 		} catch (error) {
 			null
 		}
+	}
+
+
+	async getroomsbyname(room:string)
+	{
+		return await this.prisma.rooms.findMany({
+			where :
+			{
+				name: 
+				{
+					contains: room
+				}
+				,
+				AND:
+				{
+					OR: [
+
+						{roomtypeof :
+							{
+								equals: roomtype.protected,
+							}
+						},
+						{
+							roomtypeof : roomtype.public,
+						}
+					],
+				}
+			},
+			orderBy:
+			{
+				created_at: "desc",
+			},
+			select:
+			{
+				id:true,
+				name:true,
+				roomtypeof:true,
+				created_at: true,
+			}
+		})
 	}
 }
 

@@ -38,7 +38,7 @@ export class ChatGateway {
 		console.log(`Client disconnected ${client.id}`);
 	}	
 	
-	@SubscribeMessage("JOIN")
+	@SubscribeMessage("ROOMSUBSCRIBE")
 	@RoomPermitions(user_permission.owner, user_permission.admin,user_permission.participation ,user_permission.chat)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public, roomtype.chat)
 	@RoomStatus(Roomstattypes.NOTBAN, Roomstattypes.NOTBLOCK)
@@ -59,6 +59,23 @@ export class ChatGateway {
 		catch (e)
 		{
 			client.emit("ChatError", e.message);
+		}	
+	}	
+	@SubscribeMessage("JOIN")
+	@RoomType(roomtype.public, roomtype.protected)
+	async joinroom(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: RoomDto) {
+		console.log(room)
+		try
+		{
+			const newroom = await this.service.rooms.join_room(id, room.room, room);
+			if (newroom)
+			client.emit("ACTION", {region: "ROOM", action:"JOIN", data: newroom}) 
+			else
+			throw new Error("user probably in room")
+		}	
+		catch (e)
+		{
+			client.emit("NOTIFY", e.message);
 		}	
 	}	
 
@@ -140,6 +157,7 @@ export class ChatGateway {
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})
+
 		//inform the target
 	}
 
@@ -312,8 +330,13 @@ export class ChatGateway {
 			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
-		console.log(res)
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"KICK" , data: res})
+		/**
+		 * removve every client from this room
+		* client.leave(Message.room.toString())
+
+		 */
+		client.leave(Message.room.toString())
 		//inform the target
 	}
 
@@ -331,6 +354,13 @@ export class ChatGateway {
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"DELETE" , data: res})
+		
+		/**
+		 * removve every client from this room
+		* 
+		 */
+		client.leave(Message.room.toString())
+
 		//inform the target
 	}
 
