@@ -93,7 +93,7 @@ export const update = (
                 let indexer = newroomState.unshift(room3);
                 getmessages(room3.id, chatState, setchatState);
                 break ;
-            
+
         }
         setRoomsState(newroomState)
     }

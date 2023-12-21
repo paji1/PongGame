@@ -2,7 +2,7 @@ import { ToastContainer, toast } from "react-toastify";
 import Navbar from "./components/Navbar";
 import SideBar from "./components/SideBar";
 import NotificationBar from "./components/notifbar/NotificationBar";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { currentUser, CurrentUser } from "./components/Context/AuthContext";
 import { log } from "console";
 import { ip } from "./network/ipaddr";
@@ -159,24 +159,17 @@ const router = createBrowserRouter([
 	}
 ])
 
-const  KarontdoIntra = async () => {
-	const res = await fetch(`http://localhost:3001/auth/intra/login`, {  mode: 'no-cors' ,method: "GET", credentials: "include",
-		headers: {
-		"Content-Type": "application/json"
-		},}, )
-	console.log(res)
-  };
 
 const App = () => {
 	const [user, setuser] = useState<CurrentUser | null >(null)
 	const socket = useContext(SocketContext)
 	if (!user)
-		getuser(setuser)
+	getuser(setuser)
 	if (user)
-		{
-			socket.connect()
-			socket.emit("HANDSHAKE", {})
-		}
+	{
+		socket.connect()
+	}	
+	socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."))
 	return (
 		
 		<div>

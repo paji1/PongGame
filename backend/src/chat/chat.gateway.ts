@@ -32,15 +32,13 @@ export class ChatGateway {
 
 
 	async handleConnection(client, @GetCurrentUserId() id:number ) {
-		console.log(client.id, id);
+		client.emit("HANDSHAKE", "chkon m3aya")
 	}
+
 	handleDisconnect(client) {
 		console.log(`Client disconnected ${client.id}`);
 	}	
 	
-
-
-
 	@SubscribeMessage("HANDSHAKE")
 	async sayHitoserver(@GetCurrentUserId() id:number, @ConnectedSocket() client)
 	{
@@ -59,9 +57,12 @@ export class ChatGateway {
 		const clients = this.server.sockets.adapter.rooms
 		console.log(clients)  
 		console.log(clients.get(user.nickname))
-
 		console.log("handshake success")
 	}
+
+
+	
+
 
 
 
@@ -232,11 +233,6 @@ export class ChatGateway {
 
 
 
-
-
-
-
-
 	@SubscribeMessage("BAN")
 	@RoomPermitions(user_permission.owner, user_permission.admin)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
@@ -267,7 +263,9 @@ export class ChatGateway {
 		this.server.sockets.adapter.rooms.get(res.user_id.nickname).forEach((client)=> 
 			this.server.sockets.sockets.get(client).leave(Message.room.toString()))
 
+
 	}
+
 
 
 
