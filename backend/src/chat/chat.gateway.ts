@@ -3,7 +3,7 @@ import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSo
 import { AtGuard } from 'src/common/guards';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Server } from "socket.io";
-import { GetCurrentUserId } from 'src/common/decorators';
+import { GetCurrentUser, GetCurrentUserId } from 'src/common/decorators';
 import { RoomPermitions } from 'src/common/decorators/RoomPermitions.decorator';
 import { roomtype, user_permission } from '@prisma/client';
 import { RoomType } from 'src/common/decorators/RoomType.decorator';
@@ -38,6 +38,33 @@ export class ChatGateway {
 		console.log(`Client disconnected ${client.id}`);
 	}	
 	
+
+
+
+	@SubscribeMessage("HANDSHAKE")
+	async sayHitoserver(@GetCurrentUserId() id:number, @ConnectedSocket() client)
+	{
+		const user = await this.prisma.user.findUnique({
+			where:
+			{
+				id:id
+			},
+			select:
+			{
+				nickname: true,
+			}
+		})
+		client.join(user.nickname);
+		console.log(user.nickname)
+		const clients = this.server.sockets.adapter.rooms
+		console.log(clients)  
+		console.log(clients.get(user.nickname))
+
+		console.log("handshake success")
+	}
+
+
+
 	@SubscribeMessage("ROOMSUBSCRIBE")
 	@RoomPermitions(user_permission.owner, user_permission.admin,user_permission.participation ,user_permission.chat)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public, roomtype.chat)
@@ -63,20 +90,22 @@ export class ChatGateway {
 	}	
 	@SubscribeMessage("JOIN")
 	@RoomType(roomtype.public, roomtype.protected)
-	async joinroom(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: RoomDto) {
-		console.log(room)
+	async joinroom(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: RoomDto , @GetCurrentUser("user42") username: string) {
 		try
 		{
 			const newroom = await this.service.rooms.join_room(id, room.room, room);
 			if (newroom)
-			client.emit("ACTION", {region: "ROOM", action:"JOIN", data: newroom}) 
+				{
+					client.emit("ACTION", {region: "ROOM", action:"JOIN", data: newroom}) 
+					this.server.to(room.room.toString()).emit("NOTIFY", ` ${username} joined ${newroom.name}`)
+				}
 			else
-			throw new Error("user probably in room")
+				throw new Error("user probably in room")
 		}	
 		catch (e)
 		{
-			client.emit("NOTIFY", e.message);
-		}	
+			client.emit("CHATerror", e.message);
+		}
 	}	
 
 
@@ -91,11 +120,13 @@ export class ChatGateway {
 		{
 			const newroom = await this.service.rooms.modify_room(id,room.room, room);
 			this.server.to(room.room.toString()).emit("ACTION", {region: "ROOM", action:"MOD", data: newroom}) 
+			this.server.to(room.room.toString()).emit("NOTIFY", `room ${newroom.name} owner changet its permition`)
 		}	
 		catch (e)
 		{
 			client.emit("ChatError", e.message);
-		}	
+		}
+
 	}	
 
 
@@ -150,15 +181,18 @@ export class ChatGateway {
 		if (Message.What === "BLOCK")
 			res = await this.service.rooms.block_user(id ,Message.target, Message.room);
 		if (Message.What === "UNBLOCK")
-			res = await this.service.rooms.unblock_user(id ,Message.target, Message.room);
+			{
+				res = await this.service.rooms.unblock_user(id ,Message.target, Message.room);
+			}
 		if (!res)
 		{
 			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
-		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})
 
-		//inform the target
+		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})
+		this.server.to(Message.room.toString()).emit("NOTIFY", `user: ${res.user_id.nickname} been blocked`)
+
 	}
 
 
@@ -173,7 +207,7 @@ export class ChatGateway {
 	@SubscribeMessage("KICK")
 	@RoomPermitions(user_permission.admin, user_permission.owner)
 	@RoomType(roomtype.protected, roomtype.public, roomtype.private)
-	async kick(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
+	async kick(@GetCurrentUserId() id:number, @GetCurrentUser("user42") username,  @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
 	{
     console.log(Message , "ja men bra")
 
@@ -184,7 +218,13 @@ export class ChatGateway {
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"KICK" , data: res})
-		//inform the target
+		this.server.to(Message.room.toString()).emit("NOTIFY", ` ${username} kicked ${res.user_id.nickname}`)
+		/**
+		 * delete user from th room
+		 */
+		this.server.sockets.adapter.rooms.get(res.user_id.nickname).forEach((client)=> 
+		this.server.sockets.sockets.get(client).leave(Message.room.toString()))
+
 
 	}
 
@@ -200,22 +240,32 @@ export class ChatGateway {
 	@SubscribeMessage("BAN")
 	@RoomPermitions(user_permission.owner, user_permission.admin)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
-	async ban(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
+	async ban(@GetCurrentUserId() id:number,  @GetCurrentUser("user42") username, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
 	{
 
 		let res;
 		if (Message.What === "BAN")
+		{
 			res =  await this.service.rooms.ban_user(Message.target, Message.room);
+			
+		}
 		if (Message.What === "UNBAN")
+		{
 			res =  await this.service.rooms.unban_user(Message.target, Message.room);
+			this.server.sockets.adapter.rooms.get(res.user_id.nickname).forEach((client)=> 
+				this.server.sockets.sockets.get(client).join(Message.room.toString()))
+		}	
 		if (!res)
 		{
 			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})
-		//inform the target
-		//remover from the rooom
+		this.server.to(Message.room.toString()).emit("NOTIFY", ` ${username} ${Message.What} ${res.user_id.nickname}`)
+		if (Message.What ==="UNBAN")
+			return
+		this.server.sockets.adapter.rooms.get(res.user_id.nickname).forEach((client)=> 
+			this.server.sockets.sockets.get(client).leave(Message.room.toString()))
 
 	}
 
@@ -231,7 +281,7 @@ export class ChatGateway {
 	@SubscribeMessage("MUTE")
 	@RoomPermitions(user_permission.owner, user_permission.admin)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
-	async mute(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
+	async mute(@GetCurrentUserId() id:number,  @GetCurrentUser("user42") username, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
 	{
 		let res;
 		if (Message.What === "MUTE")
@@ -244,7 +294,7 @@ export class ChatGateway {
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})
-		//inform the target
+		this.server.to(Message.room.toString()).emit("NOTIFY", ` ${username} muted ${res.user_id.nickname}`)
 	}
 
 
@@ -271,7 +321,6 @@ export class ChatGateway {
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res[0]})
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res[1]})
 
-		//inform the target 
 	}
 
 
@@ -293,7 +342,8 @@ export class ChatGateway {
 			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
-		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})		//inform the target
+		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})
+		this.server.to(Message.room.toString()).emit("NOTIFY", ` ${res.user_id.nickname} in a new admin`)
 	}
 
 
@@ -315,29 +365,29 @@ export class ChatGateway {
 			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
-		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})		//inform the target
+		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})
+		this.server.to(Message.room.toString()).emit("NOTIFY", ` ${res.user_id.nickname} removed from admins`)
+
 	}
 
   	@SubscribeMessage("LEAVE")
 	@RoomPermitions(user_permission.admin, user_permission.participation)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
-	async leaveroom(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
+	async leaveroom(@GetCurrentUserId() id:number,@GetCurrentUser("user42") username ,@ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
 	{
 
-		const res = await this.service.rooms.leave_room(Message.target, Message.room);
+		const res = await this.service.rooms.leave_room(id, Message.room);
 		if (!res)
 		{
 			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"KICK" , data: res})
-		/**
-		 * removve every client from this room
-		* client.leave(Message.room.toString())
-
-		 */
-		client.leave(Message.room.toString())
-		//inform the target
+		this.server.to(Message.room.toString()).emit("NOTIFY", ` ${res.user_id.nickname} left the room`)
+		const clients = this.server.sockets.adapter.rooms.get(res.user_id.nickname).forEach((client)=> 
+		
+			this.server.sockets.sockets.get(client).leave(Message.room.toString())
+		)
 	}
 
   	@SubscribeMessage("DELETE")
@@ -354,14 +404,7 @@ export class ChatGateway {
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"DELETE" , data: res})
-		
-		/**
-		 * removve every client from this room
-		* 
-		 */
-		client.leave(Message.room.toString())
-
-		//inform the target
+		this.server.in(Message.room.toString()).socketsLeave(Message.room.toString());
 	}
 
 
@@ -377,7 +420,6 @@ export class ChatGateway {
 				nickname: Message.What
 			}
 		});
-		console.log(friend)
 		if (!friend)
 		{
 			client.emit("ChatError", `failed to ${Message.What}`);
@@ -397,7 +439,8 @@ export class ChatGateway {
 			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
-		//inform the target
-	}
+		this.server.to(friend.nickname).emit("NOTIFY", "you've invited to a room")
+
+		}
 
 }

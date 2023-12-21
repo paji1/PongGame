@@ -175,7 +175,7 @@ const App = () => {
 	if (user)
 		{
 			socket.connect()
-			socket.emit("init", {})
+			socket.emit("HANDSHAKE", {})
 		}
 	return (
 		
