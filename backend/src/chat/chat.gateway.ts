@@ -31,7 +31,7 @@ export class ChatGateway {
 	id: string;
 
 
-	async handleConnection(client, @GetCurrentUserId() id:number ) {
+	async handleConnection(client) {
 		client.emit("HANDSHAKE", "chkon m3aya")
 	}
 
@@ -53,19 +53,10 @@ export class ChatGateway {
 			}
 		})
 		client.join(user.nickname);
-		console.log(user.nickname)
-		const clients = this.server.sockets.adapter.rooms
-		console.log(clients)  
-		console.log(clients.get(user.nickname))
 		console.log("handshake success")
 	}
 
-
 	
-
-
-
-
 	@SubscribeMessage("ROOMSUBSCRIBE")
 	@RoomPermitions(user_permission.owner, user_permission.admin,user_permission.participation ,user_permission.chat)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public, roomtype.chat)

@@ -50,6 +50,10 @@ export class MessagesService {
 				rooms_members: {
 					some: {
 						userid: Requester,
+						NOT:
+							{
+								isBanned:true,
+							}
 					},
 				},
 			},
@@ -93,6 +97,25 @@ export class MessagesService {
 				select: {
 					messages:
 					{
+						where:
+						{
+							NOT:
+							{
+								roomid:
+								{
+									rooms_members:
+									{
+										some:{
+											userid: id,
+											AND:
+											{
+												isBanned:true,
+											}
+										}
+									}
+								}
+							}
+						},
 						select:
 						{
 							messages:true

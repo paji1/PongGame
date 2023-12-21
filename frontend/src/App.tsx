@@ -169,6 +169,7 @@ const App = () => {
 	{
 		socket.connect()
 	}	
+	
 	socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."))
 	return (
 		
