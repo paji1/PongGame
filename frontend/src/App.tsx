@@ -168,8 +168,8 @@ const App = () => {
 	if (user)
 	{
 		socket.connect()
-	}	
-	
+	}
+
 	socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."))
 	return (
 		

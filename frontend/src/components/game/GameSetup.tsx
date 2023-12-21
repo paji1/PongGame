@@ -83,6 +83,7 @@ const ConfigElems = () => {
 
 		})
 	}, [difficulty, matchingType])
+	socketCtx.emit('identify', {}) 
 
 	return (
 		<div className={`flex flex-col lg:gap-8 md:gap-5 sm:gap-2 gap-8 border z-0 text-sm md:text-base lg:text-lg`}>

@@ -1,9 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import Navbar from "../Navbar";
 import NotificationBar from "../notifbar/NotificationBar";
 import SideBar from "../SideBar";
 // import GameField from "./Game";
 import GameSetup from "./GameSetup";
+import { SocketContext } from "../Context/SocketContext";
 
 const ButtonComponent = () => {
 	return (
@@ -74,6 +75,7 @@ const GameUI = () => (
 )
 
 const GameMain = () => {
+	const socket = useContext(SocketContext)
 
 	return (
 		<div className="">

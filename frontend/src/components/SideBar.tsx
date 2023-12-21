@@ -40,7 +40,8 @@ const SideBar = () => {
 	const currentroom = Array.isArray(roomsState) ? roomsState.find((ob: room) => ob.id === chatSelector) : null;
 	socket.off("ACTION").on("ACTION", (data) => update(data, roomsState, setRoomsState, chatState, setChatState, user))
 	socket.off("ChatError").on("ChatError", (data) => toast.error(data));
-	socket.off("NOTIFY").on("NOTIFY", (data) => toast(data));
+	socket.off("NOTIFY").on("NOTIFY", (data) => {toast(data)});
+
 	const pajination = (message: roommessages) =>
 	{
 		if (chatState === null)

@@ -29,32 +29,12 @@ export class ChatGateway {
 	@WebSocketServer()
 	server: Server;
 	id: string;
-
-
-	async handleConnection(client) {
-		client.emit("HANDSHAKE", "chkon m3aya")
-	}
-
 	handleDisconnect(client) {
 		console.log(`Client disconnected ${client.id}`);
 	}	
+
 	
-	@SubscribeMessage("HANDSHAKE")
-	async sayHitoserver(@GetCurrentUserId() id:number, @ConnectedSocket() client)
-	{
-		const user = await this.prisma.user.findUnique({
-			where:
-			{
-				id:id
-			},
-			select:
-			{
-				nickname: true,
-			}
-		})
-		client.join(user.nickname);
-		console.log("handshake success")
-	}
+	
 
 	
 	@SubscribeMessage("ROOMSUBSCRIBE")
