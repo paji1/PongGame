@@ -1,10 +1,15 @@
-import { ConnectedSocket, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
+import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { AtGuard } from './common/guards';
 import { UseGuards } from '@nestjs/common';
-import { GetCurrentUserId } from './common/decorators';
+import { GetCurrentUser, GetCurrentUserId } from './common/decorators';
 import { PrismaService } from './prisma/prisma.service';
+import { current_state } from '@prisma/client';
+import { Server } from "socket.io";
+import { stat } from 'fs';
+import { RoomGuard } from './common/guards/chat/RoomGuards.guard';
 
 @WebSocketGateway()
+@UseGuards(RoomGuard)
 @UseGuards(AtGuard)
 export class AppGateway {
 
@@ -13,33 +18,58 @@ export class AppGateway {
 	) {
 	}
 
-
-  async handleConnection(client) {
-		  client.emit("HANDSHAKE", "chkon m3aya")
+	@WebSocketServer()
+	server :Server;
+ 	async handleConnection(client) {
+		client.emit("HANDSHAKE", "chkon m3aya")
 	}
 
-
+	async handleDisconnect(client) {
+		const identifier = client.request.headers["user"]
+		if (!(await this.server.to(identifier).fetchSockets()).length)
+		{
+			const	state = await this.prisma.user.update({where:{user42:identifier,},data:{connection_state: current_state.OFFLINE}});
+			console.log(state)
+		}
+	}	
 
 
 
 
 
   @SubscribeMessage("HANDSHAKE")
-	async sayHitoserver(@GetCurrentUserId() id:number, @ConnectedSocket() client)
+	async sayHitoserver(@GetCurrentUser("user42") identifier:string, @GetCurrentUser("sub") id:number, @ConnectedSocket() client)
 	{
-    
-		const user = await this.prisma.user.findUnique({
-			where:
-			{
-				id:id
-			},
-			select:
-			{
-				nickname: true,
-			}
-		})
-		client.join(user.nickname);
-		console.log("handshake success")
+		
+		client.join(identifier);
+		if ((await this.server.to(identifier).fetchSockets()).length == 1)
+		{
+			const	state = await this.prisma.user.update({where:{user42:identifier,},data:{connection_state: current_state.ONLINE}});
+			console.log(state)
+			
+		}
+	}
+
+
+
+	@SubscribeMessage("getstatus")
+	async setstatus(@GetCurrentUser("user42") identifier:string, @GetCurrentUser("sub") id:number, @MessageBody() user:number)
+	{
+		
 	}
 
 }
+
+
+
+/**
+ * 
+ * 	user conects: 
+ * 				->>>>> userstatus set as online
+ * 	user join a game:
+ * 				-> userstatus as in game
+ * 	user leaves a game:
+ * 		->>> user status as offligne;
+ * 
+ * 
+ */

@@ -15,6 +15,7 @@ model user {
   status            String?
   hash              String?
   hashedRt          String?
+  connection_state  current_state   @default(OFFLINE)
   experience_points Int             @default(0)
   created_at        DateTime        @default(now())
   friendship1       friendship[]    @relation("initiator")
@@ -56,12 +57,12 @@ model blocked {
 }
 
 model matchhistory {
-  id         String     @id @unique @default(uuid())
+  id         String     @id @unique
   player1    Int
   player2    Int
   score1     Int        @default(0)
   score2     Int        @default(0)
-  mode       game_modes @default(TIMER_MODE)
+  mode       game_modes @default(EASY)
   state      game_state @default(PENDING)
   created_at DateTime   @default(now())
   updated_at DateTime   @updatedAt
@@ -133,6 +134,7 @@ model invites {
   issuer      Int
   reciever    Int
   room        Int?
+  game_mode   game_modes?  @default(EASY)
   created_at  DateTime     @default(now())
   issuer_id   user         @relation("issuer", fields: [issuer], references: [id])
   reciever_id user         @relation("reciever", fields: [reciever], references: [id])
@@ -166,12 +168,19 @@ enum invitetype {
 }
 
 enum game_modes {
-  TIMER_MODE
-  HIGHEST_SCORE_MODE
+  EASY
+  MEDIUM
+  HARD
 }
 
 enum game_state {
   PENDING
   IN_PLAY
   FINISHED
+}
+
+enum current_state {
+  ONLINE
+  OFFLINE
+  IN_GAME
 }
