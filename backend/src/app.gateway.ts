@@ -7,6 +7,7 @@ import { current_state } from '@prisma/client';
 import { Server } from "socket.io";
 import { stat } from 'fs';
 import { RoomGuard } from './common/guards/chat/RoomGuards.guard';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 
 @WebSocketGateway()
 @UseGuards(RoomGuard)
@@ -15,6 +16,8 @@ export class AppGateway {
 
   constructor(
 		private readonly prisma: PrismaService,
+		private statusnotify: EventEmitter2
+		
 	) {
 	}
 
@@ -29,15 +32,11 @@ export class AppGateway {
 		if (!(await this.server.to(identifier).fetchSockets()).length)
 		{
 			const	state = await this.prisma.user.update({where:{user42:identifier,},data:{connection_state: current_state.OFFLINE}});
-			console.log(state)
+			this.statusnotify.emit("PUSHSTATUS", identifier)
 		}
 	}	
 
-
-
-
-
-  @SubscribeMessage("HANDSHAKE")
+  	@SubscribeMessage("HANDSHAKE")
 	async sayHitoserver(@GetCurrentUser("user42") identifier:string, @GetCurrentUser("sub") id:number, @ConnectedSocket() client)
 	{
 		
@@ -45,17 +44,20 @@ export class AppGateway {
 		if ((await this.server.to(identifier).fetchSockets()).length == 1)
 		{
 			const	state = await this.prisma.user.update({where:{user42:identifier,},data:{connection_state: current_state.ONLINE}});
-			console.log(state)
-			
+			this.statusnotify.emit("PUSHSTATUS", identifier)
 		}
 	}
 
-
-
-	@SubscribeMessage("getstatus")
+	@SubscribeMessage("SUBSTAT")
 	async setstatus(@GetCurrentUser("user42") identifier:string, @GetCurrentUser("sub") id:number, @MessageBody() user:number)
 	{
 		
+	}
+
+	@OnEvent('PUSHSTATUS')
+	notifyALL(user: string)
+	{
+		console.log("emited from chat", user)
 	}
 
 }

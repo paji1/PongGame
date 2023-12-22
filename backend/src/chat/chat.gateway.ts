@@ -13,6 +13,7 @@ import { RoomDto } from 'src/Dto/rooms.dto';
 import { RoomGuard } from 'src/common/guards/chat/RoomGuards.guard';
 import { RoomStatus } from 'src/common/decorators/RoomStatus.deorator';
 import { Roomstattypes } from 'src/types.ts/statustype';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 
 @WebSocketGateway({ transports: ["websocket"] })
@@ -22,7 +23,7 @@ import { Roomstattypes } from 'src/types.ts/statustype';
 export class ChatGateway {
   constructor(
 		private readonly prisma: PrismaService,
-		private readonly service: ChatService,
+		private readonly service: ChatService
 	) {
 	}
 
@@ -32,7 +33,7 @@ export class ChatGateway {
 
 
 	
-	
+
 	
 
 	
@@ -42,6 +43,7 @@ export class ChatGateway {
 	@RoomStatus(Roomstattypes.NOTBAN, Roomstattypes.NOTBLOCK)
 	async subscribeRoom(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: {room:number }) {
 		client.join(room.room.toString());
+
 	}
 
 
