@@ -5,6 +5,16 @@
 
 :root {
 	--bgColor:  #F2F2F2;
+	--errorColor: #F18DB3;
+	--successColor: #24BEC8;
+	--textColor: #000301
+	/**
+	* Tostify Error config
+	*/
+	--toastify-text-color-error: #000301;
+	--toastify-color-error: var(--errorColor);
+	--toastify-icon-color-error: var(--toastify-color-error);
+	--toastify-text-color-light: var(--textColor)
 }
 
 * {
@@ -222,3 +232,11 @@ body {
     --tw-bg-opacity: 1;
     background-color: rgb(154 115 166 / var(--tw-bg-opacity));
 }
+
+/**
+ * Tostify classes
+*/
+/* .Toastify__progress-bar--error {
+	background-color: var(--errorColor);
+	border-color: var(--errorColor);
+} */
