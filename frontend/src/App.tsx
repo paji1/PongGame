@@ -34,6 +34,8 @@ const Signup = () =>
 	const setpass = (e: any) => setPassword(e.target.value);
 	const signup = async () => {
 	
+console.log("signup", username, password)
+
 		const res = await fetch("http://" + ip + "3001/auth/local/signup", {
 			method: "POST"
 			, headers: { "Content-Type": "application/json" }
@@ -49,6 +51,7 @@ const Signup = () =>
 
 	const submitQuery = async (e: any) => {
 		e.preventDefault();
+		console.log('testiiiing')
 		await signup()
 	};
 	return (
