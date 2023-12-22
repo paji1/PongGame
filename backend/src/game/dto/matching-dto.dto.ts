@@ -1,4 +1,4 @@
-import { IsEnum, IsString, MinLength } from "class-validator"
+import { IsEnum, IsString, MinLength, ValidateIf } from "class-validator"
 import { EDifficulty, EMatchingType } from "src/types.ts/game-matching.interface"
 
 export class  MatchingGameDto {
@@ -8,7 +8,8 @@ export class  MatchingGameDto {
 	@IsEnum(EMatchingType, {message: "Invalid matching system"})
 	matchingType: EMatchingType
 
-	@IsString()
-	@MinLength(3, {message: "Invalid nickname"})
-	invite: string
+	@ValidateIf(dto => dto.matchingType === EMatchingType.INVITE)
+	@IsString({message: "Player is not available"})
+	@MinLength(3, {message: "Player is not available"})
+	invite?: string
 }
