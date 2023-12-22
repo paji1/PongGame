@@ -1,59 +1,36 @@
 import { Injectable } from "@nestjs/common";
 import { Server } from "socket.io";
 
-export class AdjacencyList implements IAdjacencyList {
+export class List implements IList {
 	constructor() {
-		this.nodes = new Array();
+		this.nodes = new Map<string, string[]>
 	}
-	nodes: INode[];
-
-	newNode(user: number, sockId: string, status: string) {
-		let node: INode = {
-			id: user,
-			sockIds: [sockId],
-			status: status,
-			vertices: [],
-		};
-		let index = this.nodes.findIndex((ob: INode) => ob.id === user);
-		if (index === -1) this.nodes.push(node);
-		else this.nodes[index].sockIds.push(sockId);
+	nodes
+	newNode(node:string)
+	{
+		if (!this.nodes.has(node))
+		{
+			this.nodes.set(node, [])
+			console.log("new node", this.nodes)
+		}
+		else
+			console.log("dejakayna")
 	}
-
-	delNode(user: number, sockId: string) {
-		let index = this.nodes.findIndex((ob: INode) => ob.id === user);
-		if (this.nodes[index].sockIds.length === 1) this.nodes = this.nodes.filter((ob: INode) => ob.id !== user);
-		else this.nodes[index].sockIds = this.nodes[index].sockIds.filter((sock: string) => sock !== sockId);
+	addedge(node:string, edge:string)
+	{
+		if (!this.nodes.has(node))
+		{
+			this.nodes.set(node, [])
+		}
+		if(!this.nodes.get(node).includes(edge))
+			this.nodes.get(node).push(edge)
 	}
-	addvertices(user: number, sockId: string) {
-		var index = this.nodes.findIndex((ob: INode) => ob.id === user);
-		this.nodes[index].vertices.push(sockId);
-	}
-	changeStatus(user: number, status: string) {
-		let index = this.nodes.findIndex((ob: INode) => ob.id === user);
-		this.nodes[index].status = status;
-	}
-	Notify(user: number, server: Server) {
-		const inconsistence = [];
-		let userdata = this.nodes.find((ob: INode) => ob.id === user);
-
-		const retstatus = {
-			user: user,
-			status: userdata.status,
-		};
-		console.log(userdata);
-		userdata.vertices.map(async (sockid: string, index: number) => {
-			const client = server.sockets.sockets.get(sockid);
-			if (client === undefined) inconsistence.push(index);
-			else client.emit("status", retstatus);
-		});
-		console.log(inconsistence);
-		/**
-		 * todo: delete incostincencies
-		 */
-	}
-	getstatus(user: number) {
-		let userdata = this.nodes.find((ob: INode) => ob.id === user);
-		if (userdata === undefined) return "offline";
-		return userdata.status;
+	getedges(node:string)
+	{
+		if (!this.nodes.has(node))
+		{
+			this.nodes.set(node, [])
+		}
+		return this.nodes.get(node);
 	}
 }
