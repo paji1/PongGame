@@ -8,6 +8,6 @@ export class WsValidationExeption extends BaseWsExceptionFilter {
 		const response = exception["response"]["message"];
 		const socket = host.switchToWs();
 		const client: Socket = socket.getClient();
-		client.emit("game_error", response[0]);
+		client.emit("game_error", response);
 	}
 }
