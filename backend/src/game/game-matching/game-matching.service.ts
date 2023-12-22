@@ -1,13 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { IInviting } from 'src/types.ts/game-matching.interface';
+import { EDifficulty, IInviting } from 'src/types.ts/game-matching.interface';
 import { CreateGameInviteDto } from '../dto/create-game-invite.dto';
-import { actionstatus } from '@prisma/client';
+import { actionstatus, invitetype } from '@prisma/client';
 
 @Injectable()
 export class GameMatchingService {
 
-	constructor(readonly prisma: PrismaService) { }
+	private readonly queues: Map<string, number[]>
+
+	constructor(
+		readonly prisma: PrismaService,
+	) {
+		this.queues = new Map<string, number[]>()
+		this.queues.set(EDifficulty.EASY, [])
+		this.queues.set(EDifficulty.MEDIUM, [])
+		this.queues.set(EDifficulty.HARD, [])
+	}
 
 
 	async findFriendByUsername(userID: number, nickname: string): Promise<IInviting | null>
@@ -70,12 +79,51 @@ export class GameMatchingService {
 		}
 	}
 
-	async inviteHandler() {
-
+	async inviteHandler(id: number, nickname: string, difficulty: EDifficulty) {
+		try {
+			const inviting: IInviting | null = await this.findFriendByUsername(id, nickname)
+			const newNotif: CreateGameInviteDto = {
+				issuer: inviting.user1_id,
+				reciever: inviting.user2_id,
+				status: actionstatus.pending,
+				game_mode: difficulty,
+				type: invitetype.Game
+			}
+			const isNewInvite = await this.isInvitationPending(inviting.user2_id, inviting.user1_id)
+			if (!isNewInvite)
+				throw new Error(`This user is already invited`)
+			//TODO: Handle accept / refuse
+			this.createInvite(newNotif)
+			
+		} catch (error) {
+			throw new Error(`${error.message}`)
+		}
 	}
 
-	async randomeHandler() {
+	addToQueue(id: number, difficulty: string)
+	{
+		const queue = this.queues.get(difficulty)
+		if (!queue)
+			throw new Error(`Invalid queuing system: ${difficulty}`)
+		queue.push(id)
+	}
 
+	randomMatchingHandler(id: number, difficulty: EDifficulty) {
+		let isInQueue = 0
+		this.queues.forEach(queue => {
+			if (queue.includes(id))
+			{
+				isInQueue++
+				return
+			}
+		})
+		if (isInQueue)
+			throw new Error(`You are already in the queue`)
+		try {
+			this.addToQueue(id, difficulty)
+		} catch (error) {
+			throw new Error(error.message)
+		}
 	}
 
 }
