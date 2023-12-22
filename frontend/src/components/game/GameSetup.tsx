@@ -4,6 +4,7 @@ import Lottie from "lottie-web"
 import { SocketContext } from "../Context/SocketContext"
 import HomePage from "../HomePage/HomePage"
 import { Socket } from "socket.io-client"
+import { ToastContainer, toast } from "react-toastify"
 
 
 const matchingHandler = (difficulty: EDifficulty, matchingType: EMatchingType, searchBar: HTMLInputElement | null, socketCtx: Socket) => {
@@ -59,6 +60,18 @@ const ConfigElems = () => {
 			setSearchBar(null)
 	}, [matchingType])
 
+	useEffect(() => {
+		socketCtx.on('game_error', (messgae: string): any  => toast.error(messgae, {
+			className: 'bg-background',
+			bodyClassName: 'text-textColor font-pixelify ',
+			progressClassName: 'bg-errorColor border-errorColor',
+
+		}))
+		return (
+			() => {socketCtx.off('game_error')}
+		)
+	}, [])
+
 	return (
 		<div className={`flex flex-col lg:gap-8 md:gap-5 sm:gap-2 gap-8 border z-0 text-sm md:text-base lg:text-lg`}>
 			<div className={`flex  flex-col gap-2 items-center justify-evenly`}>
@@ -80,6 +93,7 @@ const ConfigElems = () => {
 					Start
 				</button>
 			</div>
+			<ToastContainer limit={1} />
 		</div>
 	)
 }
