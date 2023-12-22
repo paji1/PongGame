@@ -170,7 +170,7 @@ export class AuthService {
 		res.cookie("atToken", tokens.access_token, {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === "production",
-			maxAge: 15 * minute,
+			maxAge: 300 * minute,
 			path: "/",
 		});
 
