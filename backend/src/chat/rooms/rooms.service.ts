@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { invitetype, user_permission, roomtype, actionstatus } from "@prisma/client";
+import { invitetype, user_permission, roomtype, actionstatus, relationsip_status } from "@prisma/client";
 import { createHash } from "crypto";
 import { RoomDto } from "../../Dto/rooms.dto";
 import { error } from "console";
@@ -296,41 +296,54 @@ export class RoomsService {
 	async block_user(user: number, targeted: number, roomtarget: number) {
 		try {
 			const data = await this.prisma.$transaction(async (trx) => {
-				const data = await trx.rooms_members.update({
-					where: {
-						combination: {
-							roomid: roomtarget,
-							userid: targeted,
+				const frienship = await trx.friendship.findFirst({where:{OR:[{initiator:user,reciever:targeted,},{initiator :targeted,reciever:user,}] , status: relationsip_status.DEFAULT}
+					,select:{
+						id:true,
+						initiator_id: {select:{id:true}} , reciever_id: {select:{id:true}}, status:true,
+					}})
+					if (!frienship)
+						return "already blocked or you are not a friend";
+					await trx.friendship.update(
+						{
+							where:{id:frienship.id},
+							data:
+							{
+								status: frienship.initiator_id.id == user? relationsip_status.IBLOCKED : relationsip_status.RBLOCKED,
+							}
+						}
+					)
+					await trx.rooms_members.updateMany({
+						where:{roomid:roomtarget},
+						data:{
+							isblocked:true,
+						}
+					})
+					return await  trx.rooms_members.findUnique({
+						where: {
+							combination:
+							{
+								roomid:roomtarget,
+								userid:targeted,
+							}
 						},
-					},
-					data: {
-						isblocked: true,
-					},
-					select: {
-						id: true,
-						roomid: true,
-						permission: true,
-						isblocked: true,
-						isBanned: true,
-						ismuted: true,
-						created_at: true,
-						user_id: {
-							select: {
-								id: true,
-								nickname: true,
-								avatar: true,
+						select: {
+							id: true,
+							roomid: true,
+							permission: true,
+							isblocked: true,
+							isBanned: true,
+							ismuted: true,
+							created_at: true,
+							user_id: {
+								select: {
+									id: true,
+									nickname: true,
+									avatar: true,
+								},
 							},
 						},
-					},
-				});
-				await trx.blocked.create({
-					data: {
-						initiator: user,
-						reciever: targeted,
-					},
-				});
-				return data;
-			});
+					})
+			})
 			return data;
 		} catch (e) {
 			return null
@@ -345,42 +358,60 @@ export class RoomsService {
 	async unblock_user(user: number, targeted: number, roomtarget: number) {
 		
 		try {
+			
 			const data = await this.prisma.$transaction(async (trx) => {
-				const data = await trx.rooms_members.update({
-					where: {
-						combination: {
-							roomid: roomtarget,
-							userid: targeted,
+				const frienship = await trx.friendship.findFirst({where:{OR:[{initiator:user,reciever:targeted,},{initiator :targeted,reciever:user,}]}
+				,select:{
+					id:true,
+					initiator_id: {select:{id:true}} , reciever_id: {select:{id:true}}, status:true,
+				}})
+				if (!frienship)
+					return null;
+				let i =  (frienship.initiator_id.id == user && frienship.status == relationsip_status.RBLOCKED) || (frienship.reciever_id.id == user && frienship.status == relationsip_status.IBLOCKED)
+				if (i)
+					return "already blocked";
+				await trx.friendship.update(
+						{
+							where:{id:frienship.id
+							},
+							data:
+							{
+								status: relationsip_status.DEFAULT ,
+							}
+						}
+					)
+					await trx.rooms_members.updateMany({
+						where:{roomid:roomtarget},
+						data:{
+							isblocked:false,
+						}
+					})
+					return await  trx.rooms_members.findUnique({
+						where: {
+							combination:
+							{
+								roomid:roomtarget,
+								userid:targeted,
+							}
 						},
-					},
-					data: {
-						isblocked: false,
-					},
-					select: {
-						id: true,
-						roomid: true,
-						permission: true,
-						isblocked: true,
-						isBanned: true,
-						ismuted: true,
-						created_at: true,
-						user_id: {
-							select: {
-								id: true,
-								nickname: true,
-								avatar: true,
+						select: {
+							id: true,
+							roomid: true,
+							permission: true,
+							isblocked: true,
+							isBanned: true,
+							ismuted: true,
+							created_at: true,
+							user_id: {
+								select: {
+									id: true,
+									nickname: true,
+									avatar: true,
+								},
 							},
 						},
-					},
-				});
-					await trx.blocked.deleteMany({
-					where: {
-						initiator: user,
-						reciever: targeted,
-					},
-				});
-				return data;
-			});
+					})
+			})
 			return data;
 		} catch {
 			return null

@@ -149,7 +149,7 @@ export class ChatGateway {
 	@SubscribeMessage("BLOCK")
 	@RoomPermitions(user_permission.chat)
 	@RoomType(roomtype.chat)
-	async block(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO) {
+	async block(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO ,@GetCurrentUser("user42") identifier:string) {
 
 		let res;
 		if (Message.What === "BLOCK")
@@ -158,6 +158,11 @@ export class ChatGateway {
 			{
 				res = await this.service.rooms.unblock_user(id ,Message.target, Message.room);
 			}
+		if (typeof res === "string")
+		{
+			this.server.to(identifier).emit("ChatError", res);
+			return
+		}
 		if (!res)
 		{
 			client.emit("ChatError", `failed to ${Message.What}`);

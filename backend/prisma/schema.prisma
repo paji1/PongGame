@@ -20,8 +20,6 @@ model user {
   created_at        DateTime        @default(now())
   friendship1       friendship[]    @relation("initiator")
   friendship2       friendship[]    @relation("reciever")
-  blocker           blocked[]       @relation("blocker")
-  blocked           blocked[]       @relation("blocked")
   player1           matchhistory[]  @relation("player1")
   player2           matchhistory[]  @relation("player2")
   rooms_members     rooms_members[]
@@ -37,23 +35,15 @@ model level {
 }
 
 model friendship {
-  id           Int      @id @unique @default(autoincrement())
+  id           Int                @id @unique @default(autoincrement())
   initiator    Int
   reciever     Int
-  created_at   DateTime @default(now())
-  initiator_id user     @relation("initiator", fields: [initiator], references: [id])
-  reciever_id  user     @relation("reciever", fields: [reciever], references: [id])
+  status       relationsip_status
+  created_at   DateTime           @default(now())
+  initiator_id user               @relation("initiator", fields: [initiator], references: [id])
+  reciever_id  user               @relation("reciever", fields: [reciever], references: [id])
 
   @@unique([initiator, reciever], name: "friendship")
-}
-
-model blocked {
-  id           Int      @id @unique @default(autoincrement())
-  initiator    Int
-  reciever     Int
-  created_at   DateTime @default(now())
-  initiator_id user     @relation("blocker", fields: [initiator], references: [id])
-  reciever_id  user     @relation("blocked", fields: [reciever], references: [id])
 }
 
 model matchhistory {
@@ -183,4 +173,10 @@ enum current_state {
   ONLINE
   OFFLINE
   IN_GAME
+}
+
+enum relationsip_status {
+  DEFAULT
+  IBLOCKED
+  RBLOCKED
 }
