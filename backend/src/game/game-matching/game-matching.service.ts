@@ -4,15 +4,22 @@ import { EDifficulty, IInviting } from 'src/types.ts/game-matching.interface';
 import { CreateGameInviteDto } from '../dto/create-game-invite.dto';
 import { actionstatus, invitetype } from '@prisma/client';
 
+
+interface IStoredClient {
+	id: number,
+	socket_id: string
+}
+
+
 @Injectable()
 export class GameMatchingService {
 
-	private readonly queues: Map<string, number[]>
+	private readonly queues: Map<string, IStoredClient[]>
 
 	constructor(
 		readonly prisma: PrismaService,
 	) {
-		this.queues = new Map<string, number[]>()
+		this.queues = new Map<string, IStoredClient[]>()
 		this.queues.set(EDifficulty.EASY, [])
 		this.queues.set(EDifficulty.MEDIUM, [])
 		this.queues.set(EDifficulty.HARD, [])
@@ -98,32 +105,62 @@ export class GameMatchingService {
 		} catch (error) {
 			throw new Error(`${error.message}`)
 		}
-	}
+	} 
 
-	addToQueue(id: number, difficulty: string)
+	addToQueue(id: number, difficulty: string, socket_id: string)
 	{
 		const queue = this.queues.get(difficulty)
 		if (!queue)
 			throw new Error(`Invalid queuing system: ${difficulty}`)
-		queue.push(id)
+		queue.push({id, socket_id})
 	}
 
-	randomMatchingHandler(id: number, difficulty: EDifficulty) {
-		let isInQueue = 0
-		this.queues.forEach(queue => {
-			if (queue.includes(id))
-			{
-				isInQueue++
-				return
-			}
-		})
-		if (isInQueue)
+	isInQueue(id: number): EDifficulty | null {
+		const difficulties = [EDifficulty.EASY, EDifficulty.MEDIUM, EDifficulty.HARD];
+		
+		for (const difficulty of difficulties) {
+			if (this.queues.get(difficulty).find(queue => queue.id === id))
+				return difficulty
+		}
+		return null;
+	}
+
+	leaveQueue(id: number) {
+		const found = this.isInQueue(id)
+		if (!found)
+			return
+		const queue = this.queues.get(found)
+		const index = queue.findIndex(queue => queue.id === id)
+		if (index !== -1)
+			queue.splice(index, 1);
+	}
+
+	randomMatchingHandler(id: number, difficulty: EDifficulty, socket_id: string) {
+		const found = this.isInQueue(id)
+		if (found)
 			throw new Error(`You are already in the queue`)
 		try {
-			this.addToQueue(id, difficulty)
+			this.addToQueue(id, difficulty, socket_id)
 		} catch (error) {
 			throw new Error(error.message)
 		}
+	}
+
+	getQueueLength(difficulty: string): number {
+		const queue = this.queues.get(difficulty)
+		if (!queue)
+			throw new Error(`Invalid queuing system: ${difficulty}`)
+		return queue.length
+	}
+
+	getQueueContentAtIndex(index: number, difficulty: string)
+	{
+		const queue = this.queues.get(difficulty)
+		if (!queue)
+			throw new Error(`Invalid queuing system: ${difficulty}`)
+		if (index < 0 || index >= queue.length)
+			throw new Error(`Queueing Error`)
+		return queue[index]
 	}
 
 }
