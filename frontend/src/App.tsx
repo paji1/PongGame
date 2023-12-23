@@ -175,7 +175,7 @@ const App = () => {
 					<SideBar />
 					<NotificationBar />
 					<RouterProvider router={router} />
-					
+					<ToastContainer />
 				</currentUser.Provider > :
 			 <>
 			 	<Signup  />
