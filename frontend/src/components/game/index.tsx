@@ -1,9 +1,9 @@
-import { useEffect, useRef } from "react";
-import Navbar from "../Navbar";
-import NotificationBar from "../notifbar/NotificationBar";
-import SideBar from "../SideBar";
+import { useContext, useEffect, useRef, useState } from "react";
 // import GameField from "./Game";
 import GameSetup from "./GameSetup";
+import { EGamePreparationState } from "../Context/QueueingContext";
+import QueueLoader from "./QueueLoader";
+import { SocketContext } from "../Context/SocketContext";
 
 const ButtonComponent = () => {
 	return (
@@ -41,15 +41,33 @@ const GameFooter = () => (
     </div>
 )
 
-const GameBody = ({isReady}: {isReady: boolean}) => {
+const GameBody = () => {
 
 	const gameBodyRef = useRef(null)
+	const [preparation, setPreparation] = useState(EGamePreparationState.CONFIG_STATE)
+	const socket = useContext(SocketContext)
+
+	useEffect(() => {
+		socket.on('enter_queue', () => {
+			setPreparation(EGamePreparationState.QUEUING_STATE)
+		})
+
+		return (
+			() => {
+				socket.off('enter_queue')
+			}
+		)
+	}, [])
 
 	return (
 		<div ref={gameBodyRef} className={`border-[.5rem] border-solid border-textColor
 		sm:w-[576px] md:w-[691px] lg:w-[921px] xl:w-[1152px] 2xl:w-[1346px] w-[281px]
 		sm:h-[324px] md:h-[389px] lg:h-[518px] xl:h-[648px] 2xl:h-[757px] h-[500px]`}>
-			{isReady ? null: <GameSetup />}
+		{
+			preparation === EGamePreparationState.CONFIG_STATE ? <GameSetup /> :
+			preparation === EGamePreparationState.QUEUING_STATE ? <QueueLoader /> :
+			preparation === EGamePreparationState.READY_STATE ? "gameREADY" : null
+		}
 		</div>
 	)
 }
@@ -67,7 +85,7 @@ const GameUI = () => (
 	<div id="game-ui" className={`flex flex-col items-center h-auto inset-0`}>
 		<div className={`flex flex-col items-center p-1 sm:p-5 mt-6
 			`}>
-			<GameBody isReady={false} />
+			<GameBody />
 			<GameFooter />
 		</div>
 	</div>

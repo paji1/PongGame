@@ -2,7 +2,6 @@ import { useContext, useEffect, useRef, useState } from "react"
 import { EDifficulty, EMatchingType, IQueue, ADifficultyHandle, AMatchingHandle, DifficultyContext } from "../Context/QueueingContext"
 import Lottie from "lottie-web"
 import { SocketContext } from "../Context/SocketContext"
-import HomePage from "../HomePage/HomePage"
 import { Socket } from "socket.io-client"
 import { ToastContainer, toast } from "react-toastify"
 
@@ -67,8 +66,12 @@ const ConfigElems = () => {
 			progressClassName: 'bg-errorColor border-errorColor',
 
 		}))
+		
 		return (
-			() => {socketCtx.off('game_error')}
+			() => {
+				socketCtx.off('game_error')
+				socketCtx.off('enter_queue')
+			}
 		)
 	}, [])
 

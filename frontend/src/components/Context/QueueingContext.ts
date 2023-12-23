@@ -11,6 +11,12 @@ export enum EMatchingType {
 	INVITE = 'INVITE',
 }
 
+export enum EGamePreparationState {
+	CONFIG_STATE,
+	QUEUING_STATE,
+	READY_STATE
+}
+
 export interface IQueue {
 	difficulty: EDifficulty,
 	matchingType: EMatchingType,
