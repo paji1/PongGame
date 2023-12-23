@@ -96,7 +96,6 @@ const ConfigElems = () => {
 					Start
 				</button>
 			</div>
-			<ToastContainer limit={1} />
 		</div>
 	)
 }

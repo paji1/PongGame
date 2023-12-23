@@ -4,6 +4,7 @@ import GameSetup from "./GameSetup";
 import { EGamePreparationState } from "../Context/QueueingContext";
 import QueueLoader from "./QueueLoader";
 import { SocketContext } from "../Context/SocketContext";
+import PlayGround from "./Game";
 
 const ButtonComponent = () => {
 	return (
@@ -52,9 +53,14 @@ const GameBody = () => {
 			setPreparation(EGamePreparationState.QUEUING_STATE)
 		})
 
+		socket.on('start_game', () => {
+			setPreparation(EGamePreparationState.READY_STATE)
+		})
+
 		return (
 			() => {
 				socket.off('enter_queue')
+				socket.off('start_game')
 			}
 		)
 	}, [])
@@ -66,7 +72,7 @@ const GameBody = () => {
 		{
 			preparation === EGamePreparationState.CONFIG_STATE ? <GameSetup /> :
 			preparation === EGamePreparationState.QUEUING_STATE ? <QueueLoader /> :
-			preparation === EGamePreparationState.READY_STATE ? "gameREADY" : null
+			preparation === EGamePreparationState.READY_STATE ? <PlayGround /> : null
 		}
 		</div>
 	)
