@@ -93,6 +93,10 @@ export const update = (
                 let indexer = newroomState.unshift(room3);
                 getmessages(room3.id, chatState, setchatState);
                 break ;
+            case "status":
+                const {userh, status } = data.data as {userh:string, status:string };
+                console.log ("dsfdsfdsfds")
+                toast( userh + "  " + status);
 
         }
         setRoomsState(newroomState)

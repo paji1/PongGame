@@ -21,6 +21,9 @@ export class AppGateway {
 		
 	) {
 	}
+
+
+
 	@WebSocketServer()
 	server :Server;
  	async handleConnection(client) {
@@ -30,12 +33,13 @@ export class AppGateway {
 	
 	async handleDisconnect(client) {
 		const identifier = client.request.headers["user"]
+		console.log(identifier , "slm cv" , (await this.server.to(identifier).fetchSockets()).length)
 		if (identifier === undefined)
 			return ;
 		if (!(await this.server.to(identifier).fetchSockets()).length)
 		{
 			const	state = await this.prisma.user.update({where:{user42:identifier,},data:{connection_state: current_state.OFFLINE}});
-			this.statusnotify.emit("PUSHSTATUS", identifier, state.connection_state)
+			this.statusnotify.emit("PUSHSTATUS", state.user42 , state.connection_state)
 
 		}
 	}	
@@ -47,26 +51,22 @@ export class AppGateway {
 		if ((await this.server.to(identifier).fetchSockets()).length == 1)
 		{
 			const	state = await this.prisma.user.update({where:{user42:identifier,},data:{connection_state: current_state.ONLINE}});
+			console.log("na7wi mok")
 			this.statusnotify.emit("PUSHSTATUS", identifier, state.connection_state)
-
 		}
 		
 	}
-
-	@SubscribeMessage("SUBTOUSER")
-	async setstatus(@GetCurrentUser("user42") identifier:string, @GetCurrentUser("sub") id:number, @MessageBody() userid:number)
-	{
-	}
-
+	
 	@OnEvent('PUSHSTATUS')
 	async notifyALL(user: string, status:string)
 	{
+		console.log("emit event status ", status, "for" , user)
 		const friends = await this.getfriends(user);
-		console.log(friends)
 		friends.forEach( async (friend) => 
 		{
-			if((await this.server.to(user).fetchSockets()).length) 
-				this.server.to(friend).emit(user , status)
+			console.log("emited to ", friend)
+			if((await this.server.to(friend).fetchSockets()).length)
+				this.server.to(friend).emit("ACTION" , {region:"ROOM", action: "status", data: {userh:user, status:status}});
 		}
 	);
 		console.log("emited from chat", user, status)
@@ -86,7 +86,8 @@ export class AppGateway {
 					{
 						reciever_id:{user42:user},
 						status:relationsip_status.DEFAULT,
-					}
+					},
+					
 				]
 			},
 			select:
@@ -105,6 +106,7 @@ export class AppGateway {
 						user42:true,
 					}
 				}
+				
 			}
 		});
 		const list = friends.map((frien) =>

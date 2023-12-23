@@ -107,7 +107,7 @@ export const FriendsettingItem = ({  user, roomid }: { user: member | undefined;
 				{!user.isblocked ? (
 					<button onClick={() => socket.connected ? socket.emit("BLOCK", {target: user.user_id.id ,room:roomid,What: "BLOCK" }): toast.error("socket not conected")}>block</button>
 				) : (
-					<button onClick={() => socket.connected ? socket.emit("MUTE", {target: user.user_id.id ,room:roomid,What: "UNBLOCK" }): toast.error("socket not conected")}>unblock</button>
+					<button onClick={() => socket.connected ? socket.emit("BLOCK", {target: user.user_id.id ,room:roomid,What: "UNBLOCK" }): toast.error("socket not conected")}>unblock</button>
 				)}
 			</div>
 		);

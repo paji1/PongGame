@@ -52,7 +52,7 @@ export const BanButton = ({ socket,room, roomuser }: {socket: Socket ,room: numb
 		roomuser.isBanned ? (
 			<button onClick={() => socket.connected ? socket.emit("BAN", {target: roomuser.user_id.id ,room:room, What: "UNBAN"}): toast.error("socket not conected")}>unban</button>
 			) : (
-				<button onClick={() => socket.connected ? socket.emit("BAN", {target: roomuser.user_id.id ,room:room, What: "BAN"}): toast.error("socket not conected")}> ban</button>
+				<button onClick={() => socket.connected ? socket.emit("BAN", {target: roomuser.user_id.id , room:room, What: "BAN"}): toast.error("socket not conected")}> ban</button>
 				)
 			);
 				

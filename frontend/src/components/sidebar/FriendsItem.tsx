@@ -8,8 +8,8 @@ const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; gl
 	let preview;
 	const user = useContext(currentUser);
 
-	if (Array.isArray(glimpse)) preview = glimpse[0].messages.length > 25 ? glimpse[0].messages.substring(0, 25) + "..." : glimpse[0].messages;
-	else preview = "Start A conversation";
+	if (Array.isArray(glimpse) && glimpse.length ==1)
+		preview = (glimpse[0].messages.length > 25) ? glimpse[0].messages.substring(0,25) :  glimpse[0].messages
 	const name =
 		room.rooms_members[0].user_id.id === user?.id
 			? room.rooms_members[1].user_id.nickname.toLowerCase()
