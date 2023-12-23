@@ -15,7 +15,7 @@ export class GameService {
 		
 		const res = await this.prisma.matchhistory.create({
 			data: {
-				id: Date.now().toString(),
+				id: createGameDto.id,
 				player1: createGameDto.player1,
 				player2: createGameDto.player2,
 				mode: createGameDto.game_mode
