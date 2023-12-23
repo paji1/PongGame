@@ -1,12 +1,13 @@
 import { useContext, useEffect, useRef } from "react"
 import { SocketContext } from "../Context/SocketContext"
 import Lottie from "lottie-web"
+import { toast } from "react-toastify"
 
 const QueueLoader = () => {
 	const loading_container = useRef<HTMLDivElement>(null)
 
 	const socket = useContext(SocketContext)
-	
+
 	useEffect(() => {
 
 		if (loading_container.current)
@@ -21,7 +22,6 @@ const QueueLoader = () => {
 		}
 
 		const cleanup = () => {
-			console.log('na7wiii mok');
 			socket.emit('leave_queue', {});
 			socket.off('enter_queue');
 		  };
