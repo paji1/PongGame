@@ -38,6 +38,7 @@ model friendship {
   id           Int                @id @unique @default(autoincrement())
   initiator    Int
   reciever     Int
+  
   status       relationsip_status
   created_at   DateTime           @default(now())
   initiator_id user               @relation("initiator", fields: [initiator], references: [id])

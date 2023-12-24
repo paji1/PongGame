@@ -1,20 +1,44 @@
+import { ip } from "../../network/ipaddr";
 import { INotificaion, InviteType } from "../../types/NotificationItem";
 
+const AcceptFriend = async (id: number) =>
+{
+	const res = await fetch(`http://${ip}3001/invite/friend/invite?id=${id}` , {credentials: 'include', method: "POST"})
+	console.log(res);
+}
+
+const RejectFriend = async (id:number) =>
+{
+	await fetch(`http://${ip}3001/invite/friend/invite?id=${id}` , { credentials: "include", method: "DELETE" ,});
+}
+
+const routeinvites = (what:string, type: InviteType, id : number) => 
+{
+	if (what == "ok")
+	{
+		if (type ===  InviteType.Friend)
+			AcceptFriend(id)
+		if (type ===  InviteType.Game)
+			AcceptFriend(id)
+		if (type ===  InviteType.Room)
+			AcceptFriend(id)
+	}
+	if (what == "no")
+	{
+		if (type ===  InviteType.Friend)
+			RejectFriend(id)
+		if (type ===  InviteType.Game)
+			AcceptFriend(id)
+		if (type ===  InviteType.Room)
+			AcceptFriend(id)
+	}
+
+}
 const NotificationItem = ({ notif }: { notif: INotificaion }) => {
 	const FRIEND_REQUEST = "sent you a friend request";
 	const CHAT_ROOM = "invited you to join the chat room:";
 	const GAME_INVITE = "challenged you to a game";
 
-	const AcceptHandler = async (InviteType: string) =>
-	{
-		const res = await fetch(`http://localhost:3001/${InviteType}?id=${notif.id}` , {method: "POST"})
-		console.log(res);
-	}
-
-	const RejectHandler = async (InviteType: string) =>
-	{
-		await fetch(`http://localhost:3001/${InviteType}?id=${notif.id}` , {method: "DELETE"});
-	}
 
 	return (
 		<div className={`border-solid border-2 border-textColor flex flex-row gap-3 p-1`}>
@@ -49,7 +73,7 @@ const NotificationItem = ({ notif }: { notif: INotificaion }) => {
 					className={`grid grid-cols-2 gap-3 content-evenly p-2
 					 `}
 				>
-					<button className="flex items-center justify-center col-1" onClick={() => AcceptHandler(notif.type)}>
+					<button className="flex items-center justify-center col-1" onClick={() => routeinvites("ok",notif.type, notif.id) }>
 						<svg
 							className={`fill-sucessColor`}
 							width="24"
@@ -61,7 +85,7 @@ const NotificationItem = ({ notif }: { notif: INotificaion }) => {
 							<path d="M20 4V6H18V8H16V10H14V12H12V14H10V16H9V17H7V16H6V14H4V13H2V16H4V18H6V20H7V21H9V20H10V18H12V16H14V14H16V12H18V10H20V8H22V4H20Z" />
 						</svg>
 					</button>
-					<button className="flex items-center justify-center col-1" onClick={() => RejectHandler(notif.type)}>
+					<button className="flex items-center justify-center col-1" onClick={() => routeinvites("no",notif.type, notif.id)}>
 						<svg
 							className={`stroke-errorColor`}
 							width="24"

@@ -33,16 +33,31 @@ const RoomItem = ({room, socket} : {room:room, socket:Socket})  =>
     
 
 }
-
 const UserItem = ({user} : {user: IUser}) =>
 {
+    const addFR = () => 
+    {
+        fetch(`http://${ip}3001/invite/friend?friend=${user.id}`,
+        {
+            method: "POST",
+            credentials: 'include'
+        })
+        .then((data) => data.json())
+        .then((data) => 
+        {
+            console.log(data)        
+        })
+    .catch(() => toast.error(`search: network error`))
+    }
     return <div className='m-auto ring-black ring-2 p-4 w-full truncate'>
         <p>{user.nickname}</p>
-        <p>Joined join{new Date(user.created_at).toDateString()}</p>
+        <p>Joined join {new Date(user.created_at).toDateString()}</p>
         <Link to={{
         			pathname: '/',
         			search: `?query=${user.nickname}`,
       				}}>visite profile</Link>
+        <button onClick={addFR}>invite</button>
+
     </div>
 }
 export  const SearchWindow = () => {

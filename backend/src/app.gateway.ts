@@ -72,6 +72,12 @@ export class AppGateway {
 		console.log("emited from chat", user, status)
 	}
 
+
+	@OnEvent("PUSH")
+	async informuser(nickname, invite)
+	{
+		console.log(nickname, invite)
+	}
 	async getfriends(user:string)
 	{
 

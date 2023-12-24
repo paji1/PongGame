@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service"; // Assuming you have a Prisma service
 import { user } from "@prisma/client";
 import { http } from "winston";
+import { Contains } from "class-validator";
 
 @Injectable()
 export class UsersService {
@@ -35,12 +36,13 @@ export class UsersService {
 
 
 
-	async getusersbyname(name:string)
+	async getusersbyname( user: number, name:string)
 	{
 		return await this.prisma.user.findMany({
 			where:
 			{
 				nickname : {contains : name},
+				
 				
 			},
 			select:
@@ -49,7 +51,7 @@ export class UsersService {
 				nickname:true,
 				user42:true,
 				avatar:true,
-				created_at:true
+				created_at:true,
 			}
 		})
 	}

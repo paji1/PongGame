@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from "../prisma/prisma.service";
 import { RoomsService } from '../chat/rooms/rooms.service'
 import { actionstatus, invitetype } from '@prisma/client';
+import { REFUSED } from 'dns';
+import { use } from 'passport';
 
 @Injectable()
 export class InviteService {
@@ -51,7 +53,9 @@ export class InviteService {
         })
         return (invites);
     }
-
+    fdf
+        pending
+    
 
     async InviteFriend(user:number, friend:number)
     {
@@ -59,23 +63,38 @@ export class InviteService {
             const control = await trx.invites.findMany(
                 {
                 where:{
-                    OR:
+                    AND:
                     [
                         {
-                            issuer:user,
-                            reciever:friend,
+                            OR:
+                            [
+                                {
+                                    type:'Friend',
+                                    status:'pending'
+                                }  ,
+                                {
+                                    type:'Friend',
+                                    status:'accepted'
+                                }
+                            ]
                         },
                         {
-                            issuer:friend,
-                            reciever: friend
-                        }
+                        OR:
+                        [
+                            {
+                                issuer:user,
+                                reciever:friend,
+                            },
+                            {
+                                issuer:friend,
+                                reciever: user
+                            }
+                        ]
+                    }
                     ]
                 }})
-            if (control.findIndex((invite) => invite.type ===  invitetype.Friend) !== -1)
-            {
-                console.log(control.find((invite) => invite.type ===  invitetype.Friend))
-                return null
-            }
+                if (control.length)
+                    return null
             return await trx.invites.create({data:{type: invitetype.Friend,status: actionstatus.pending,issuer:user,reciever:friend,}, 
                 select:
                 {
@@ -109,20 +128,99 @@ export class InviteService {
                 },
         })
         })
-        return null
+        return res;
     }
     async RemoveFriend()
     {
 
     }
 
-    AcceptFriend()
+    async AcceptFriend(user, invite)
     {
+        const res = await this.prisma.$transaction(async (trx)=>{
+            const control = await trx.invites.update({
+                where:
+                {
+                    id:invite,
+                    reciever:user,
+                    status:'pending',
+                    type:'Friend'
+                },
+                data:
+                {
+                    status:'accepted'
+                }
+            })
+            const lenght = await trx.invites.count({
+                where:
+                {
+                    OR:[
+                        {reciever:control.reciever, issuer: control.issuer},
+                        {reciever:control.issuer, issuer: control.reciever},
+                    ],
+                    status:'accepted',
+                    type:'Friend',
+                }
+            }) 
+            await trx.friendship.create({
+                data:
+                {
+                    initiator: control.issuer,
+                    reciever: control.reciever,
+                    status:'DEFAULT'
+                }
+            })
+            if (lenght > 1)
+                return control;
+            return  await trx.rooms.create(
+                {
+                    data:{
+                        roomtypeof:'chat',
+                        rooms_members:
+                        {
+                            createMany : {
+
+                                data:
+                                [
+                                    {
+                                        permission:'chat',
+                                        
+                                        userid:control.issuer,
+                                    },
+                                    {
+                                        permission:'chat',
+                                        userid:control.reciever,
+                                    },
+
+                                ]
+
+                            }
+                        }
+                    }
+                }
+            )
+            
+        })
 
     }
 
-    RejectFriend()
+    async RejectFriend(user, invite)
     {
-
+        const reject = await  this.prisma.invites.update(
+            {
+                where: {
+                    id:invite,
+                    status: 'pending',
+                    type:'Friend',
+                    reciever:user,
+                }
+                ,data:{
+                    status:"refused",
+                }
+            }
+            
+        )
     }
 }
+
+

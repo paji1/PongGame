@@ -14,9 +14,9 @@ export class UsersController {
 
    
     @Get("/search/:user")
-    async getqueryusers(@Param("user") user : string)
+    async getqueryusers(@GetCurrentUserId() id:number,  @Param("user") user : string)
     {
-        const users = await this.users.getusersbyname(user)
+        const users = await this.users.getusersbyname(id, user)
         console.log(users)
 		return users;
     }

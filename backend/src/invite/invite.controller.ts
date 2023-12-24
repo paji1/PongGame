@@ -11,6 +11,7 @@ export class InviteController {
   @Get()
   async Handler(@GetCurrentUserId() user:number)
   {
+    console.log("mok 9a7ba")
     return await this.inviteService.getdatainvite(user);
   }
 
@@ -27,18 +28,15 @@ export class InviteController {
   }
 
 
-
   @Post('friend')
   async Friendinvite(@GetCurrentUserId() user:number,  @Query('friend') friend: number)
   {
     const invite =  await this.inviteService.InviteFriend(user, friend);
+    console.log(invite)
     if (!invite)
       throw new HttpException("Failed inviting", HttpStatus.BAD_REQUEST)
-    if (invite)
-    {
-
-      this.events.emit("PUSH", invite.reciever_id.nickname, invite)
-    }
+    this.events.emit("PUSH", invite.reciever_id.user42, invite)
+    return invite
   }
 
   @Delete('friend')
@@ -50,14 +48,23 @@ export class InviteController {
 
 
   @Post('friend/invite')
-  async FriendAccept(@Query('invite_id') id: number)
+  async FriendAccept( @GetCurrentUserId() user:number, @Query('id') id: number)
   {
-    return await this.inviteService.AcceptFriend();
+    console.log("accepting rquest " , id)
+    return await this.inviteService.AcceptFriend( user, id);
   }
+
   @Delete('friend/invite')
-  async FriendReject(@Query('invite_id') id: number)
+  async FriendReject( @GetCurrentUserId() user:number,@Query('id') id: number)
   {
-    return await this.inviteService.RejectFriend();
+    try {
+        return  await this.inviteService.RejectFriend(user, id);
+
+    }catch{
+      throw new HttpException("erroc acepring conection", HttpStatus.BAD_REQUEST)
+    }
+    
+
   }
 
 
