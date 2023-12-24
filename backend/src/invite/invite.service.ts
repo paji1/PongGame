@@ -26,7 +26,16 @@ export class InviteService {
         const invites = await this.prisma.invites.findMany({
             where:
             {
-                reciever:userid,
+                OR:
+                [
+                    {
+                        reciever:userid,
+                    },
+                    {
+                        issuer:userid,
+                    }
+
+                ]
             },
             select:
             {
@@ -43,6 +52,13 @@ export class InviteService {
                         user42:true,
                         avatar:true
                     },
+                },
+                reciever_id:
+                {
+                    select:
+                    {
+                        nickname:true,
+                    }
                 },
                 room_id: {
                     select: {
