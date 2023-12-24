@@ -4,14 +4,12 @@ import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { GameUpdateGuard } from 'src/common/guards/game/game-update.guard';
 import { GameFindGuard } from 'src/common/guards/game/game-find.guard';
-import { UserExistGuard } from 'src/common/guards/user/user-exists.guard';
 
 @Controller('game')
 export class GameController {
   constructor(private readonly gameService: GameService) {}
 
 	@Post()
-	@UseGuards(UserExistGuard)
 	async create(@Body() createGameDto: CreateGameDto, @Res() response): Promise<CreateGameDto>{
 
 		try {
