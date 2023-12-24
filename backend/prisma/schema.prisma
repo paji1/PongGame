@@ -11,7 +11,7 @@ model user {
   id                Int             @id @unique @default(autoincrement())
   user42            String          @unique
   nickname          String          @unique
-  avatar            String?
+  avatar            String          @default("https://m.media-amazon.com/images/W/MEDIAX_792452-T2/images/I/71xfa64UP3L.jpg")
   status            String?
   hash              String?
   hashedRt          String?
@@ -38,7 +38,7 @@ model friendship {
   id           Int                @id @unique @default(autoincrement())
   initiator    Int
   reciever     Int
-  
+
   status       relationsip_status
   created_at   DateTime           @default(now())
   initiator_id user               @relation("initiator", fields: [initiator], references: [id])

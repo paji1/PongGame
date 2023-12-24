@@ -9,6 +9,7 @@ export interface INotificaion {
 	created_at: Date,
 	status: NotificationStatus,
 	room_id: room
+	
 }
 
 export enum InviteType {

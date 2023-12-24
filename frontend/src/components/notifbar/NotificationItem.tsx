@@ -56,14 +56,8 @@ const NotificationItem = ({ notif }: { notif: INotificaion }) => {
 				className={`flex lg:mr-3 w-[102px] h-[102px] sm:w-[72px] sm:h-[72px]
 			`}
 			>
-				{/* <img
-					// src={notif.roomename}
-					alt={notif.issuer_id.nickname}
-					className={`
-					border-2 border-solid border-textColor 
-					
-				`} */}
-				{/* /> */}
+				
+				<img src={notif.issuer_id.avatar}></img>
 			</div>
 			<div className={`flex justify-between flex-auto flex-col sm:flex-row gap-2 `}>
 				<div className="flex flex-col gap-1 justify-center">
