@@ -6,29 +6,43 @@ import { PrismaService } from "src/prisma/prisma.service";
 export class MessagesService {
 	constructor(private readonly prisma: PrismaService) {}
 	async send_message(Requester: number, room: number, message: string) {
-		const membership = await this.prisma.rooms_members.findUnique({
-			where: { combination: { userid: Requester, roomid: room } },
-		});
-		if (membership.isblocked || membership.ismuted) throw new HttpException("cant send message", 403);
-		const conv = this.prisma.$transaction(async (t) => {
-			const msg = await t.messages.create({
-				data: {
-					sender_id: Requester,
-					room_id: room,
-					messages: message,
-				},
-			});
-			await t.rooms.update({
-				where: {
-					id: room,
-				},
-				data: {
-					updated_at: msg.created_at,
-				},
-			});
-			return msg;
-		});
-		return conv;
+		try {
+			const conv = this.prisma.$transaction(async (t) => {
+				const msg = await t.messages.create({
+					data: {
+						sender_id: Requester,
+						room_id: room,
+						messages: message,
+					},
+					select:
+					{
+						room_id:true,
+						created_at:true,
+						messages:true,
+						senderid: {
+							select:
+							{
+								id:true,
+								avatar:true,
+								nickname:true,
+							}
+						}
+					}
+				});
+				await t.rooms.update({
+					where: {
+						id: room,
+					},
+					data: {
+						updated_at: msg.created_at,
+					},
+				});
+				return msg;
+			})
+			return conv;
+		} catch (error) {
+			return null
+		}
 	}
 	async get_messages(Requester: number) {
 		const conversation = await this.prisma.rooms.findMany({
@@ -36,6 +50,10 @@ export class MessagesService {
 				rooms_members: {
 					some: {
 						userid: Requester,
+						NOT:
+							{
+								isBanned:true,
+							}
 					},
 				},
 			},
@@ -77,6 +95,36 @@ export class MessagesService {
 					},
 				},
 				select: {
+					messages:
+					{
+						where:
+						{
+							NOT:
+							{
+								roomid:
+								{
+									rooms_members:
+									{
+										some:{
+											userid: id,
+											AND:
+											{
+												isBanned:true,
+											}
+										}
+									}
+								}
+							}
+						},
+						select:
+						{
+							messages:true
+						},
+						orderBy:{
+							created_at:"desc"
+						},
+						take: 1
+					},
 					id: true,
 					name: true,
 					roomtypeof: true,

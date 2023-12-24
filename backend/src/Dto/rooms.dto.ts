@@ -13,6 +13,8 @@ import {
 import { user_permission, roomtype } from "@prisma/client";
 
 export class RoomDto {
+	@IsNumber()
+	room:number;
 	@IsNotEmpty()
 	name: string;
 	@IsEnum(roomtype)
