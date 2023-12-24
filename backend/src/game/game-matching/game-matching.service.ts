@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { EDifficulty, IInviting } from 'src/types.ts/game-matching.interface';
 import { CreateGameInviteDto } from '../dto/create-game-invite.dto';
-import { actionstatus, invitetype } from '@prisma/client';
+import { actionstatus, invitetype, relationsip_status } from '@prisma/client';
 
 
 interface IStoredClient {
@@ -26,27 +26,38 @@ export class GameMatchingService {
 	}
 
 
-	async findFriendByUsername(userID: number, nickname: string): Promise<IInviting | null>
+	async findFriendByID(userID1: number, userID2: number)
 	{
-		const inviting: IInviting[] = await this.prisma.$queryRaw`SELECT
-			u1.id AS user1_id,
-			u1.nickname AS user1_nickname,
-			u2.id AS user2_id,
-			u2.nickname AS user2_nickname
-		FROM
-			(SELECT * FROM "user" WHERE "id" = ${userID}) u1
-		JOIN
-			"friendship" f ON (u1.id = f.initiator OR u1.id = f.reciever)
-		JOIN
-			"user" u2 ON (u2.nickname = ${nickname} AND (u2.id = f.reciever OR u2.id = f.initiator))
-		`
-		if (inviting.length !== 2)
-			throw new Error(`Invite error: Make sure  ${nickname}`)
-		if (inviting[0].user1_id === inviting[0].user2_id)
-			throw new Error(`Invalid invite`)
-		if (inviting[0].user2_nickname !== nickname)
-			throw new Error(`You are unauthorized to send a game invite to ${nickname}`)
-		return inviting[0]
+		const friends = await this.prisma.friendship.findFirst({
+			where: {
+				AND: [
+					{status: relationsip_status.DEFAULT},
+					{
+						OR: [{
+								initiator: userID1,
+								reciever: userID2,
+							}, {
+								initiator: userID2,
+								reciever: userID1
+							}
+						]
+					}
+				],
+			}
+		})
+		console.log('===========>', friends)
+		return friends
+	}
+
+	async findIDByNickname(nickname: string) {
+		return await this.prisma.user.findUnique({
+			select: {
+				id: true
+			},
+			where: {
+				nickname
+			}
+		})
 	}
 
 	async createInvite(invite: CreateGameInviteDto)
@@ -86,21 +97,23 @@ export class GameMatchingService {
 		}
 	}
 
-	async inviteHandler(id: number, nickname: string, difficulty: EDifficulty) {
+	async inviteHandler(id: number, invited: number, difficulty: EDifficulty) {
 		try {
-			const inviting: IInviting | null = await this.findFriendByUsername(id, nickname)
+			const inviting = await this.findFriendByID(id, invited)
+			if (!inviting)
+				throw new Error(`You can't invite this user`)
 			const newNotif: CreateGameInviteDto = {
-				issuer: inviting.user1_id,
-				reciever: inviting.user2_id,
+				issuer: inviting.initiator,
+				reciever: inviting.reciever,
 				status: actionstatus.pending,
 				game_mode: difficulty,
 				type: invitetype.Game
 			}
-			const isNewInvite = await this.isInvitationPending(inviting.user2_id, inviting.user1_id)
+			const isNewInvite = await this.isInvitationPending(inviting.initiator, inviting.reciever)
 			if (!isNewInvite)
 				throw new Error(`This user is already invited`)
 			//TODO: Handle accept / refuse
-			this.createInvite(newNotif)
+			const new_created = await this.createInvite(newNotif)
 			
 		} catch (error) {
 			throw new Error(`${error.message}`)

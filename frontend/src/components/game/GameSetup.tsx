@@ -60,12 +60,10 @@ const ConfigElems = () => {
 	}, [matchingType])
 
 	useEffect(() => {
-		socketCtx.on('game_error', (messgae: string): any  => toast.error(messgae, {
-			className: 'bg-background',
-			bodyClassName: 'text-textColor font-pixelify ',
-			progressClassName: 'bg-errorColor border-errorColor',
-
-		}))
+		socketCtx.on('game_error', (messgae: string): any  => {
+			toast.error(messgae)
+			console.error(messgae)
+		})
 		
 		return (
 			() => {

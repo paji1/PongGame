@@ -31,5 +31,16 @@ export class UsersService {
 			throw new HttpException("failed to fetch user", HttpStatus.BAD_REQUEST);
 		return data;
 	}
-	//   async validate_user()
+
+	async areFriends(user1: number, user2: number)
+	{
+		return await this.prisma.friendship.findFirst({
+			where: {
+				OR: [
+					{initiator: user1, reciever: user2},
+					{initiator: user2, reciever: user1}
+				]
+			}
+		})
+	}
 }

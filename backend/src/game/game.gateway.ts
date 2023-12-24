@@ -9,6 +9,7 @@ import { GameMatchingService } from './game-matching/game-matching.service';
 import { WsValidationExeption } from './filters/ws.exception.filter';
 import { GameService } from './game.service';
 
+
 @WebSocketGateway({transports: ['websocket']})
 @UsePipes(new ValidationPipe())
 @UseFilters(WsValidationExeption)
@@ -24,6 +25,7 @@ export class GameGateway {
 	server: Server
 
 	@SubscribeMessage('matching')
+	
 	async routeMatching(@GetCurrentUserId() id: number, @MessageBody() payload: MatchingGameDto, @ConnectedSocket() client: Socket) {
 		if (payload.matchingType === EMatchingType.INVITE)
 			await this.inviteHandler(id, payload.invite, payload.difficulty)
@@ -37,8 +39,11 @@ export class GameGateway {
 
 	async inviteHandler(id: number, nickname: string, difficulty: EDifficulty)
 	{
-		try { 
-			this.matching.inviteHandler(id, nickname, difficulty)
+		try {
+			const invited = await this.matching.findIDByNickname(nickname)
+			if (!invited)
+				throw new Error('You cannot invite this user')
+			await this.matching.inviteHandler(id, invited.id, difficulty)
 		} catch (error) {
 			this.server.emit('game_error', error.message)
 		}
