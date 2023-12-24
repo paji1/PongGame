@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, relationsip_status } from "@prisma/client";
 import * as DATA from "../csv/MGSData/users.json"
 
 const prisma = new PrismaClient();
@@ -31,6 +31,7 @@ const seedFriendships = async () => {
 				id: friendship['id'],
 				initiator: friendship['initiator'],
 				reciever: friendship['reciever'],
+				status: relationsip_status.DEFAULT
 			}
 		});
 	}

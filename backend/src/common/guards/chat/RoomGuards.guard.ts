@@ -41,7 +41,6 @@ export class RoomGuard implements CanActivate {
         }
         else
             roomid = +request.query["room"]
-        console.log("room guard debug: <<", request.user, reqType, roomid ,">>")
 
 
         if (typeof types !== "undefined")
