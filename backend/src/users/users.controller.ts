@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Post } from '@nestjs/common';
 import { GetCurrentUser, GetCurrentUserId } from 'src/common/decorators';
 import { UsersService } from './users.service';
 
@@ -20,4 +20,7 @@ export class UsersController {
         console.log(users)
 		return users;
     }
+
+    
+
 }
