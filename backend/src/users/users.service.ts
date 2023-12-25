@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service"; // Assuming you have a Prisma service
 import { user } from "@prisma/client";
 import { http } from "winston";
+import { Contains } from "class-validator";
 
 @Injectable()
 export class UsersService {
@@ -31,15 +32,26 @@ export class UsersService {
 			throw new HttpException("failed to fetch user", HttpStatus.BAD_REQUEST);
 		return data;
 	}
+	//   async validate_user()
 
-	async areFriends(user1: number, user2: number)
+
+
+	async getusersbyname( user: number, name:string)
 	{
-		return await this.prisma.friendship.findFirst({
-			where: {
-				OR: [
-					{initiator: user1, reciever: user2},
-					{initiator: user2, reciever: user1}
-				]
+		return await this.prisma.user.findMany({
+			where:
+			{
+				nickname : {contains : name},
+				
+				
+			},
+			select:
+			{
+				id:true,
+				nickname:true,
+				user42:true,
+				avatar:true,
+				created_at:true,
 			}
 		})
 	}

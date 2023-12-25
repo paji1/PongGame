@@ -6,11 +6,12 @@ import { UsersModule } from "./users/users.module";
 import { AtGuard } from "./common/guards";
 import { ConfigModule } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
-import { GameModule } from "./game/game.module";
+import { InviteModule } from "./invite/invite.module";
 import { AppGateway } from './app.gateway';
+import {  EventEmitterModule } from "@nestjs/event-emitter";
 
 @Module({
-	imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, ChatModule, AuthModule, UsersModule, GameModule],
+	imports: [ConfigModule.forRoot({ isGlobal: true }), EventEmitterModule.forRoot() , PrismaModule, ChatModule, AuthModule, UsersModule, InviteModule],
 
 	providers: [
 		

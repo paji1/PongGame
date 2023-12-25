@@ -415,7 +415,38 @@ export class ChatGateway {
 			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
-		this.server.to(identifier).emit("NOTIFY", "you've invited to a room")
+		this.server.to(res.reciever_id.user42).emit("INVITES", res)
+		this.server.to(res.issuer_id.user42).emit("INVITES", res)
+
+
+		}
+		
+		@SubscribeMessage("ROOMACTION")
+		async roomaction(@GetCurrentUser("user42") identifier, @GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message:ActionDTO )
+		{
+			let res;
+			if (Message.What == "ok")
+			{
+				res = await this.service.rooms.acceptinviteRoom(Message.target, id);
+			}
+			if (Message.What == "no")
+				res = await this.service.rooms.rejectroominvite(Message.target, id);
+			if (!res)
+			{
+				client.emit("ChatError", "mamak")
+				return
+			}
+			if (Message.What == "no")
+			{
+				console.log("said no", res)
+				this.server.to(res.issuer_id.user42).emit("INVITES", res);
+				this.server.to(res.reciever_id.user42).emit("INVITES", res);
+				return 
+			}
+			this.server.to(res[0].issuer_id.user42).emit("INVITES", res[0]);
+			this.server.to(res[0].reciever_id.user42).emit("INVITES", res[0]);
+			if (Message.What =="ok")
+				this.server.to(res[0].reciever_id.user42).emit("ACTION", {region: "ROOM", action:"JOIN" , data: res[1].rooms});			
 
 		}
 

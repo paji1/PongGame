@@ -38,9 +38,11 @@ export class RoomGuard implements CanActivate {
         {
             context.switchToWs().getClient().request.headers["user"] = request.user[key2];
             roomid = context.switchToWs().getData().room;
+            console.log(context.switchToWs().getData())
         }
         else
             roomid = +request.query["room"]
+        console.log("room guard debug: <<", request.user, reqType, roomid ,">>")
 
 
         if (typeof types !== "undefined")
@@ -49,12 +51,13 @@ export class RoomGuard implements CanActivate {
                 if (Number.isNaN(roomid))
                     return false;
                 const frdbroom = await this.prisma.rooms.findUnique({where: { id: roomid },});
+                console.log(roomid)
                 if (!frdbroom)
                 {
                     if(reqType==="ws")
-                        context.switchToWs().getClient().emit("ChatError", "room doesnt exist")
+                        context.switchToWs().getClient().emit("ChatError", "room doesnt exist11")
                     else
-                        throw new HttpException("room doesnt exist", HttpStatus.BAD_REQUEST)
+                        throw new HttpException("room doesnt exist1", HttpStatus.BAD_REQUEST)
                     return false;
                 }
                 if (!types.includes(frdbroom.roomtypeof)) {
@@ -75,17 +78,17 @@ export class RoomGuard implements CanActivate {
                 });
                 if (!membership) {
                     if(reqType==="ws")
-                        context.switchToWs().getClient().emit("ChatError", "room doesnt exist")
+                        context.switchToWs().getClient().emit("ChatError", "room doesnt exist2")
                     else
-                        throw new HttpException("room doesnt exist", HttpStatus.BAD_REQUEST)
+                        throw new HttpException("room doesnt exist2", HttpStatus.BAD_REQUEST)
                 return false;
                 }
                 if (!Perms.includes(membership.permission))
                 {
                     if(reqType==="ws")
-                        context.switchToWs().getClient().emit("ChatError", "room doesnt exist")
+                        context.switchToWs().getClient().emit("ChatError", "room doesnt exist3")
                     else
-                        throw new HttpException("room doesnt exist", HttpStatus.BAD_REQUEST)
+                        throw new HttpException("room doesnt exist3", HttpStatus.BAD_REQUEST)
                     return false;
                 }
                 if (typeof userState !== "undefined" )
