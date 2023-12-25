@@ -114,7 +114,7 @@ export class GameMatchingService {
 				throw new Error(`This user is already invited`)
 			//TODO: Handle accept / refuse
 			const new_created = await this.createInvite(newNotif)
-			
+			return newNotif
 		} catch (error) {
 			throw new Error(`${error.message}`)
 		}

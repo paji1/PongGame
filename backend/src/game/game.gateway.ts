@@ -28,7 +28,7 @@ export class GameGateway {
 	
 	async routeMatching(@GetCurrentUserId() id: number, @MessageBody() payload: MatchingGameDto, @ConnectedSocket() client: Socket) {
 		if (payload.matchingType === EMatchingType.INVITE)
-			await this.inviteHandler(id, payload.invite, payload.difficulty)
+			await this.inviteHandler(id, payload.invite, client.id, payload.difficulty)
 		else if (payload.matchingType === EMatchingType.RANDOM)
 			await this.randomQueueingHandler(id, payload.difficulty, client.id)
 		else
@@ -37,13 +37,15 @@ export class GameGateway {
 		}
 	}
 
-	async inviteHandler(id: number, nickname: string, difficulty: EDifficulty)
+	async inviteHandler(id: number, nickname: string, socket_id: string, difficulty: EDifficulty)
 	{
 		try {
 			const invited = await this.matching.findIDByNickname(nickname)
 			if (!invited)
 				throw new Error('You cannot invite this user')
-			await this.matching.inviteHandler(id, invited.id, difficulty)
+			const notifInfo = await this.matching.inviteHandler(id, invited.id, difficulty)
+			const issuer = this.server.sockets.sockets.get(socket_id)
+			issuer.emit('invite_sent', 'invite sent successfully')
 		} catch (error) {
 			this.server.emit('game_error', error.message)
 		}

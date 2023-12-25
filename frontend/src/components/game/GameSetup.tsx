@@ -62,13 +62,17 @@ const ConfigElems = () => {
 	useEffect(() => {
 		socketCtx.on('game_error', (messgae: string): any  => {
 			toast.error(messgae)
-			console.error(messgae)
+		})
+
+		socketCtx.on('invite_sent', (messgae: string) => {
+			toast.success(messgae)
 		})
 		
 		return (
 			() => {
 				socketCtx.off('game_error')
 				socketCtx.off('enter_queue')
+				socketCtx.off('invite_sent')
 			}
 		)
 	}, [])
