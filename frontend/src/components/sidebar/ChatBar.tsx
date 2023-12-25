@@ -82,10 +82,25 @@ const ChatBar = ({
 		}
 	return (
 		<div className="flex flex-col h-full">
-			<div className="bg-white flex flex-row justify-between">
-				<button onClick={() => roomselector(-1)}>rja3lor</button>
-				<button onClick={() => setConfig(true)}> config </button>
-				<button></button>
+			<div className= " flex flex-row justify-between p-2">
+				<button onClick={() => roomselector(-1)}>
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+  					<path d="M16 2V3H14V5H12V7H10V9H8V10H7V11H6V13H7V14H8V15H10V17H12V19H13H14V20V21H16V22H18V19H16V17H14V15H12V13H10V11H12V9H14V7H16V5H18V2H16Z" fill="black"/>
+				</svg>
+				</button>
+				<button onClick={() => setConfig(true)}>
+					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+  						<path d="M11 0H9V3H11V0Z" fill="black"/>
+  						<path d="M4 0H2V7H4V0Z" fill="black"/>
+  						<path d="M11 6V5H9V6H7V8H9V9H11V8H13V6H11Z" fill="black"/>
+  						<path d="M4 10V9H2V10H0V12H2V13H4V12H6V10H4Z" fill="black"/>
+  						<path d="M11 11H9V20H11V11Z" fill="black"/>
+  						<path d="M4 15H2V20H4V15Z" fill="black"/>
+  						<path d="M18 17H16V20H18V17Z" fill="black"/>
+  						<path d="M18 0H16V9H18V0Z" fill="black"/>
+  						<path d="M18 12V11H16V12H14V14H16V15H18V14H20V12H18Z" fill="black"/>
+					</svg>
+				</button>
 			</div>
 			{pajination ?
 			<button onClick={() => getMoreMessages(room?.id)}>more</button>:

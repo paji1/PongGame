@@ -11,6 +11,7 @@ import GameMain from "./components/game";
 import { BrowserRouter, Link, Route, RouterProvider, Routes, createBrowserRouter } from "react-router-dom";
 import Dashboard from "./components/Dashboard/Dashboard";
 import { SearchWindow } from "./Search/Search";
+import { use } from "matter-js";
 
 const getuser = (setuser:any)=>
 	{
@@ -163,6 +164,7 @@ const router = createBrowserRouter([
 const App = () => {
 	const [user, setuser] = useState<CurrentUser | null >(null)
 	const socket = useContext(SocketContext)
+	const [togglebar, settoglebar] = useState(0);
 	if (!user)
 	getuser(setuser)
 	if (user)
@@ -180,8 +182,18 @@ const App = () => {
 				<div>
 				<BrowserRouter>
 					<Navbar />
-					<SideBar />
-					<NotificationBar />
+					{
+						(togglebar === 0 || togglebar === 1) ? 
+						<SideBar toogle={togglebar} settogle={settoglebar}/> :
+						<></>
+
+					}
+					{
+						(togglebar === 0 || togglebar === 2)?
+						<NotificationBar  toogle={togglebar} settogle={settoglebar}/>:
+						<></>
+
+					}
 					<Routes>
 						<Route path="/search"  element={<SearchWindow/>} />
 						<Route path="/" element={<Dashboard/>}/>

@@ -1,1 +1,3 @@
-export const ip= "10.11.7.11:"
+const add ="10.12.9.5"
+console.log(add)
+export const ip= `${add}:`

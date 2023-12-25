@@ -24,9 +24,13 @@ const RoomSettings = ({ returnf, returnbutton, room }: {returnf:any,returnbutton
 		setQuery(object.target.value);
 	};
 	return (
-		<div className="flex flex-col h-full">
-			<div>
-				<button onClick={() => returnbutton(false)}> rja3 lchat </button>
+		<div className="flex flex-col h-full p-2">
+			<div >
+				<button onClick={() => returnbutton(false)}>
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+  					<path d="M16 2V3H14V5H12V7H10V9H8V10H7V11H6V13H7V14H8V15H10V17H12V19H13H14V20V21H16V22H18V19H16V17H14V15H12V13H10V11H12V9H14V7H16V5H18V2H16Z" fill="black"/>
+				</svg>
+					 </button>
 			</div>
 			<div>{thisuser?.permission === "owner" ? <ChangeRoomType room={room} /> : <></>}</div>
 			<div>

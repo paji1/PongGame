@@ -17,7 +17,7 @@ import { currentUser } from "./Context/AuthContext";
 import {  Socket} from 'socket.io-client';
 
 
-const SideBar = () => {
+const SideBar = ({toogle, settogle} : {toogle:number, settogle:any}) => {
 	const socket = useContext(SocketContext);
 	const user = useContext(currentUser)
 	const [isOpen, seIsOpen] = useState(false);
@@ -41,7 +41,7 @@ const SideBar = () => {
 	socket.off("ACTION").on("ACTION", (data) => update(data, roomsState, setRoomsState, chatState, setChatState, user))
 	socket.off("ChatError").on("ChatError", (data) => toast.error(data));
 	socket.off("NOTIFY").on("NOTIFY", (data) => {toast(data)});
-
+	
 	const pajination = (message: roommessages) =>
 	{
 		if (chatState === null)
@@ -59,7 +59,14 @@ const SideBar = () => {
 		newstate[index] = roomessg;
 		setChatState(newstate);
 	} 
-	const toggleChatBar = () => seIsOpen(!isOpen);
+	const toggleChatBar = () => {
+		
+			seIsOpen(!isOpen)
+			if (!isOpen)
+			settogle(1);
+			else
+			settogle(0);
+	}
 	const RenderOption = () => {
 		if (chatSelector !== -1)
 			return (
@@ -88,7 +95,7 @@ const SideBar = () => {
 	return (
 		<>
 			{isOpen && <HoverDiv toggleChatBar={toggleChatBar} />}
-
+			
 			<ToggleSidBar isOpen={isOpen} setIsOpen={toggleChatBar} />
 
 			<section

@@ -31,12 +31,18 @@ const useInvites = (setNotification:any)=>
 	},[]);
 }
 
-const NotificationBar = () => {
+const NotificationBar = ({toogle, settogle} : {toogle:number, settogle:any}) => {
 	const [isOpen, seIsOpen] = useState(false);
 	const [state, setState] = useState(1);
 	const [notification, setNotification] = useState<INotificaion[] | null>(null);
 	const socket = useContext(SocketContext);	
-	const toggleChatBar = () => seIsOpen(!isOpen)
+	const toggleChatBar = () => {
+		seIsOpen(!isOpen)
+		if (!isOpen)
+		settogle(2);
+		else
+		settogle(0);
+	}
 	const user: CurrentUser | null = useContext(currentUser)
 	useInvites(setNotification);
 	socket.off("INVITES").on("INVITES", (data:INotificaion) => 
@@ -51,6 +57,7 @@ const NotificationBar = () => {
 		newnotifstate[index].status = data.status
 		setNotification(newnotifstate)
 	})
+	
 	let invites;
 	if (notification)
 		invites = notification.map((ha, key) => <NotificationItem key={ha.id} notif={ha} />)

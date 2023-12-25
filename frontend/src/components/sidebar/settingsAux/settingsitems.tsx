@@ -88,7 +88,13 @@ export const RoomsettingItem = ({
 					<p>{filter(user.permission)}</p>
 				</div>
 				<div>
-					<button onClick={() => setExpand(!expand)}>{expand ? "less" : "more"} </button>
+					<button onClick={() => setExpand(!expand)}>
+						{expand 
+						? "less" :
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+  							<path d="M19 7V9H17V11H15V13H13V15H11V13H9V11H7V9H5V7H2V9H3V11H5V13H7V15H9V17H10V18H11V19H13V18H14V17H15V15H17V13H19V11H21V9H22V7H19Z" fill="black"/>
+						</svg>} 
+					</button>
 				</div>
 			</div>
 			{more}
