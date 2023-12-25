@@ -90,6 +90,7 @@ export const update = (
                 break ;
             case "JOIN":
                 const room3 = data.data as room
+                console.log(room3);
                 let indexer = newroomState.unshift(room3);
                 getmessages(room3.id, chatState, setchatState);
                 break ;
@@ -105,10 +106,10 @@ export const update = (
 
 const getmessages = (room:number, chatState: roommessages[], setchatState:any ) => 
 {
-    {
+    console.log(room, "mok ka7")
         if (room === undefined)
         {
-            toast.error("la mabghitch")
+            toast.error("la mabghitch men hna")
             return ;
         }
         const data = fetch(`http://${ip}3001/chat/paginate?room=${room}&offset=0`,{
@@ -128,4 +129,3 @@ const getmessages = (room:number, chatState: roommessages[], setchatState:any ) 
     })
     .catch(() => toast.error(`network error`));
     }
-}

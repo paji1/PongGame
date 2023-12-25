@@ -53,7 +53,7 @@ const NotificationBar = () => {
 	})
 	let invites;
 	if (notification)
-		invites = notification.map((ha, key) => <NotificationItem key={key} notif={ha} />)
+		invites = notification.map((ha, key) => <NotificationItem key={ha.id} notif={ha} />)
 	return (
 		<>
 		{isOpen && (<HoverDiv toggleChatBar={toggleChatBar} />)}

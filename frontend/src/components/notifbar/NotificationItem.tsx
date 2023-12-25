@@ -25,18 +25,21 @@ const routeinvites = (what:string, notif:INotificaion,  socket: any) =>
 		if (notif.type ===  InviteType.Friend)
 			AcceptFriend(notif.id)
 		if (notif.type ===  InviteType.Game)
-			AcceptFriend(notif.id)
+			(()=>( console.log("MGS do your logic  here")))()
 		if (notif.type ===  InviteType.Room)
-			socket.emit("ROOMACTION", {room:notif.room_id.id, target:notif.id, what: what})
+			socket.emit("ROOMACTION", {room:notif.room_id.id, target:notif.id, What: what})
 	}
 	if (what == "no")
 	{
 		if (notif.type ===  InviteType.Friend)
 			RejectFriend(notif.id)
 		if (notif.type ===  InviteType.Game)
-			AcceptFriend(notif.id)
+			(()=>( console.log(" MGS do your logic  here ")))()
+		/**
+		 * 
+		 */
 		if (notif.type ===  InviteType.Room)
-		socket.emit("ROOMACTION", {room:notif.room_id.id, target:notif.id, what: what})
+		socket.emit("ROOMACTION", {room:notif.room_id.id, target:notif.id, What: what})
 	}
 
 }
@@ -49,9 +52,9 @@ const NotificationItem = ({ notif }: { notif: INotificaion }) => {
 	let GAME_INVITE = "challenged you to a game";
 	if (user && user.id == notif.issuer_id.id)
 	{
-		 FRIEND_REQUEST = " invited " + notif.reciever_id.nickname;
-		 CHAT_ROOM = " invited " + notif.reciever_id.nickname + "to a chat room";
-		 GAME_INVITE = " chalenged "+ notif.reciever_id.nickname + " to a game";
+		 FRIEND_REQUEST = ": requested  " + notif.reciever_id.nickname + "as a friend";
+		 CHAT_ROOM = ": you invited " + notif.reciever_id.nickname + "to a chat room";
+		 GAME_INVITE = ": you chalenged "+ notif.reciever_id.nickname + " to a game";
 	}
 
 	return (

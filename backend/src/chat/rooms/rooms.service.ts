@@ -4,6 +4,7 @@ import { invitetype, user_permission, roomtype, actionstatus, relationsip_status
 import { createHash } from "crypto";
 import { RoomDto } from "../../Dto/rooms.dto";
 import { error } from "console";
+import { type } from "os";
 
 @Injectable()
 export class RoomsService {
@@ -778,13 +779,14 @@ export class RoomsService {
 	/**
 	 * roomd id:number, issuer: number,affected: number
 	 */
-	async acceptinviteRoom(inviteid: number) {
+	async acceptinviteRoom(inviteid: number, reciever:number) {
 		try {
 			
 			const res = await this.prisma.$transaction(async (trx) => {
 				const data = await trx.invites.update({
 					where: {
 						id: inviteid,
+						reciever:reciever,
 						status: "pending"
 					},
 					data:
@@ -840,31 +842,45 @@ export class RoomsService {
 						rooms: {
 							select: {
 								id: true,
-								name: true,
-								roomtypeof: true,
-								updated_at: true,
-								rooms_members: {
-									select: {
-										id: true,
-										roomid: true,
-										permission: true,
-										isblocked: true,
-										isBanned: true,
-										ismuted: true,
-										created_at: true,
-										user_id: {
-											select: {
-												id: true,
-												nickname: true,
-												avatar: true,
-											},
-										},
-									},
+					name: true,
+					roomtypeof: true,
+					updated_at: true,
+					messages:
+					{
+						select:
+						{
+							messages:true
+						},
+						orderBy:{
+							created_at:"desc"
+						},
+						take: 1
+					},
+					rooms_members:{
+						select:
+						{
+							id: true,
+							roomid: true,
+							permission: true,
+							isblocked: true,
+							isBanned: true,
+							ismuted: true,
+							created_at: true,
+							user_id: {
+								select: {
+									id: true,
+									nickname: true,
+									avatar: true,
 								},
+							},
+						}
+					}
+								
 							},
 						},
 					},
 				});
+				
 				return [data, changes];
 			});
 			return  res;
@@ -919,6 +935,7 @@ export class RoomsService {
                 },
                 room_id: {
                     select: {
+						id:true,
                         name: true
                     }
                 },
@@ -971,7 +988,66 @@ export class RoomsService {
 			}
 		})
 	}
+	async rejectroominvite (invite: number, reciever)
+	{
+
+		try
+		{
+			const res =  await this.prisma.invites.update({
+				where:
+				{
+					id:invite,
+					reciever:reciever,
+					type:"Room",
+					status:"pending"
+				},
+				data:{
+					status:"refused",
+				},
+				select:
+					{
+						id:true,
+						type:true,
+						room:true,
+						reciever:true,
+						created_at:true,
+						status:true,
+						issuer_id:
+						{
+							select:
+							{
+								id:true,
+								nickname:true,
+								user42:true,
+								avatar:true
+							},
+						},
+						reciever_id:
+						{
+							select:
+							{
+								id:true,
+								user42:true,
+								nickname:true,
+							}
+						},
+						room_id: {
+							select: {
+								name: true
+							}
+						},
+					},
+			})
+			return res;
+		}
+		catch(e) {
+			return null
+		}
+	}
 }
+
+
+
 
 /**
  *  	participant
