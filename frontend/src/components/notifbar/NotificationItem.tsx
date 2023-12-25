@@ -3,6 +3,7 @@ import { ip } from "../../network/ipaddr";
 import { INotificaion, InviteType, NotificationStatus } from "../../types/NotificationItem";
 import IUser from "../../types/User";
 import { currentUser } from "../Context/AuthContext";
+import { SocketContext } from "../Context/SocketContext";
 
 const AcceptFriend = async (id: number) =>
 {
@@ -15,30 +16,33 @@ const RejectFriend = async (id:number) =>
 	await fetch(`http://${ip}3001/invite/friend/invite?id=${id}` , { credentials: "include", method: "DELETE" ,});
 }
 
-const routeinvites = (what:string, type: InviteType, id : number) => 
+
+
+const routeinvites = (what:string, notif:INotificaion,  socket: any) => 
 {
 	if (what == "ok")
 	{
-		if (type ===  InviteType.Friend)
-			AcceptFriend(id)
-		if (type ===  InviteType.Game)
-			AcceptFriend(id)
-		if (type ===  InviteType.Room)
-			AcceptFriend(id)
+		if (notif.type ===  InviteType.Friend)
+			AcceptFriend(notif.id)
+		if (notif.type ===  InviteType.Game)
+			AcceptFriend(notif.id)
+		if (notif.type ===  InviteType.Room)
+			socket.emit("ROOMACTION", {room:notif.room_id.id, target:notif.id, what: what})
 	}
 	if (what == "no")
 	{
-		if (type ===  InviteType.Friend)
-			RejectFriend(id)
-		if (type ===  InviteType.Game)
-			AcceptFriend(id)
-		if (type ===  InviteType.Room)
-			AcceptFriend(id)
+		if (notif.type ===  InviteType.Friend)
+			RejectFriend(notif.id)
+		if (notif.type ===  InviteType.Game)
+			AcceptFriend(notif.id)
+		if (notif.type ===  InviteType.Room)
+		socket.emit("ROOMACTION", {room:notif.room_id.id, target:notif.id, what: what})
 	}
 
 }
 const NotificationItem = ({ notif }: { notif: INotificaion }) => {
 	const user = useContext(currentUser)
+	const socket = useContext(SocketContext)
 	
 	let FRIEND_REQUEST = "sent you a friend request";
 	let CHAT_ROOM = "invited you to join the chat room:";
@@ -57,11 +61,11 @@ const NotificationItem = ({ notif }: { notif: INotificaion }) => {
 			`}
 			>
 				
-				<img src={notif.issuer_id.avatar}></img>
+				<img src={ notif.issuer_id.avatar}></img>
 			</div>
 			<div className={`flex justify-between flex-auto flex-col sm:flex-row gap-2 `}>
 				<div className="flex flex-col gap-1 justify-center">
-					<h1 className={`text-lg text-primary `}> {(user?.id == notif.issuer_id.id) ?  notif.status :notif.issuer_id.nickname }</h1>
+					<h1 className={`text-lg text-primary `}> {!( notif.status === NotificationStatus.pending) ?  notif.status :notif.issuer_id.nickname }</h1>
 					<p className="text-sm">
 						{notif.type === InviteType.Friend
 							? notif.issuer_id.nickname + " " + FRIEND_REQUEST
@@ -77,11 +81,8 @@ const NotificationItem = ({ notif }: { notif: INotificaion }) => {
 					className={`grid grid-cols-2 gap-3 content-evenly p-2
 					 `}
 				>
-					{((user?.id == notif.issuer_id.id) || notif.status === NotificationStatus.pending )
-					?
-					<></> :
-					<>
-					<button className="flex items-center justify-center col-1" onClick={() => routeinvites("ok",notif.type, notif.id) }>
+					{
+						(notif.status === NotificationStatus.pending && user?.id != notif.issuer_id.id) ? <> <button className="flex items-center justify-center col-1" onClick={() => routeinvites("ok",notif, socket) }>
 						<svg
 							className={`fill-sucessColor`}
 							width="24"
@@ -93,7 +94,7 @@ const NotificationItem = ({ notif }: { notif: INotificaion }) => {
 							<path d="M20 4V6H18V8H16V10H14V12H12V14H10V16H9V17H7V16H6V14H4V13H2V16H4V18H6V20H7V21H9V20H10V18H12V16H14V14H16V12H18V10H20V8H22V4H20Z" />
 						</svg>
 					</button>
-					<button className="flex items-center justify-center col-1" onClick={() => routeinvites("no",notif.type, notif.id)}>
+					<button className="flex items-center justify-center col-1" onClick={() => routeinvites("no",notif, socket)}>
 						<svg
 							className={`stroke-errorColor`}
 							width="24"
@@ -105,10 +106,15 @@ const NotificationItem = ({ notif }: { notif: INotificaion }) => {
 							<path d="M18 6L6 18" strokeWidth="2" strokeLinecap="square" strokeLinejoin="round" />
 							<path d="M6 6L18 18" strokeWidth="2" strokeLinecap="square" strokeLinejoin="round" />
 						</svg>
-					</button>
-					</>
-			
+					</button></> : null
+				
 					}
+					
+					<div>
+					{
+						user?.id == notif.issuer_id.id  ? <>outgoing</> : <>incoming</>
+					}
+					</div>
 				</div>
 			</div>
 			</div>

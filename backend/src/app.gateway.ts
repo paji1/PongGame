@@ -74,8 +74,10 @@ export class AppGateway {
 
 
 	@OnEvent("PUSH")
-	async informuser(nickname, invite)
+	async informuser(nickname, invite, type)
 	{
+		if ((await this.server.to(nickname).fetchSockets()).length)
+			this.server.to(nickname).emit(type, invite);
 		console.log(nickname, invite)
 	}
 	async getfriends(user:string)

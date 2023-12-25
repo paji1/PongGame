@@ -415,8 +415,32 @@ export class ChatGateway {
 			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
-		this.server.to(identifier).emit("NOTIFY", "you've invited to a room")
+		this.server.to(res.reciever_id.user42).emit("INVITES", res)
+		this.server.to(res.issuer_id.user42).emit("INVITES", res)
 
+
+		}
+		
+		@SubscribeMessage("ROOMACTION")
+		async roomaction(@GetCurrentUser("user42") identifier, @GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message:ActionDTO )
+		{
+			console.log(Message ,"salamcv")
+			let res;
+			if (Message.What == "ok")
+			{
+				res = await this.service.rooms.acceptinviteRoom(Message.target);
+				if (!res)
+				{
+					client.emit("ChatError", "mamak")
+					return
+				}
+				this.server.to(res[0].issuer_id.user42).emit("INVITES", res[0]);
+				this.server.to(res[0].reciever_id.user42).emit("INVITES", res[0]);
+				this.server.to(Message.room.toString()).emit("INVITES", {region: "ROOM", action:"update" , data: res[1]});
+
+			}
+
+			
 		}
 
 }

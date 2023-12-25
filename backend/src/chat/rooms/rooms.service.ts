@@ -782,11 +782,54 @@ export class RoomsService {
 		try {
 			
 			const res = await this.prisma.$transaction(async (trx) => {
-				const data = await trx.invites.findUnique({
+				const data = await trx.invites.update({
 					where: {
 						id: inviteid,
+						status: "pending"
 					},
+					data:
+					{
+						status: "accepted"
+					},
+					select:
+					{
+						id:true,
+						type:true,
+						room:true,
+						reciever:true,
+						created_at:true,
+						status:true,
+						issuer_id:
+						{
+							select:
+							{
+								id:true,
+								nickname:true,
+								user42:true,
+								avatar:true
+							},
+						},
+						reciever_id:
+						{
+							select:
+							{
+								id:true,
+								user42:true,
+								nickname:true,
+							}
+						},
+						room_id: {
+							select: {
+								name: true
+							}
+						},
+					},
+		
 				});
+				const room = await trx.rooms.findUnique({where:{id:data.room}})
+
+				if (room.roomtypeof != roomtype.private)
+					throw new Error("das")
 				const changes  = await trx.rooms_members.create({
 					data: {
 						roomid: data.room,
@@ -822,7 +865,7 @@ export class RoomsService {
 						},
 					},
 				});
-				return changes;
+				return [data, changes];
 			});
 			return  res;
 		} catch (e) {
@@ -849,6 +892,39 @@ export class RoomsService {
 					type: invitetype.Room,
 					status: actionstatus.pending,
 				},
+				select:
+            {
+                id:true,
+                type:true,
+                created_at:true,
+                status:true,
+                issuer_id:
+                {
+                    select:
+                    {
+                        id:true,
+                        nickname:true,
+                        user42:true,
+                        avatar:true
+                    },
+                },
+                reciever_id:
+                {
+                    select:
+                    {
+                        id:true,
+                        user42:true,
+                        nickname:true,
+                    }
+                },
+                room_id: {
+                    select: {
+                        name: true
+                    }
+                },
+            },
+
+				
 			});
 			return invite;
 		} catch (error) {

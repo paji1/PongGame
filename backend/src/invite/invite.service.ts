@@ -9,16 +9,7 @@ import { use } from 'passport';
 export class InviteService {
     constructor(private readonly prisma: PrismaService, private readonly roomservice: RoomsService) {}
 
-    RoomAcceptButton(id :number)
-    {
-        this.roomservice.acceptinviteRoom(id)
-    }
-
-    RoomRejectButton()
-    {
-
-    }
-
+  
    
 
     async getdatainvite(userid:number)
@@ -62,6 +53,7 @@ export class InviteService {
                 },
                 room_id: {
                     select: {
+                        id:true,
                         name: true
                     }
                 },
@@ -69,44 +61,29 @@ export class InviteService {
         })
         return (invites);
     }
-    fdf
-        pending
+
     
 
     async InviteFriend(user:number, friend:number)
     {
         const res = await this.prisma.$transaction(async ( trx) => {
-            const control = await trx.invites.findMany(
+            const control = await trx.friendship.findMany(
                 {
                 where:{
-                    AND:
+                    
+                    OR:
                     [
                         {
-                            OR:
-                            [
-                                {
-                                    type:'Friend',
-                                    status:'pending'
-                                }  ,
-                                {
-                                    type:'Friend',
-                                    status:'accepted'
-                                }
-                            ]
-                        },
+                            reciever: user,
+                            initiator: friend
+                        }
+                        ,
+
                         {
-                        OR:
-                        [
-                            {
-                                issuer:user,
-                                reciever:friend,
-                            },
-                            {
-                                issuer:friend,
-                                reciever: user
-                            }
-                        ]
-                    }
+                            reciever: friend,
+                            initiator: user
+                        },
+
                     ]
                 }})
                 if (control.length)
@@ -132,8 +109,10 @@ export class InviteService {
                     {
                         select:
                         {
-                            user42:true,
-                        },
+                            id:true,
+                            nickname:true,
+                            user42:true
+                        }
                     },
                     room_id: {
                         select: {
@@ -165,14 +144,46 @@ export class InviteService {
                 data:
                 {
                     status:'accepted'
-                }
+                },
+                select:
+            {
+                id:true,
+                type:true,
+                created_at:true,
+                status:true,
+                issuer_id:
+                {
+                    select:
+                    {
+                        id:true,
+                        nickname:true,
+                        user42:true,
+                        avatar:true
+                    },
+                },
+                reciever_id:
+                {
+                    select:
+                    {
+                        id:true,
+                        user42:true,
+                        nickname:true,
+                    }
+                },
+                room_id: {
+                    select: {
+                        name: true
+                    }
+                },
+            },
+
             })
             const lenght = await trx.invites.count({
                 where:
                 {
                     OR:[
-                        {reciever:control.reciever, issuer: control.issuer},
-                        {reciever:control.issuer, issuer: control.reciever},
+                        {reciever:control.reciever_id.id, issuer: control.issuer_id.id},
+                        {reciever:control.issuer_id.id, issuer: control.reciever_id.id},
                     ],
                     status:'accepted',
                     type:'Friend',
@@ -181,14 +192,14 @@ export class InviteService {
             await trx.friendship.create({
                 data:
                 {
-                    initiator: control.issuer,
-                    reciever: control.reciever,
+                    initiator: control.issuer_id.id,
+                    reciever: control.reciever_id.id,
                     status:'DEFAULT'
                 }
             })
             if (lenght > 1)
                 return control;
-            return  await trx.rooms.create(
+              const room = await trx.rooms.create(
                 {
                     data:{
                         roomtypeof:'chat',
@@ -201,23 +212,60 @@ export class InviteService {
                                     {
                                         permission:'chat',
                                         
-                                        userid:control.issuer,
+                                        userid:control.issuer_id.id,
                                     },
                                     {
                                         permission:'chat',
-                                        userid:control.reciever,
+                                        userid:control.reciever_id.id,
                                     },
 
                                 ]
 
                             }
                         }
-                    }
+                    },
+                    select: {
+                        id: true,
+                        name: true,
+                        roomtypeof: true,
+                        updated_at: true,
+                        messages:
+                        {
+                            select:
+                            {
+                                messages:true
+                            },
+                            orderBy:{
+                                created_at:"desc"
+                            },
+                            take: 1
+                        },
+                        rooms_members:{
+                            select:
+                            {
+                                id: true,
+                                roomid: true,
+                                permission: true,
+                                isblocked: true,
+                                isBanned: true,
+                                ismuted: true,
+                                created_at: true,
+                                user_id: {
+                                    select: {
+                                        id: true,
+                                        nickname: true,
+                                        avatar: true,
+                                    },
+                                },
+                            }
+                        }
+                    },
                 }
-            )
+                )
+                return [control, room]
             
         })
-
+        return res
     }
 
     async RejectFriend(user, invite)

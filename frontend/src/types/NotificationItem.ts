@@ -19,7 +19,7 @@ export enum InviteType {
 }
 
 export enum NotificationStatus {
-    pending,
-    accepted,
-    refused
+    pending = "pending",
+    accepted = "accepted",
+    refused = "refused"
 }

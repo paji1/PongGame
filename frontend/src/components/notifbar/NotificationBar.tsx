@@ -41,10 +41,14 @@ const NotificationBar = () => {
 	useInvites(setNotification);
 	socket.off("INVITES").on("INVITES", (data:INotificaion) => 
 	{
-		if (!notification)
+		if (!notification || !data)
 			return ;
 		const newnotifstate = notification.slice();
-		newnotifstate.push(data);
+		const index = newnotifstate.findIndex((not: INotificaion) => not.id === data.id)
+		if (index === -1)
+			newnotifstate.push(data);
+			else
+		newnotifstate[index].status = data.status
 		setNotification(newnotifstate)
 	})
 	let invites;
