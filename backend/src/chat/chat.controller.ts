@@ -20,7 +20,6 @@ export class ChatController {
 
 	@Get("comunication")
 	async humanFetchMessage(@GetCurrentUserId() id:number) {
-		console.log("hi");
 		return await this.service.messages.get_messages(id);
 	}
 	
@@ -48,9 +47,7 @@ export class ChatController {
 	@Get("/search/:user")
     async getQueryrooms(@Param("user") room : string)
     {
-		console.log(room);
 		const rooms = await this.service.rooms.getroomsbyname(room)
-		console.log(rooms)
 		return rooms;
 		// return await this.service.rooms.getroomsbyname(room);
     }

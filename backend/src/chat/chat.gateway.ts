@@ -50,7 +50,6 @@ export class ChatGateway {
 
 	@SubscribeMessage("CREATE")
 	async createroom(@GetCurrentUser("user42") identifier:string,@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: RoomDto) {
-		console.log(room)
 		try
 		{
 			const newroom = await this.service.rooms.create_room(id, room);
@@ -188,8 +187,6 @@ export class ChatGateway {
 	@RoomType(roomtype.protected, roomtype.public, roomtype.private)
 	async kick(@GetCurrentUserId() id:number, @GetCurrentUser("user42") identifier:string ,  @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
 	{
-    console.log(Message , "ja men bra")
-
 		const res =  await this.service.rooms.kick_room(Message.target, Message.room);
 		if (!res)
 		{
@@ -310,8 +307,6 @@ export class ChatGateway {
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async indiwana(@GetCurrentUser("user42") identifier, @GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
 	{
-    console.log(Message , "ja men bra")
-
 		const res = await this.service.rooms.give_room_admin(Message.room, Message.target);
 		if (!res)
 		{
@@ -333,8 +328,6 @@ export class ChatGateway {
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async outdiwana(@GetCurrentUser("user42") identifier, @GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
 	{
-    console.log(Message , "ja men bra")
-
 		const res = await this.service.rooms.revoke_room_admin(Message.room, Message.target);
 		if (!res)
 		{
@@ -371,8 +364,6 @@ export class ChatGateway {
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async deleteroom(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
 	{
-    console.log(Message , "ja men bra")
-
 		const res = await this.service.rooms.delete_room(Message.room);
 		if (!res)
 		{
@@ -390,7 +381,6 @@ export class ChatGateway {
 	@RoomStatus(Roomstattypes.NOTBAN)
 	async inviteroom(@GetCurrentUser("user42") identifier, @GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message:ActionDTO )
 	{
-		console.log(Message)
 		const friend = await this.prisma.user.findUnique({
 			where:{
 				nickname: Message.What
@@ -438,7 +428,6 @@ export class ChatGateway {
 			}
 			if (Message.What == "no")
 			{
-				console.log("said no", res)
 				this.server.to(res.issuer_id.user42).emit("INVITES", res);
 				this.server.to(res.reciever_id.user42).emit("INVITES", res);
 				return 

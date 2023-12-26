@@ -45,7 +45,6 @@ export class GameMatchingService {
 				],
 			}
 		})
-		console.log('===========>', friends)
 		return friends
 	}
 
@@ -70,6 +69,30 @@ export class GameMatchingService {
 					reciever: invite.reciever,
 					issuer: invite.issuer,
 					game_mode: invite.game_mode
+				},
+				select: {
+					status: true,
+					type: true,
+					reciever: true,
+					issuer: true,
+					game_mode: true,
+					issuer_id: {
+						select:
+						{
+							id:true,
+							nickname:true,
+							user42:true,
+							avatar:true
+						},
+					},
+					reciever_id: {
+						select:
+						{
+							id:true,
+							user42:true,
+							nickname:true,
+						}
+					}
 				}
 			})
 		} catch (error) {
@@ -114,7 +137,7 @@ export class GameMatchingService {
 				throw new Error(`This user is already invited`)
 			//TODO: Handle accept / refuse
 			const new_created = await this.createInvite(newNotif)
-			return newNotif
+			return new_created
 		} catch (error) {
 			throw new Error(`${error.message}`)
 		}

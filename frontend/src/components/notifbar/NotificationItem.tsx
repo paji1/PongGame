@@ -8,7 +8,6 @@ import { SocketContext } from "../Context/SocketContext";
 const AcceptFriend = async (id: number) =>
 {
 	const res = await fetch(`http://${ip}3001/invite/friend/invite?id=${id}` , {credentials: 'include', method: "POST"})
-	console.log(res);
 }
 
 const RejectFriend = async (id:number) =>

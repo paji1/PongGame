@@ -23,7 +23,6 @@ const useInvites = (setNotification:any)=>
 			{
 				if (Array.isArray(data))
 					setNotification(data);
-				console.log(data)
 			}
 			).catch((e) => toast.error(e.message));
 		}
@@ -54,7 +53,7 @@ const NotificationBar = ({toogle, settogle} : {toogle:number, settogle:any}) => 
 		if (index === -1)
 			newnotifstate.push(data);
 			else
-		newnotifstate[index].status = data.status
+		     newnotifstate[index].status = data.status
 		setNotification(newnotifstate)
 	})
 	

@@ -74,8 +74,6 @@ export  const SearchWindow = () => {
         .then((data) => data.json())
         .then((data) => 
         {
-            console.log(data)
-            
             if (Array.isArray(data))
             roomstate(data)
     })

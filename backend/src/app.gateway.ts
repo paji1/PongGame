@@ -33,7 +33,6 @@ export class AppGateway {
 	
 	async handleDisconnect(client) {
 		const identifier = client.request.headers["user"]
-		console.log(identifier , "slm cv" , (await this.server.to(identifier).fetchSockets()).length)
 		if (identifier === undefined)
 			return ;
 		if (!(await this.server.to(identifier).fetchSockets()).length)
@@ -46,12 +45,10 @@ export class AppGateway {
 	@SubscribeMessage("HANDSHAKE")
 	async sayHitoserver(@GetCurrentUser("user42") identifier:string, @GetCurrentUser("sub") id:number, @ConnectedSocket() client)
 	{
-		console.log("hi : ", identifier, (await this.server.to(identifier).fetchSockets()).length)
 		client.join(identifier)
 		if ((await this.server.to(identifier).fetchSockets()).length == 1)
 		{
 			const	state = await this.prisma.user.update({where:{user42:identifier,},data:{connection_state: current_state.ONLINE}});
-			console.log("na7wi mok")
 			this.statusnotify.emit("PUSHSTATUS", identifier, state.connection_state)
 		}
 		
@@ -60,16 +57,13 @@ export class AppGateway {
 	@OnEvent('PUSHSTATUS')
 	async notifyALL(user: string, status:string)
 	{
-		console.log("emit event status ", status, "for" , user)
 		const friends = await this.getfriends(user);
 		friends.forEach( async (friend) => 
 		{
-			console.log("emited to ", friend)
 			if((await this.server.to(friend).fetchSockets()).length)
 				this.server.to(friend).emit("ACTION" , {region:"ROOM", action: "status", data: {userh:user, status:status}});
 		}
 	);
-		console.log("emited from chat", user, status)
 	}
 
 
@@ -78,7 +72,6 @@ export class AppGateway {
 	{
 		if ((await this.server.to(nickname).fetchSockets()).length)
 			this.server.to(nickname).emit(type, invite);
-		console.log(nickname, invite)
 	}
 	async getfriends(user:string)
 	{

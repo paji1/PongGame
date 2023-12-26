@@ -12,10 +12,8 @@ const matchingHandler = (difficulty: EDifficulty, matchingType: EMatchingType, s
 		matchingType: matchingType,
 		invite: ''
 	}
-	console.log(`difficulty -> ${difficulty} | matchingType -> ${matchingType} | searchBar.value -> ${searchBar?.value}`)
 	if (matchingType === EMatchingType.INVITE && searchBar)
 		queue.invite = searchBar.value
-	console.log(queue)
 	socketCtx.emit('matching', queue)
 }
 

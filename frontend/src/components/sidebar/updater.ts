@@ -25,7 +25,6 @@ export const update = (
         {
             case "NEW":
                 let newmsg = data.data as messages
-                console.log(newmsg)
                 let index = chatState.findIndex((ob: roommessages) => ob.id === newmsg.room_id)
     		    const msgarray = chatState[index];
     		    if (typeof msgarray.messages === "undefined")
@@ -90,13 +89,11 @@ export const update = (
                 break ;
             case "JOIN":
                 const room3 = data.data as room
-                console.log(room3);
                 let indexer = newroomState.unshift(room3);
                 getmessages(room3.id, chatState, setchatState);
                 break ;
             case "status":
                 const {userh, status } = data.data as {userh:string, status:string };
-                console.log ("dsfdsfdsfds")
                 toast( userh + "  " + status);
 
         }
@@ -106,7 +103,6 @@ export const update = (
 
 const getmessages = (room:number, chatState: roommessages[], setchatState:any ) => 
 {
-    console.log(room, "mok ka7")
         if (room === undefined)
         {
             toast.error("la mabghitch men hna")

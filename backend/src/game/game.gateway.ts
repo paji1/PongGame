@@ -8,6 +8,7 @@ import { MatchingGameDto } from './dto/matching-dto.dto';
 import { GameMatchingService } from './game-matching/game-matching.service';
 import { WsValidationExeption } from './filters/ws.exception.filter';
 import { GameService } from './game.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 
 @WebSocketGateway({transports: ['websocket']})
@@ -18,7 +19,8 @@ export class GameGateway {
 
 	constructor(
 		private readonly matching: GameMatchingService,
-		private readonly gameService: GameService
+		private readonly gameService: GameService,
+		private readonly event: EventEmitter2
 	) { }
 
 	@WebSocketServer()
@@ -33,7 +35,7 @@ export class GameGateway {
 			await this.randomQueueingHandler(id, payload.difficulty, client.id)
 		else
 		{
-			console.log('taqalwa')
+
 		}
 	}
 
@@ -45,7 +47,8 @@ export class GameGateway {
 				throw new Error('You cannot invite this user')
 			const notifInfo = await this.matching.inviteHandler(id, invited.id, difficulty)
 			const issuer = this.server.sockets.sockets.get(socket_id)
-			issuer.emit('invite_sent', 'invite sent successfully')
+			this.event.emit("PUSH", notifInfo.reciever_id.user42, notifInfo, "INVITE")
+			this.event.emit("PUSH", notifInfo.issuer_id.user42, notifInfo, "INVITE")
 		} catch (error) {
 			this.server.emit('game_error', error.message)
 		}
@@ -58,7 +61,6 @@ export class GameGateway {
 			const len = this.matching.getQueueLength(difficulty)
 			if (len >= 2)
 			{
-				console.log(`start queue...`)
 				const id1 = this.matching.getQueueContentAtIndex(0, difficulty)
 				const id2 = this.matching.getQueueContentAtIndex(1, difficulty)
 				const sock1 = this.server.sockets.sockets.get(id1.socket_id)

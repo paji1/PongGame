@@ -20,7 +20,6 @@ export const ChangeRoomType = ({ room }: { room: room | null }) => {
 			name: name,
 			type: type,
 		};
-		console.log()
 		socket.emit("MOD", roomform)
 
         toast.error("youforgot to set")
