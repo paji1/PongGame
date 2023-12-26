@@ -22,10 +22,11 @@ type member_filler = {
 };
 
 export type room = {
-	messages: string
+	messages: messages[],
+	preview: string,
 	id: number;
 	name: string;
 	roomtypeof: string;
 	rooms_members: member[];
-	created_at: Date;
+	created_at: string;
 };

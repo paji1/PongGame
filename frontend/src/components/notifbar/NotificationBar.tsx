@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useContext } from "react"
 import { ToggleButton } from "./ToggleButton"
 import { HoverDiv } from "../Common"
@@ -6,29 +6,61 @@ import { CurrentUser, currentUser } from "../Context/AuthContext"
 import profileplaceholder from "../../assets/profileplaceholder.png"
 import NotificationItem from "./NotificationItem"
 import { INotificaion, InviteType } from "../../types/NotificationItem"
+import { toast } from "react-toastify"
+import { ip } from "../../network/ipaddr"
+import { SocketContext } from "../Context/SocketContext"
 
 
+const useInvites = (setNotification:any)=>
+{
+	useEffect (() =>
+	{
+		const fetchData = async () =>
+		{
+			fetch(`http://${ip}3001/invite`, {credentials: "include"})
+			.then((data)=> data.json())
+			.then((data) =>
+			{
+				if (Array.isArray(data))
+					setNotification(data);
+				console.log(data)
+			}
+			).catch((e) => toast.error(e.message));
+		}
+		fetchData();
+	},[]);
+}
 
-const NotificationBar = () => {
-	const [isOpen, seIsOpen] = useState(false)
-	const [ state, setState ] = useState(1)
-
-	const notif: INotificaion = {
-		initiator : {
-			id: 1,
-            nickname: "John",
-			user42: "MGS",
-            avatar: profileplaceholder
-		},
-		inviteDate: new Date(),
-		inviteType: InviteType.GAME,
-		status: 1
+const NotificationBar = ({toogle, settogle} : {toogle:number, settogle:any}) => {
+	const [isOpen, seIsOpen] = useState(false);
+	const [state, setState] = useState(1);
+	const [notification, setNotification] = useState<INotificaion[] | null>(null);
+	const socket = useContext(SocketContext);	
+	const toggleChatBar = () => {
+		seIsOpen(!isOpen)
+		if (!isOpen)
+		settogle(2);
+		else
+		settogle(0);
 	}
-
-	const toggleChatBar = () => seIsOpen(!isOpen)
-
 	const user: CurrentUser | null = useContext(currentUser)
-
+	useInvites(setNotification);
+	socket.off("INVITES").on("INVITES", (data:INotificaion) => 
+	{
+		if (!notification || !data)
+			return ;
+		const newnotifstate = notification.slice();
+		const index = newnotifstate.findIndex((not: INotificaion) => not.id === data.id)
+		if (index === -1)
+			newnotifstate.push(data);
+			else
+		newnotifstate[index].status = data.status
+		setNotification(newnotifstate)
+	})
+	
+	let invites;
+	if (notification)
+		invites = notification.map((ha, key) => <NotificationItem key={ha.id} notif={ha} />)
 	return (
 		<>
 		{isOpen && (<HoverDiv toggleChatBar={toggleChatBar} />)}
@@ -71,23 +103,7 @@ const NotificationBar = () => {
 				<hr className="my-1 h-0.5 border-t-0 bg-textColor opacity-100" />
 
 				<div className={`flex flex-col flex-1 py-3 min-h-[100px] gap-2 px-2 sm:px-3 overflow-y-scroll`}>
-
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					<NotificationItem notif={notif} />
-					
+					{invites}
 				</div>
 
 			</div>

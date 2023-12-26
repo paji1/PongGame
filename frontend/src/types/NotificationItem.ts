@@ -1,20 +1,25 @@
 import IUser from "./User"
+import { room } from "./room"
 
 export interface INotificaion {
-	inviteType: InviteType,
-	initiator: IUser,
-	inviteDate: Date,
-	status: NotificationStatus
+	id : number
+	type: InviteType,
+	issuer_id: IUser,
+	reciever_id:IUser,
+	created_at: Date,
+	status: NotificationStatus,
+	room_id: room
+	
 }
 
 export enum InviteType {
-	GAME,
-	ROOM,
-	FRIEND
+	Friend = 'Friend',
+	Game = 'Game',
+	Room = 'Room'
 }
 
 export enum NotificationStatus {
-    PENDING,
-    ACCEPTED,
-    DECLINED
+    pending = "pending",
+    accepted = "accepted",
+    refused = "refused"
 }

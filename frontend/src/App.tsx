@@ -2,14 +2,16 @@ import { ToastContainer, toast } from "react-toastify";
 import Navbar from "./components/Navbar";
 import SideBar from "./components/SideBar";
 import NotificationBar from "./components/notifbar/NotificationBar";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { currentUser, CurrentUser } from "./components/Context/AuthContext";
 import { log } from "console";
 import { ip } from "./network/ipaddr";
 import { SocketContext } from "./components/Context/SocketContext";
 import GameMain from "./components/game";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { BrowserRouter, Link, Route, RouterProvider, Routes, createBrowserRouter } from "react-router-dom";
 import Dashboard from "./components/Dashboard/Dashboard";
+import { SearchWindow } from "./Search/Search";
+import { use } from "matter-js";
 
 const getuser = (setuser:any)=>
 	{
@@ -34,8 +36,6 @@ const Signup = () =>
 	const setpass = (e: any) => setPassword(e.target.value);
 	const signup = async () => {
 	
-console.log("signup", username, password)
-
 		const res = await fetch("http://" + ip + "3001/auth/local/signup", {
 			method: "POST"
 			, headers: { "Content-Type": "application/json" }
@@ -51,7 +51,6 @@ console.log("signup", username, password)
 
 	const submitQuery = async (e: any) => {
 		e.preventDefault();
-		console.log('testiiiing')
 		await signup()
 	};
 	return (
@@ -114,7 +113,10 @@ const Signin = ({setUser} : {setUser: any}) =>
 		getuser(setuser)
 	};
 	return (
+		<>
+		<button onClick={() => window.location.replace(`http://${ip}3001/auth/intra/login`)} className="btn btn-primary">intra</button>
 		<form>
+
 			signin
 			<div className={`flex items-start h-fill`}>
 				<input
@@ -124,7 +126,7 @@ const Signin = ({setUser} : {setUser: any}) =>
 					value={username}
 					placeholder="enter username."
 					required
-				></input>
+					></input>
 					<input
 					type="search"
 					id="search-dropdown"
@@ -133,14 +135,15 @@ const Signin = ({setUser} : {setUser: any}) =>
 					
 					placeholder="enter password"
 					required
-				></input>
+					></input>
 				<button
 					onClick={submitQuery}
-				>
+					>
 					login
 				</button>
 			</div>
 		</form>
+</>
 	);
 }
 
@@ -157,33 +160,56 @@ const router = createBrowserRouter([
 	}
 ])
 
+
 const App = () => {
 	const [user, setuser] = useState<CurrentUser | null >(null)
 	const socket = useContext(SocketContext)
+	const [togglebar, settoglebar] = useState(0);
 	if (!user)
-		getuser(setuser)
+	getuser(setuser)
 	if (user)
-		{
-			socket.connect()
-			socket.emit("init", {})
-		}
+	{
+		socket.connect()
+	}
+
+	socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."))
 	return (
+		
 		<div>
+			<ToastContainer />
 			{user ?
-					<currentUser.Provider value={user}>
+			<currentUser.Provider value={user}>
+				<div>
+				<BrowserRouter>
 					<Navbar />
-					<SideBar />
-					<NotificationBar />
-					<RouterProvider router={router} />
-					<ToastContainer />
+					{
+						(togglebar === 0 || togglebar === 1) ? 
+						<SideBar toogle={togglebar} settogle={settoglebar}/> :
+						<></>
+
+					}
+					{
+						(togglebar === 0 || togglebar === 2)?
+						<NotificationBar  toogle={togglebar} settogle={settoglebar}/>:
+						<></>
+
+					}
+					<Routes>
+						<Route path="/search"  element={<SearchWindow/>} />
+						<Route path="/" element={<Dashboard/>}/>
+						<Route path="/game" element={<GameMain/>}/>
+					</Routes>
+				</BrowserRouter >
+				</div>
 				</currentUser.Provider > :
 			 <>
 			 	<Signup  />
 			 	<Signin setUser={setuser} />
-			 </>
+			 </> 
 			}
 			
 		</div>
+
 	);
 };
 
