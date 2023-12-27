@@ -102,7 +102,9 @@ export class AuthController {
 
 	@Post("hello")
 	@HttpCode(HttpStatus.OK)
-	hello() {
+	hello(@GetCurrentUser() papylod : any) {
+			
+		console.log(papylod);
 		return { hello: "hello" };
 	}
 

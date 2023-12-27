@@ -48,7 +48,7 @@ export class intraStrategy extends PassportStrategy(Strategy, "intra") {
 						avatar: user.image.link,
 					};
 					// console.log("Fetched User Details:", dtoIntra);
-					user.dtoIntra = dtoIntra; 
+					user.dtoIntra = dtoIntra;
 					return done(null, user.dtoIntra);
 				})
 				.catch((error) => {

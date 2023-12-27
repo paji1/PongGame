@@ -17,21 +17,23 @@
         args:
         - NODE_ENV=development
         context: backend
-        target: development
+        target: dev-envs
       command: "npm run t:d" 
       env_file:
       - .env
       ports:
         - 3001:8001
-        # - 5555:5555
+        - 5555:5555
       volumes:
         - ./backend/src:/code/src:rw
-        - back-notused:/code/prisma/migrations
+        - ./backend/prisma:/code/prisma
+        - ./backend/prisma/migrations:/code/prisma/migrations
         - back-notused:/opt/app/node_modules
       networks:
         - client-side
         - server-side
       depends_on:
+        # - prisma
         - db
 
     db:
@@ -46,25 +48,22 @@
         - 5432:5432
       volumes:
         - db-data:/var/lib/postgresql/data
+
     # prisma:
-    #   image: prismagraphql/prisma:1.34
-    #   restart: always
-    #   ports:
-    #     - '4466:4466'
-    #   networks:
-    #     - server-side
-    #   environment:
-    #     PRISMA_CONFIG: |
-    #       port: 4466
-    #       databases:
-    #         default:
-    #           connector: postgres
-    #           host: db
-    #           port: 5432
-    #           user: postgres
-    #           password: mysecretpassword
-    #   depends_on:
-    #     - db
+    #     container_name: prisma
+    #     image: node:20.6.1
+    #     working_dir: /code
+    #     tty: true
+    #     volumes:
+    #         - ./backend:/code
+    #         - ./backend/prisma/seed/seed.sh:/code/seed.sh:rw
+    #     env_file:
+    #         - .env
+    #     command: sh seed.sh  && sleep 50 && echo 'Task finished. Shutting down...' && sleep 20"
+    #     networks:
+    #       - server-side
+    #     depends_on:
+    #         - db
     pgadmin:
       container_name: "pp"
       image: dpage/pgadmin4
