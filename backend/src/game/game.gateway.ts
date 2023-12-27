@@ -46,7 +46,6 @@ export class GameGateway {
 			if (!invited)
 				throw new Error('You cannot invite this user')
 			const notifInfo = await this.matching.inviteHandler(id, invited.id, difficulty)
-			const issuer = this.server.sockets.sockets.get(socket_id)
 			this.event.emit("PUSH", notifInfo.reciever_id.user42, notifInfo, "INVITE")
 			this.event.emit("PUSH", notifInfo.issuer_id.user42, notifInfo, "INVITE")
 		} catch (error) {

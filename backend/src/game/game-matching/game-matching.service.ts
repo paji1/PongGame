@@ -133,7 +133,8 @@ export class GameMatchingService {
 				type: invitetype.Game
 			}
 			const isNewInvite = await this.isInvitationPending(inviting.initiator, inviting.reciever)
-			if (!isNewInvite)
+			console.log('----->', isNewInvite)
+			if (isNewInvite)
 				throw new Error(`This user is already invited`)
 			//TODO: Handle accept / refuse
 			const new_created = await this.createInvite(newNotif)
