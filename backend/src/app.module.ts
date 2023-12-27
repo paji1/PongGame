@@ -9,9 +9,10 @@ import { APP_GUARD } from "@nestjs/core";
 import { InviteModule } from "./invite/invite.module";
 import { AppGateway } from './app.gateway';
 import {  EventEmitterModule } from "@nestjs/event-emitter";
+import { GameModule } from "./game/game.module";
 
 @Module({
-	imports: [ConfigModule.forRoot({ isGlobal: true }), EventEmitterModule.forRoot() , PrismaModule, ChatModule, AuthModule, UsersModule, InviteModule],
+	imports: [ConfigModule.forRoot({ isGlobal: true }), EventEmitterModule.forRoot() , PrismaModule, GameModule, ChatModule, AuthModule, UsersModule, InviteModule],
 
 	providers: [
 		

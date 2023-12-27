@@ -3,7 +3,7 @@ import { EDifficulty, EMatchingType, IQueue, ADifficultyHandle, AMatchingHandle,
 import Lottie from "lottie-web"
 import { SocketContext } from "../Context/SocketContext"
 import { Socket } from "socket.io-client"
-import { ToastContainer, toast } from "react-toastify"
+import { toast } from "react-toastify"
 
 
 const matchingHandler = (difficulty: EDifficulty, matchingType: EMatchingType, searchBar: HTMLInputElement | null, socketCtx: Socket) => {
