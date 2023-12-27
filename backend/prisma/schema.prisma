@@ -38,7 +38,6 @@ model friendship {
   id           Int                @id @unique @default(autoincrement())
   initiator    Int
   reciever     Int
-
   status       relationsip_status
   created_at   DateTime           @default(now())
   initiator_id user               @relation("initiator", fields: [initiator], references: [id])
@@ -53,6 +52,8 @@ model matchhistory {
   player2    Int
   score1     Int        @default(0)
   score2     Int        @default(0)
+  winner_id  Int        @default(-1)
+  loser_id   Int        @default(-1)
   mode       game_modes @default(EASY)
   state      game_state @default(PENDING)
   created_at DateTime   @default(now())
