@@ -17,7 +17,7 @@
 # npx --yes prisma migrate dev
 # npm install -g ts-node 
 expect <<EOF
-  spawn npx --yes prisma migrate deploy --name init
+  spawn npx --yes prisma migrate dev --name init
   expect {
     "We need to reset the \"public\" schema" {
       send "yes\r"
@@ -33,6 +33,7 @@ expect <<EOF
 EOF
 # npx --yes prisma db seed
 # echo "seeding users ..."
+npx prisma migrate deploy
 ts-node /code/prisma/seed/scripts/userseeder.ts
 echo "seeding levels ..."
 ts-node /code/prisma/seed/scripts/levelsseeder.ts
@@ -42,6 +43,5 @@ echo "seeding rooms participants ..."
 ts-node /code/prisma/seed/scripts/room_parts.ts
 echo "seeding messages ..."
 ts-node /code/prisma/seed/scripts/messageseeder.ts
-# npx prisma studio --schema='/code/prisma/schema.prisma'
 # npx --yes prisma db seed
 # fi
