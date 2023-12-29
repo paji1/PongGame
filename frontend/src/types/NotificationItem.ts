@@ -1,3 +1,4 @@
+import { EDifficulty } from "../components/Context/QueueingContext"
 import IUser from "./User"
 import { room } from "./room"
 
@@ -8,8 +9,9 @@ export interface INotificaion {
 	reciever_id:IUser,
 	created_at: Date,
 	status: NotificationStatus,
-	room_id: room
-	
+	room_id: room,
+	game_id: string
+	difficulty: EDifficulty
 }
 
 export enum InviteType {
