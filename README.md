@@ -1,116 +1,82 @@
-# ft_transcendence
+## Compose sample application
 
-## Table of Contents
-- [Overview](#overview)
-- [Technical Stack](#technical-stack)
-- [Security](#security)
-- [User Account](#user-account)
-- [Chat](#chat)
-- [Game](#game)
-- [Docker Deployment](#docker-deployment)
-- [Contributors](#contributors)
+### Use with Docker Development Environments
 
----
+You can open this sample in the Dev Environments feature of Docker Desktop version 4.12 or later.
 
-## Overview
+[Open in Docker Dev Environments <img src="../open_in_new.svg" alt="Open in Docker Dev Environments" align="top"/>](https://open.docker.com/dashboard/dev-envs?url=https://github.com/docker/awesome-compose/tree/master/react-rust-postgres)
 
-"ft_trancesandance" is the last student projectin 42Network common core, a web-based Pong contest platform that enables users to play Pong with others in real-time, offering a rich user interface, a chat feature, and multiplayer online games. The project adheres to specific rules and security considerations to ensure a secure and enjoyable gaming experience.
+### React application with a Rust backend and a Postgresql database
 
----
+Project structure:
+```
+.
+├── backend
+│   ├── Dockerfile
+│   ...
+├── compose.yaml
+├── frontend
+│   ├── ...
+│   └── Dockerfile
+└── README.md
+```
 
-## Technical Stack
+[_compose.yaml_](compose.yaml)
+```
+services:
+  backend:
+    build: backend
+    ...
+  db:
+    image: postgres:12-alpine
+    ...
+  frontend:
+    build: frontend
+    ports:
+    - 3000:3000
+    ...
+```
+The compose file defines an application with three services `frontend`, `backend` and `db`.
+When deploying the application, docker compose maps port 3000 of the frontend service container to port 3000 of the host as specified in the file.
+Make sure port 3000 on the host is not already being in use.
 
-- **Backend**: NestJS
-- **Frontend**: TypeScript / ReactJS
-- **Database**: PostgreSQL
-- **Deployment**: Docker and Docker Compose
+## Deploy with docker compose
 
-To ensure the project's stability and security, the latest stable versions of libraries and frameworks are used. The application is designed as a single-page application to support browser navigation. Compatibility is maintained with the latest stable Google Chrome and an additional web browser.
+```
+$ docker compose up -d
+Creating network "react-rust-postgres_default" with the default driver
+Building backend
+...
+Successfully tagged react-rust-postgres_frontend:latest
+WARNING: Image for service frontend was built because it did not already exist. To rebuild this image you must use `docker-compose build` or `docker-compose up --build`.
+Creating react-rust-postgres_frontend_1 ... done
+Creating react-rust-postgres_db_1       ... done
+Creating react-rust-postgres_backend_1  ... done
+```
 
----
+## Expected result
 
-## Security
+Listing containers must show three containers running and the port mapping as below:
+```
+$ docker ps
+CONTAINER ID        IMAGE                          COMMAND                  CREATED             STATUS              PORTS                    NAMES
+30b7d9dc4898        react-rust-postgres_backend    "cargo run --offline"    37 seconds ago      Up 35 seconds       8000/tcp                 react-rust-postgres_backend_1
+0bca0cb682b8        react-rust-postgres_frontend   "docker-entrypoint.s…"   42 seconds ago      Up 41 seconds       0.0.0.0:3000->3000/tcp   react-rust-postgres_frontend_1
+1611961bf3d1        postgres:12-alpine             "docker-entrypoint.s…"   42 seconds ago      Up 36 seconds       0.0.0.0:5432->5432/tcp   react-rust-postgres_db_1
+```
 
-Security is a top priority in this project, and the following measures have been implemented:
+After the application starts, navigate to `http://localhost:3000` in your web browser to get a colorful message.
 
-- Passwords stored in the database are securely hashed.
-- Protection against SQL injections is in place.
-- Server-side validation for forms and user input is implemented.
-- Sensitive information such as credentials and API keys are stored locally in a `.env` file and are ignored by Git to prevent exposure.
+![page](./capture.png)
 
----
-
-## User Account
-
-- Users can log in using the OAuth system of 42 intranet.
-- Customizable display names and avatars are available.
-- Two-factor authentication options are supported.
-- Users can add friends, view their status, and access their profiles.
-- User profiles display stats, including wins, losses, ladder level, and achievements.
-- Match History is available for review, including 1v1 games and ladder matches.
-
----
-
-## Chat
-
-The chat functionality includes the following features:
-
-- Users can create public, private, or password-protected channels.
-- Direct messaging between users is supported.
-- Blocking other users is possible.
-- Channel owners have control over channel access and permissions.
-- Users can invite others to play Pong games through chat.
-- Player profiles can be accessed through the chat interface.
-
----
-
-## Game
-
-The core feature of this website is live Pong gameplay:
-
-- Users can play live Pong games against each other on the website.
-- A matchmaking system allows users to queue and find opponents.
-- The Pong game can be customized with options like power-ups and different maps.
-- A default version of the game without extra features is available for those who prefer it.
-- The game is designed to be responsive, considering network issues like disconnections and lag for a seamless user experience.
-
-
----
-
-## Docker Deployment
-
-### Prerequisites
-
-Before deploying the project, ensure you have the following prerequisites installed:
-
-- **Docker**: Make sure Docker is installed on your system.
-
-### Running the Project with Docker
-
-To simplify the deployment process, we've provided a `Makefile` that automates various tasks. Follow these steps to launch the project:
-
-1. Clone the repository to your local machine:
-
-   ```bash
-   git clone https://github.com/your-username/ft_trancesandance.git
-   cd ft_trancesandance
-   ```
-
-2. Create a ``.env`` file in the project root directory to store sensitive credentials and configurations. Be sure to include the necessary environment variables as specified in the project requirements.
-
-3. Build and start the Docker containers using ``make``:
-   ```bash
-   make start
-   ```
-This command will initialize the backend, frontend, and database containers, ensuring that all dependencies are set up and running.
-
-4. Once the containers are up and running, you can access the website by opening a web browser and navigating to http://localhost:81 
----
-
-## Contributors
-
-- [Taha El Mouhajir](https://github.com/paji1)
-- [Soufiane Elkhamlichi](https://github.com/MGS15)
-- [Mahmoud Meziani](https://github.com/7ach7ouch101)
-- [Ouail Zahir](https://github.com/waelzahir)
-- [Aeymne Echafii](https://github.com/Aymane-1)
+Stop and remove the containers
+```
+$ docker compose down
+Stopping react-rust-postgres_backend_1  ... done
+Stopping react-rust-postgres_frontend_1 ... done
+Stopping react-rust-postgres_db_1       ... done
+Removing react-rust-postgres_backend_1  ... done
+Removing react-rust-postgres_frontend_1 ... done
+Removing react-rust-postgres_db_1       ... done
+Removing network react-rust-postgres_default
+```

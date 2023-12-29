@@ -1,56 +1,190 @@
-import { HttpException, Injectable } from "@nestjs/common";
+import { HttpCode, HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { count } from "console";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
 export class MessagesService {
 	constructor(private readonly prisma: PrismaService) {}
-	async send_message(pid, rid, message: string) {
-		const membership = await this.prisma.rooms_members.findFirst({
-			where: { AND: [{ roomid: Number(rid) }, { userid: Number(pid) }] },
-		});
-		if (!membership || membership.isblocked || membership.ismuted)
-			throw new HttpException("cant send message", 403);
-		if (!message.length) throw new HttpException("Not Acceptable", 406);
-		const msg = await this.prisma.messages.create({
-			data: {
-				room_id: Number(rid),
-				sender_id: Number(pid),
-				messages: message,
-			},
-		});
-		return msg;
+	async send_message(Requester: number, room: number, message: string) {
+		try {
+			const conv = this.prisma.$transaction(async (t) => {
+				const msg = await t.messages.create({
+					data: {
+						sender_id: Requester,
+						room_id: room,
+						messages: message,
+					},
+					select:
+					{
+						room_id:true,
+						created_at:true,
+						messages:true,
+						senderid: {
+							select:
+							{
+								id:true,
+								avatar:true,
+								nickname:true,
+							}
+						}
+					}
+				});
+				await t.rooms.update({
+					where: {
+						id: room,
+					},
+					data: {
+						updated_at: msg.created_at,
+					},
+				});
+				return msg;
+			})
+			return conv;
+		} catch (error) {
+			return null
+		}
 	}
-	async get_messages(pid, rid) {
-		const membership = await this.prisma.rooms_members.findFirst({
-			where: { AND: [{ roomid: Number(rid) }, { userid: Number(pid) }] },
-		});
-		if (!membership || membership.isblocked) throw new HttpException("Unauthorized", 401);
-		const conversation = await this.prisma.messages.findMany({
+	async get_messages(Requester: number) {
+		const conversation = await this.prisma.rooms.findMany({
 			where: {
-				room_id: rid,
-			},
-		});
-		console.log(conversation);
-		return conversation;
-	}
-	async get_rooms(id: number) {
-		const data = await this.prisma.rooms_members.findMany({
-			where: {
-				userid: id,
-			},
-			select: {
-				rooms: {
-					select: {
-						rooms_members: true,
-						id: true,
-						name: true,
-						roomtypeof: true,
-						created_at: true,
+				rooms_members: {
+					some: {
+						userid: Requester,
+						NOT:
+							{
+								isBanned:true,
+							}
 					},
 				},
 			},
+			select: {
+				id: true,
+				messages: {
+					select: {
+						created_at: true,
+						messages: true,
+						senderid: {
+							select: {
+								id: true,
+								nickname: true,
+								avatar: true,
+							},
+						},
+					},
+					orderBy: {
+						created_at: "desc",
+					},
+					take: 30,
+				},
+			},
+			orderBy: {
+				updated_at: "desc",
+			},
 		});
-		return data;
+		return conversation;
+	}
+
+	async get_rooms(id: number) {
+		try {
+			const data = await this.prisma.rooms.findMany({
+				where: {
+					rooms_members: {
+						some: {
+							userid: id,
+						},
+					},
+				},
+				select: {
+					messages:
+					{
+						where:
+						{
+							NOT:
+							{
+								roomid:
+								{
+									rooms_members:
+									{
+										some:{
+											userid: id,
+											AND:
+											{
+												isBanned:true,
+											}
+										}
+									}
+								}
+							}
+						},
+						select:
+						{
+							messages:true
+						},
+						orderBy:{
+							created_at:"desc"
+						},
+						take: 1
+					},
+					id: true,
+					name: true,
+					roomtypeof: true,
+					updated_at: true,
+					rooms_members: {
+						select: {
+							id: true,
+							roomid: true,
+							permission: true,
+							isblocked: true,
+							isBanned: true,
+							ismuted: true,
+							created_at: true,
+							user_id: {
+								select: {
+									id: true,
+									nickname: true,
+									avatar: true,
+								},
+							},
+						},
+					},
+				},
+			});
+			return data;
+		} catch {
+			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
+		}
+	}
+
+	async satisfy(Requester : number, room: number, ofsset:number)
+	{
+		const conversation = await this.prisma.rooms.findUnique({
+			where: {
+					id: room,		
+			},
+			select: {
+				id: true,
+				messages: {
+					select: {
+						created_at: true,
+						messages: true,
+						senderid: {
+							select: {
+								id: true,
+								nickname: true,
+								avatar: true,
+							},
+						},
+					},
+					orderBy: {
+						created_at: "desc",
+					},
+					take: 30,
+					skip: ofsset
+				},
+			},
+					
+
+		});
+		return conversation;
 	}
 }

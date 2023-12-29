@@ -11,6 +11,8 @@
         - 3000:3000
       volumes:
         - ./frontend/src:/code/src:ro
+      env_file:
+        - .env
     backend:
       container_name: "bb"
       build:
