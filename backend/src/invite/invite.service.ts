@@ -197,7 +197,7 @@ export class InviteService {
                     status:'DEFAULT'
                 }
             })
-            if (lenght > 1)
+            if (lenght > 0)
                 return control;
               const room = await trx.rooms.create(
                 {
@@ -285,6 +285,20 @@ export class InviteService {
             
         )
     }
+
+	async acceptGameInvite(current_user: number, id: number) {
+		return await this.prisma.invites.update({
+			where: {
+				id: id,
+				reciever: current_user,
+				status: actionstatus.pending,
+				type: invitetype.Game
+			},
+			data: {
+				status: actionstatus.accepted,
+			}
+		})
+	}
 }
 
 
