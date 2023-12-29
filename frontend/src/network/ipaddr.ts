@@ -1,2 +1,2 @@
-const add ="10.12.10.4"
+const add ="localhost"
 export const ip= `${add}:`

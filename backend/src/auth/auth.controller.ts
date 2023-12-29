@@ -45,11 +45,10 @@ export class AuthController {
 	@Public()
 	@Post("local/signin")
 	@HttpCode(HttpStatus.OK)
-	async signinLocal(@Body() dto: AuthDto, @Res() res: Response): Promise<void> {
+	async signinLocal(@Body() dto: AuthDto, @Res() res: Response): Promise<any> {
 		const tokens = await this.authService.signinLocal(dto);
-		console.log(dto);
-		
-		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
+		console.log("hello");
+		return (await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}
 
 	@Public()

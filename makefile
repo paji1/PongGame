@@ -44,7 +44,7 @@ build:
 
 prisma:
 	docker-compose exec backend npx --yes prisma generate
-	docker-compose exec  backend bash /code/prisma/seed/seed.sh
+	-docker-compose exec  backend bash /code/prisma/seed/seed.sh
 	docker-compose exec  -d backend npx --yes prisma studio --port 5555 
 
 
