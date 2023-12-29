@@ -12,6 +12,20 @@ import FriendSetting from "./FriendSetting";
 import { ip } from "../../network/ipaddr";
 
 
+const Messageitem = ({user,  messages}  : {user: CurrentUser, messages: messages}) =>
+{
+	return (
+		<div className={`flex  ${
+			user?.id === messages.senderid.id ? "flex-row-reverse" : "flex-row"
+		} border rounded  justify-between`}
+		>
+			<img className="max-h-[60px] max-w-[60px]" src={messages.senderid.avatar}></img>
+			<p>{messages.messages}</p>
+			<p>{new Date(messages.created_at).toDateString()}</p>
+		</div>
+	)
+}
+
 const ChatBar = ({
 	pajinationf,
 	room,
@@ -28,20 +42,9 @@ const ChatBar = ({
 	let messages;
 	const [config, setConfig] = useState(false);
 	const [pajination, setpaginate] = useState(dopagin)
-	const user: CurrentUser | null = useContext(currentUser);
-	if (conversation && typeof conversation.messages !== "undefined") {
-		messages = conversation.messages.map((obj: messages, index) => {
-			return (
-				<div
-					className={`flex  ${
-						user?.id === obj.senderid.id ? "flex-row-reverse" : "flex-row"
-					} border-solid   border-2`}
-					key={index}
-				>
-					{index} {obj.messages} : {obj.senderid.id}
-				</div>
-			);
-		});
+	const user = useContext(currentUser);
+	if (conversation && typeof conversation.messages !== "undefined" && user) {
+		messages = conversation.messages.map((obj: messages, index) =>  <Messageitem user={user} messages={obj}/>);
 	}
 	if (config)
 		return room?.roomtypeof !== "chat" ? (
@@ -106,7 +109,7 @@ const ChatBar = ({
 			<button onClick={() => getMoreMessages(room?.id)}>more</button>:
 			<></>
 			}
-			<div className="  flex overflow-y-scroll   flex-col-reverse basis-full  ">{messages}</div>
+			<div className="  flex overflow-y-scroll   flex-col-reverse basis-full p-1 ">{messages}</div>
 			<div className="bg-gray-600">
 				<MessageBar roomnumber={conversation ? conversation.id : -1} />
 			</div>

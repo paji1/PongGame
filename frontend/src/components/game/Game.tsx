@@ -1,6 +1,11 @@
-import { LegacyRef, useEffect, useRef } from "react"
+const PlayGround = () => {
+	
+	return (
+		<div>
+			Game started...
+		</div>
+	)
 
-const MAX_SCORE = 7
+}
 
-
-
+export default PlayGround

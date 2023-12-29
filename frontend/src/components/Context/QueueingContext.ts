@@ -1,20 +1,26 @@
 import { createContext } from "react"
 
 export enum EDifficulty {
-	EASY = 'easy',
-	MEDIUM = 'medium',
-	HARD = 'hard',
+	EASY = 'EASY',
+	MEDIUM = 'MEDIUM',
+	HARD = 'HARD',
 }
 
 export enum EMatchingType {
-	RANDOM = 'random',
-	INVITE = 'invite',
+	RANDOM = 'RANDOM',
+	INVITE = 'INVITE',
+}
+
+export enum EGamePreparationState {
+	CONFIG_STATE,
+	QUEUING_STATE,
+	READY_STATE
 }
 
 export interface IQueue {
 	difficulty: EDifficulty,
 	matchingType: EMatchingType,
-	invite?: string
+	invite: string
 }
 
 export type ADifficultyHandle = (s: EDifficulty) => any

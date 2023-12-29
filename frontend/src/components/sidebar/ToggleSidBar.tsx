@@ -1,10 +1,10 @@
-export const ToggleSidBar = ({isOpen, setIsOpen}:{isOpen: Boolean, setIsOpen: any}) => (
+export const ToggleSidBar =({isOpen, setIsOpen, isNewAlert}:{isOpen: Boolean, setIsOpen: any, isNewAlert:boolean}) => (
 	<button
 		onClick={() => setIsOpen()}
 		className={`p-2 bg-buttonColor text-textColor border-textColor border-solid transition-all duration-300
 			border-b-2 border-t-2 border-l-2 focus:outline-none rounded-l-full z-50 fixed top-52 w-[40px] ${!isOpen ? "hover:w-[72px]" : ""}
 			${isOpen ? "sm:right-[85%] md:right-1/2 lg:right-1/2 xl:right-[35%] 2xl:right-[30%] right-[90%]" : "right-0"}
-			${false ? "animate-bounce" : ""}
+			${isNewAlert ? "animate-bounce" : ""}
 		`}
 	>
 		<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -27,6 +27,8 @@ const SideBar = ({toogle, settogle} : {toogle:number, settogle:any}) => {
 	const [roomsState, setRoomsState] = useState<room[] | null>(null);
 	const [chatState, setChatState] = useState<roommessages[] | null>(null);
 	const [subscriberooms, setsubscriptrooms] = useState(false);
+	const [newAlert, setNewAlert] = useState(false)
+
 	
 	socket.off("connect").on("connect",() => setsubscriptrooms(!subscriberooms))
 	const friendroom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof === "chat") : null;
@@ -38,7 +40,12 @@ const SideBar = ({toogle, settogle} : {toogle:number, settogle:any}) => {
 	}, [roomsState, subscriberooms])
 	const currentchat = Array.isArray(chatState) ? chatState.find((ob: roommessages) => ob.id === chatSelector) : null;
 	const currentroom = Array.isArray(roomsState) ? roomsState.find((ob: room) => ob.id === chatSelector) : null;
-	socket.off("ACTION").on("ACTION", (data) => update(data, roomsState, setRoomsState, chatState, setChatState, user))
+	socket.off("ACTION").on("ACTION", (data) => 
+	{
+		update(data, roomsState, setRoomsState, chatState, setChatState, user) ;
+		if (data.region == "CHAT" && data.action ==  "NEW")
+			setNewAlert(true)
+	})
 	socket.off("ChatError").on("ChatError", (data) => toast.error(data));
 	socket.off("NOTIFY").on("NOTIFY", (data) => {toast(data)});
 	
@@ -66,6 +73,8 @@ const SideBar = ({toogle, settogle} : {toogle:number, settogle:any}) => {
 			settogle(1);
 			else
 			settogle(0);
+			newAlert ? setNewAlert(!newAlert) : setNewAlert(newAlert)
+
 	}
 	const RenderOption = () => {
 		if (chatSelector !== -1)
@@ -96,7 +105,7 @@ const SideBar = ({toogle, settogle} : {toogle:number, settogle:any}) => {
 		<>
 			{isOpen && <HoverDiv toggleChatBar={toggleChatBar} />}
 			
-			<ToggleSidBar isOpen={isOpen} setIsOpen={toggleChatBar} />
+			<ToggleSidBar isOpen={isOpen} isNewAlert={newAlert} setIsOpen={toggleChatBar} />
 
 			<section
 				className={`fixed inset-y-0 right-0 bg-background border-l-2 border-solid 

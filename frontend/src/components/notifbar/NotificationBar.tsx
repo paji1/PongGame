@@ -23,7 +23,6 @@ const useInvites = (setNotification:any)=>
 			{
 				if (Array.isArray(data))
 					setNotification(data);
-				console.log(data)
 			}
 			).catch((e) => toast.error(e.message));
 		}
@@ -35,18 +34,22 @@ const NotificationBar = ({toogle, settogle} : {toogle:number, settogle:any}) => 
 	const [isOpen, seIsOpen] = useState(false);
 	const [state, setState] = useState(1);
 	const [notification, setNotification] = useState<INotificaion[] | null>(null);
-	const socket = useContext(SocketContext);	
+	const socket = useContext(SocketContext);
+	const [newAlert, setNewAlert] = useState(false)
+
 	const toggleChatBar = () => {
 		seIsOpen(!isOpen)
 		if (!isOpen)
 		settogle(2);
 		else
 		settogle(0);
+		newAlert ? setNewAlert(!newAlert) : setNewAlert(newAlert)
 	}
 	const user: CurrentUser | null = useContext(currentUser)
 	useInvites(setNotification);
 	socket.off("INVITES").on("INVITES", (data:INotificaion) => 
 	{
+		setNewAlert(true)
 		if (!notification || !data)
 			return ;
 		const newnotifstate = notification.slice();
@@ -54,7 +57,7 @@ const NotificationBar = ({toogle, settogle} : {toogle:number, settogle:any}) => 
 		if (index === -1)
 			newnotifstate.push(data);
 			else
-		newnotifstate[index].status = data.status
+		     newnotifstate[index].status = data.status
 		setNotification(newnotifstate)
 	})
 	
@@ -66,7 +69,7 @@ const NotificationBar = ({toogle, settogle} : {toogle:number, settogle:any}) => 
 		{isOpen && (<HoverDiv toggleChatBar={toggleChatBar} />)}
 
 
-		<ToggleButton isOpen={isOpen} setIsOpen={toggleChatBar} />
+		<ToggleButton isOpen={isOpen} isNewAlert={newAlert} setIsOpen={toggleChatBar} />
 
 		<section
 			className={`fixed inset-y-0 right-0 bg-background border-l-2 border-solid 

@@ -79,7 +79,7 @@ export const RoomsettingItem = ({
 		<div>
 			<div className="flex flex-row border-solid border-2 gap-2">
 				<div className="max-h-[75px] max-w-[75px]">
-					<img src={Profile}></img>
+					<img src={user?.user_id.avatar}></img>
 				</div>
 				<div>
 					<p>{user.user_id.nickname}</p>
@@ -121,7 +121,7 @@ export const FriendsettingItem = ({  user, roomid }: { user: member | undefined;
 		<div>
 			<div className="flex flex-row border-solid border-2 gap-2">
 				<div className="max-h-[75px] max-w-[75px]">
-					<img src={Profile}></img>
+					<img src={user?.user_id.avatar}></img>
 				</div>
 				<div>
 					<p>{user.user_id.nickname}</p>

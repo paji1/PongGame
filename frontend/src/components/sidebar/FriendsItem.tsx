@@ -7,19 +7,16 @@ import { currentUser } from "../Context/AuthContext";
 const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; glimpse: messages[] }) => {
 	let preview;
 	const user = useContext(currentUser);
-
+	const friend  = room.rooms_members.filter((ob) => ob.id !== user?.id)
 	if (Array.isArray(glimpse) && glimpse.length ==1)
 		preview = (glimpse[0].messages.length > 25) ? glimpse[0].messages.substring(0,25) :  glimpse[0].messages
-	const name =
-		room.rooms_members[0].user_id.id === user?.id
-			? room.rooms_members[1].user_id.nickname.toLowerCase()
-			: room.rooms_members[0].user_id.nickname.toLowerCase();
+	const name = friend[0].user_id.nickname
 	const display = name.length > 15 ? name.substring(0, 15) : name;
 
 	return (
 		<div className="flex flex-row mx-2 gap-3 p-2 rounded border-solid border-textColor border-2">
 			<div className=" w-1/6 justify-center rounded">
-				<img className="max-h-[75px] max-w-[75px]" src={Profile}></img>
+				<img className="max-h-[75px] max-w-[75px]" src={friend[0].user_id.avatar}></img>
 			</div>
 			<div onClick={selector} className="flex flex-col flex-auto cursor-pointer gap-2 ">
 				<p className=" text-center  text-ellipsis overflow-hidden text-primary text-xl">{display}</p>

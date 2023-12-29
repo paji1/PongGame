@@ -220,7 +220,6 @@ export class InviteService {
                                     },
 
                                 ]
-
                             }
                         }
                     },
