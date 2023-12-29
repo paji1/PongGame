@@ -71,6 +71,7 @@ export class GameMatchingService {
 					game_mode: invite.game_mode
 				},
 				select: {
+					id: true,
 					status: true,
 					type: true,
 					reciever: true,
@@ -124,7 +125,10 @@ export class GameMatchingService {
 		try {
 			const inviting = await this.findFriendByID(id, invited)
 			if (!inviting)
-				throw new Error(`You can't invite this user`)
+				throw new Error(`You can only play against a friend`)
+			const isNewInvite = await this.isInvitationPending(inviting.initiator, inviting.reciever)
+			if (isNewInvite)
+				throw new Error(`This user is already invited`)
 			const newNotif: CreateGameInviteDto = {
 				issuer: inviting.initiator,
 				reciever: inviting.reciever,
@@ -132,17 +136,12 @@ export class GameMatchingService {
 				game_mode: difficulty,
 				type: invitetype.Game
 			}
-			const isNewInvite = await this.isInvitationPending(inviting.initiator, inviting.reciever)
-			console.log('----->', isNewInvite)
-			if (isNewInvite)
-				throw new Error(`This user is already invited`)
-			//TODO: Handle accept / refuse
 			const new_created = await this.createInvite(newNotif)
 			return new_created
 		} catch (error) {
 			throw new Error(`${error.message}`)
 		}
-	} 
+	}
 
 	addToQueue(id: number, difficulty: string, socket_id: string)
 	{
@@ -200,4 +199,16 @@ export class GameMatchingService {
 		return queue[index]
 	}
 
+	newInviteQueue(game_id: string) {
+		this.queues.set(game_id, [])
+	}
+
+	inviteQueueing(game_id: string, socket_id: string, player_id: number) {
+		let queue = this.queues.get(game_id)
+		if (!queue)
+			throw new Error(`Invalid queueing system`)
+		if (queue.length > 2)
+			throw new Error(`Invalid invitation`)
+		queue.push({id: player_id, socket_id})
+	}
 }
