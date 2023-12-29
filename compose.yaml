@@ -26,8 +26,8 @@
         - 5555:5555
       volumes:
         - ./backend/src:/code/src:rw
-        - ./backend/prisma:/code/prisma
-        - ./backend/prisma/migrations:/code/prisma/migrations
+        - ./backend/prisma:/code/prisma:rw
+        - ./backend/prisma/migrations:/code/prisma/migrations:rw
         - back-notused:/opt/app/node_modules
       networks:
         - client-side

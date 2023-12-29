@@ -34,14 +34,14 @@ EOF
 # npx --yes prisma db seed
 # echo "seeding users ..."
 npx prisma migrate deploy
-ts-node /code/prisma/seed/scripts/userseeder.ts
-echo "seeding levels ..."
-ts-node /code/prisma/seed/scripts/levelsseeder.ts
-echo "seeding rooms ..."
-ts-node /code/prisma/seed/scripts/roomseeder.ts
-echo "seeding rooms participants ..."
-ts-node /code/prisma/seed/scripts/room_parts.ts
-echo "seeding messages ..."
-ts-node /code/prisma/seed/scripts/messageseeder.ts
+# ts-node /code/prisma/seed/scripts/userseeder.ts
+# echo "seeding levels ..."
+# ts-node /code/prisma/seed/scripts/levelsseeder.ts
+# echo "seeding rooms ..."
+# ts-node /code/prisma/seed/scripts/roomseeder.ts
+# echo "seeding rooms participants ..."
+# ts-node /code/prisma/seed/scripts/room_parts.ts
+# echo "seeding messages ..."
+# ts-node /code/prisma/seed/scripts/messageseeder.ts
 # npx --yes prisma db seed
 # fi

@@ -11,7 +11,7 @@ endif
 
 
 
-all: build
+all: 
 	docker-compose up --build
 
 ${DETACH}:
@@ -43,8 +43,10 @@ build:
 	docker-compose build
 
 prisma:
-	npx --yes prisma generate
-	docker-compose exec backend bash /code/prisma/seed/seed.sh
+	docker-compose exec backend npx --yes prisma generate
+	docker-compose exec  backend bash /code/prisma/seed/seed.sh
+	docker-compose exec  -d backend npx --yes prisma studio --port 5555 
+
 
 nocache:
 	docker-compose build --no-cache
@@ -58,6 +60,10 @@ exec:
 
 rebuild: 
 	docker-compose up --build
+
+clean:
+	-docker container prune -f
+	-docker volume rm -f  $(shell docker volume ls -q)
 
 ps:
 	echo  "\tcontainrs "
