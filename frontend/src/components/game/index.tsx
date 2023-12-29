@@ -57,10 +57,16 @@ const GameBody = () => {
 			setPreparation(EGamePreparationState.READY_STATE)
 		})
 
+		socket.on('SUCCESSFUL_INVITE', () => {
+			setPreparation(EGamePreparationState.QUEUING_STATE)
+		})
+		
+
 		return (
 			() => {
 				socket.off('enter_queue')
 				socket.off('start_game')
+				socket.off('SUCCESSFUL_INVITE')
 			}
 		)
 	}, [])
