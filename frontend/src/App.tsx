@@ -147,20 +147,6 @@ const Signin = ({setUser} : {setUser: any}) =>
 	);
 }
 
-// TODO: this is a temporary trqi3a 
-
-const router = createBrowserRouter([
-	{
-		path: '/',
-		element: <Dashboard />
-	},
-	{
-		path: "/game",
-		element: <GameMain />
-	}
-])
-
-
 const App = () => {
 	const [user, setuser] = useState<CurrentUser | null >(null)
 	const socket = useContext(SocketContext)
