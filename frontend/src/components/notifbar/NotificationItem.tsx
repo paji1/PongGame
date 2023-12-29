@@ -17,7 +17,7 @@ const RejectFriend = async (id:number) =>
 
 
 const acceptGameInvite = async (id: number, notif: INotificaion, socket: any) => {
-	await fetch(`http://${ip}3001/invite/game?id=${id}` , { credentials: "include", method: "GET" ,});
+	await fetch(`http://${ip}3001/invite/game/accept?id=${id}` , { credentials: "include", method: "GET" ,});
 	socket.emit("ACCEPT_GAME_INVITE", {
 		issuer_id: notif.issuer_id.id,
 		receiver_id: notif.reciever_id.id,

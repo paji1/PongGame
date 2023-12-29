@@ -69,6 +69,13 @@ export class InviteController {
 
   }
 
-
+	@Get('game/accept')
+	async acceptGameInvite(@GetCurrentUserId() current_user, @Query('id') id: number) {
+		try {
+			this.inviteService.acceptGameInvite(current_user, id)
+		} catch {
+			throw new HttpException("Error accepting game invite", HttpStatus.BAD_REQUEST)
+		}
+	}
 
 }
