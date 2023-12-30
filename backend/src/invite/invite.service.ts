@@ -197,7 +197,7 @@ export class InviteService {
                     status:'DEFAULT'
                 }
             })
-            if (lenght > 0)
+            if (lenght > 1)
                 return control;
               const room = await trx.rooms.create(
                 {

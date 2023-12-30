@@ -7,5 +7,6 @@ import { RoomsModule } from '../chat/rooms/rooms.module'
   imports: [RoomsModule],
   controllers: [InviteController],
   providers: [InviteService],
+  exports: [InviteService]
 })
 export class InviteModule {}
