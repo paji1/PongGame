@@ -130,8 +130,8 @@ export class GameMatchingService {
 			if (isNewInvite)
 				throw new Error(`This user is already invited`)
 			const newNotif: CreateGameInviteDto = {
-				issuer: inviting.initiator,
-				reciever: inviting.reciever,
+				issuer: id,
+				reciever: invited,
 				status: actionstatus.pending,
 				game_mode: difficulty,
 				type: invitetype.Game
