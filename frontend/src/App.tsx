@@ -182,7 +182,10 @@ const App = () => {
 					}
 					<Routes>
 						<Route path="/search"  element={<SearchWindow/>} />
-						<Route path="/" element={<Dashboard/>}/>
+						<Route path="/" element={<Dashboard/>} >
+							<Route path='/profile' element={<Dashboard/>} />
+							<Route path='/profile/:nickname' element={<Dashboard/>} />
+						</Route>
 						<Route path="/game" element={<GameUI/>} >
 							<Route path=':gameID' element={<GameUI/>} />
 						</Route>
