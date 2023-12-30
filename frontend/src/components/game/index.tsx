@@ -5,6 +5,7 @@ import { EGamePreparationState } from "../Context/QueueingContext";
 import QueueLoader from "./QueueLoader";
 import { SocketContext } from "../Context/SocketContext";
 import PlayGround from "./Game";
+import { useParams } from "react-router-dom";
 
 const ButtonComponent = () => {
 	return (
@@ -93,26 +94,19 @@ const GameFrame = () => {
 	)
 }
 
-const GameUI = () => (
-	<div id="game-ui" className={`flex flex-col items-center h-auto inset-0`}>
-		<div className={`flex flex-col items-center p-1 sm:p-5 mt-6
-			`}>
-			<GameBody />
-			<GameFooter />
-		</div>
-	</div>
-)
+const GameUI = () => {
 
-const GameMain = () => {
+	const params = useParams()
 
 	return (
-		<div className="">
-			{/* <Navbar />
-			<NotificationBar />
-			<SideBar /> */}
-			<GameUI />
+		<div id="game-ui" className={`flex flex-col items-center h-auto inset-0`}>
+			<div className={`flex flex-col items-center p-1 sm:p-5 mt-6
+				`}>
+				<GameBody />
+				<GameFooter />
+			</div>
 		</div>
 	)
 }
 
-export default GameMain;
+export default GameUI;

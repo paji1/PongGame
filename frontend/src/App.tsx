@@ -7,11 +7,11 @@ import { currentUser, CurrentUser } from "./components/Context/AuthContext";
 import { log } from "console";
 import { ip } from "./network/ipaddr";
 import { SocketContext } from "./components/Context/SocketContext";
-import GameMain from "./components/game";
 import { BrowserRouter, Link, Route, RouterProvider, Routes, createBrowserRouter } from "react-router-dom";
 import Dashboard from "./components/Dashboard/Dashboard";
 import { SearchWindow } from "./Search/Search";
 import { use } from "matter-js";
+import GameUI from "./components/game";
 
 const getuser = (setuser:any)=>
 	{
@@ -183,7 +183,9 @@ const App = () => {
 					<Routes>
 						<Route path="/search"  element={<SearchWindow/>} />
 						<Route path="/" element={<Dashboard/>}/>
-						<Route path="/game" element={<GameMain/>}/>
+						<Route path="/game" element={<GameUI/>} >
+							<Route path=':gameID' element={<GameUI/>} />
+						</Route>
 					</Routes>
 				</BrowserRouter >
 				</div>
