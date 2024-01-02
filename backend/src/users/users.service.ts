@@ -42,8 +42,9 @@ export class UsersService {
 			where:
 			{
 				nickname : {contains : name},
-				
-				
+				id: {
+					not: user,
+				}
 			},
 			select:
 			{

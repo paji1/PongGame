@@ -19,6 +19,12 @@ export class InviteController {
   @Post('friend')
   async Friendinvite(@GetCurrentUserId() user:number,  @Query('friend') friend: number, @Res() res)
   {
+    if (user === friend)
+    {
+      res.status(400).end()
+      return ;
+    }
+
     const invite =  await this.inviteService.InviteFriend(user, friend);
     console.log(invite)
     if (!invite)
