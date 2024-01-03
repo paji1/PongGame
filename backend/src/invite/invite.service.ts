@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from "../prisma/prisma.service";
 import { RoomsService } from '../chat/rooms/rooms.service'
 import { actionstatus, invitetype } from '@prisma/client';
 import { REFUSED } from 'dns';
 import { use } from 'passport';
+import { http } from 'winston';
 
 @Injectable()
 export class InviteService {
@@ -136,8 +137,28 @@ export class InviteService {
         })
         return res;
     }
-    async RemoveFriend()
+    async RemoveFriend(user: number, friend: number)
     {
+        const control = await this.prisma.friendship.deleteMany({
+            where:{
+                OR:
+                [
+                    {
+                        initiator:user,
+                        reciever:friend
+                    },
+                    {
+                        initiator:friend,
+                        reciever:user
+                    }
+                ],
+                status: 'DEFAULT'
+            }
+
+        })
+        if (!control)
+            throw new HttpException('if blocked resolve it first, else try  to be friends first', 400);
+        return control;
 
     }
 

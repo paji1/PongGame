@@ -34,9 +34,11 @@ export class InviteController {
   }
 
   @Delete('friend')
-  async FriendRemove(@Query('friend') id: number)
+  async FriendRemove(@GetCurrentUserId() user:number, @Query('friend') friend: number, @Res() res)
   {
-    const invite =  await this.inviteService.RemoveFriend();
+   
+    await this.inviteService.RemoveFriend(user, friend);
+    res.status(200).end();
   }
 
 
