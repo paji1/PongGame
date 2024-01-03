@@ -67,26 +67,37 @@ export class InviteService {
     async InviteFriend(user:number, friend:number)
     {
         const res = await this.prisma.$transaction(async ( trx) => {
-            const control = await trx.friendship.findMany(
-                {
-                where:{
-                    
-                    OR:
-                    [
-                        {
-                            reciever: user,
-                            initiator: friend
-                        }
-                        ,
+            const friendship = await trx.friendship.findMany({
+                   where:{
+                        OR:[
+                            {
+                                initiator:user,
+                                reciever:friend
+                            },
+                            {
+                                initiator:friend,
+                                reciever:user,
+                            }
+                        ]
+                    }
+                })
+                const pending = await trx.invites.findMany({
+                    where:{
+                        OR:[
+                            {
+                                issuer:user,
+                                reciever:friend
+                            },
+                            {
+                                issuer:friend,
+                                reciever:user,
+                            }
+                        ],
+                        status: 'pending',
+                    }
+                })
 
-                        {
-                            reciever: friend,
-                            initiator: user
-                        },
-
-                    ]
-                }})
-                if (control.length)
+                if (friendship.length ||  pending.length)
                     return null
             return await trx.invites.create({data:{type: invitetype.Friend,status: actionstatus.pending,issuer:user,reciever:friend,}, 
                 select:

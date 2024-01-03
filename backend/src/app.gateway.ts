@@ -60,7 +60,6 @@ export class AppGateway {
 	@OnEvent('PUSHSTATUS')
 	async notifyALL(user: string, status:string)
 	{
-		console.log("emit event status ", status, "for" , user)
 		const friends = await this.getfriends(user);
 		friends.forEach( async (friend) => 
 		{
@@ -78,7 +77,6 @@ export class AppGateway {
 	{
 		if ((await this.server.to(nickname).fetchSockets()).length)
 			this.server.to(nickname).emit(type, invite);
-		console.log(nickname, invite)
 	}
 	async getfriends(user:string)
 	{

@@ -26,7 +26,6 @@ export class InviteController {
     }
 
     const invite =  await this.inviteService.InviteFriend(user, friend);
-    console.log(invite)
     if (!invite)
       throw new HttpException("Failed inviting", HttpStatus.BAD_REQUEST)
     this.events.emit("PUSH", invite.reciever_id.user42, invite, "INVITES")
