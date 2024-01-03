@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 const listItems = ["home", "about", "our-team", "button"].map((item: String, key: Number) =>
 	item === "button" ? (
 		<li className={`uppercase font-pixelify cursor-pointer py-2 h-auto`}>
-			<MainButton name={`Join us`} url={`test.com`} />
+			<MainButton name={`signin`} url={`test.com`} />
 		</li>
 	) : (
 		<li
