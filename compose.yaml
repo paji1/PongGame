@@ -21,6 +21,7 @@
         context: backend
         target: dev-envs
       command: "npm run t:d" 
+      restart: always
       env_file:
       - .env
       ports:

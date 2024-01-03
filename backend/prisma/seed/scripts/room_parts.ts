@@ -11,7 +11,7 @@ async function seedrooms_parts(room_parts) {
   }
   
   const res = await prisma.$executeRaw`select * from public.rooms_members`
-  console.log(res);
+  // console.log(res);
 }
 
 

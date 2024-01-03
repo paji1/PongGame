@@ -5,9 +5,11 @@ import * as argon from "argon2";
 import { PrismaService } from "../prisma/prisma.service";
 import { Prisma } from "@prisma/client";
 
-import { AuthDto, AuthIntraDto } from "./dto";
+import { AuthDto, AuthIntraDto, AuthSignUp } from "./dto";
 import { JwtPayload, Tokens } from "./types";
 import { Response } from "express";
+import { find } from "rxjs";
+import { use } from "passport";
 
 @Injectable()
 export class AuthService {
@@ -17,13 +19,15 @@ export class AuthService {
 		private config: ConfigService,
 	) {}
 
-	async signupLocal(dto: AuthDto): Promise<Tokens> {
+	async updateLocal(dto: AuthSignUp, user42: string): Promise<Tokens> {
 		const hash = await argon.hash(dto.password);
 		const user = await this.prisma.user
-			.create({
+			.update({
+				where:{
+					user42 : user42
+				},
 				data: {
-					user42: dto.user42,
-					nickname: dto.user42,
+					nickname: dto.nickname,
 					hash,
 				},
 			})
@@ -42,17 +46,18 @@ export class AuthService {
 		return tokens;
 	}
 
-	async handle_intra(dto: AuthIntraDto): Promise<Tokens> {
+	async handle_intra(dto: AuthIntraDto): Promise<[Tokens, boolean]> {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				user42: dto.user42,
 			},
 		});
-		if (!user) return await this.signUpIntra(dto);
+		if (!user) return [await this.signUpIntra(dto), false];
+		
 		const tokens = await this.getTokens(user.id, user.user42);
 		await this.updateRtHash(user.id, tokens.refresh_token);
 
-		return tokens;
+		return [tokens, (!user.hash ) ? false : true];
 	}
 
 	async signUpIntra(dto: AuthIntraDto): Promise<Tokens> {
@@ -84,7 +89,7 @@ export class AuthService {
 				user42: dto.user42,
 			},
 		});
-		
+
 		if (!user) throw new ForbiddenException("Access Denied");
 
 		const passwordMatches = await argon.verify(user.hash, dto.password);
@@ -115,14 +120,13 @@ export class AuthService {
 		return true;
 	}
 
-	async refreshTokens(userId: number, rt: string): Promise<Tokens> {
+	async refreshTokens(userId: number, rt: string, res: Response): Promise<Tokens> {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				id: userId,
 			},
 		});
 		if (!user || !user.hashedRt) throw new ForbiddenException("Access Denied");
-
 		const rtMatches = await argon.verify(user.hashedRt, rt);
 		if (!rtMatches) throw new ForbiddenException("Access Denied");
 
@@ -167,11 +171,11 @@ export class AuthService {
 		};
 	}
 	async syncTokensHttpOnly(res: Response, tokens: Tokens): Promise<Response> {
-		const minute: number = 60000;
+		const minute: number = 60 * 1000;
 		res.cookie("atToken", tokens.access_token, {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === "production",
-			maxAge: 150 * minute,
+			maxAge: 15 * minute,
 			path: "/",
 		});
 
@@ -181,8 +185,16 @@ export class AuthService {
 			maxAge: 60 * minute * 24 * 7,
 			path: "/",
 		});
-		
 
 		return res;
+	}
+	async findunique(dto: AuthDto): Promise<boolean> {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				user42: dto.user42,
+			},
+		});
+		if (user) return true;
+		return false;
 	}
 }

@@ -38,11 +38,11 @@ export class RoomGuard implements CanActivate {
         {
             context.switchToWs().getClient().request.headers["user"] = request.user[key2];
             roomid = context.switchToWs().getData().room;
-            console.log(context.switchToWs().getData())
+            // console.log(context.switchToWs().getData())
         }
         else
             roomid = +request.query["room"]
-        console.log("room guard debug: <<", request.user, reqType, roomid ,">>")
+        // console.log("room guard debug: <<", request.user, reqType, roomid ,">>")
 
 
         if (typeof types !== "undefined")
@@ -51,7 +51,7 @@ export class RoomGuard implements CanActivate {
                 if (Number.isNaN(roomid))
                     return false;
                 const frdbroom = await this.prisma.rooms.findUnique({where: { id: roomid },});
-                console.log(roomid)
+                // console.log(roomid)
                 if (!frdbroom)
                 {
                     if(reqType==="ws")

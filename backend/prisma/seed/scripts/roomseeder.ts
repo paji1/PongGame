@@ -12,7 +12,7 @@ async function seedrooms(rooms) {
   }
   
   const res = await prisma.$executeRaw`select * from public.rooms`
-  console.log(res);
+  // console.log(res);
 }
 
 const getrooms = () =>

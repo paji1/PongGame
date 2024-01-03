@@ -18,15 +18,15 @@ model user {
   connection_state  current_state   @default(OFFLINE)
   experience_points Int             @default(0)
   created_at        DateTime        @default(now())
+  achieved          achieved[]
   friendship1       friendship[]    @relation("initiator")
   friendship2       friendship[]    @relation("reciever")
-  player1           matchhistory[]  @relation("player1")
-  player2           matchhistory[]  @relation("player2")
-  rooms_members     rooms_members[]
-  messages          messages[]
-  achieved          achieved[]
   issuer            invites[]       @relation("issuer")
   reciever          invites[]       @relation("reciever")
+  player1           matchhistory[]  @relation("player1")
+  player2           matchhistory[]  @relation("player2")
+  messages          messages[]
+  rooms_members     rooms_members[]
 }
 
 model level {
@@ -69,9 +69,9 @@ model rooms {
   roomtypeof    roomtype
   created_at    DateTime        @default(now())
   updated_at    DateTime        @default(now())
-  rooms_members rooms_members[] @relation()
-  messages      messages[]
   invites       invites[]
+  messages      messages[]
+  rooms_members rooms_members[]
 }
 
 model rooms_members {
@@ -83,8 +83,8 @@ model rooms_members {
   ismuted    Boolean         @default(false)
   isBanned   Boolean         @default(false)
   created_at DateTime        @default(now())
-  user_id    user            @relation(fields: [userid], references: [id])
   rooms      rooms           @relation(fields: [roomid], references: [id], onDelete: Cascade)
+  user_id    user            @relation(fields: [userid], references: [id])
 
   @@unique([roomid, userid], name: "combination")
 }
@@ -115,8 +115,8 @@ model achieved {
   achievementid Int
   count         Int
   created_at    DateTime     @default(now())
-  user_id       user         @relation(fields: [userid], references: [id])
   achievment_id achievements @relation(fields: [achievementid], references: [id], onDelete: Cascade)
+  user_id       user         @relation(fields: [userid], references: [id])
 }
 
 model invites {

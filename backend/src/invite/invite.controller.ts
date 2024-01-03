@@ -11,7 +11,7 @@ export class InviteController {
   @Get()
   async Handler(@GetCurrentUserId() user:number)
   {
-    console.log("mok ")
+    // console.log("mok ")
     return await this.inviteService.getdatainvite(user);
   }
 
@@ -20,7 +20,7 @@ export class InviteController {
   async Friendinvite(@GetCurrentUserId() user:number,  @Query('friend') friend: number, @Res() res)
   {
     const invite =  await this.inviteService.InviteFriend(user, friend);
-    console.log(invite)
+    // console.log(invite)
     if (!invite)
       throw new HttpException("Failed inviting", HttpStatus.BAD_REQUEST)
     this.events.emit("PUSH", invite.reciever_id.user42, invite, "INVITES")
@@ -39,7 +39,7 @@ export class InviteController {
   @Post('friend/invite')
   async FriendAccept( @GetCurrentUserId() user:number, @Query('id') id: number,@Res() res)
   {
-    console.log("accepting rquest " , id)
+    // console.log("accepting rquest " , id)
     const data =  await this.inviteService.AcceptFriend( user, id);
     let invite;
     invite = data

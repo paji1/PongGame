@@ -1,5 +1,5 @@
-import { AuthIntraDto, userDto } from "./dto";
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards, Get, Res, Req } from "@nestjs/common";
+import { AuthIntraDto, AuthSignUp, userDto } from "./dto";
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards, Get, Res, Req, Redirect } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 
 import { Public, GetCurrentUserId, GetCurrentUser, GetUser } from "../common/decorators";
@@ -36,9 +36,13 @@ export class AuthController {
 	@Public()
 	@Post("local/signup")
 	@HttpCode(HttpStatus.CREATED)
-	async signupLocal(@Body() dto: AuthDto, @Res() res: Response): Promise<void> {
-		console.log(dto)
-		const tokens = await this.authService.signupLocal(dto);
+	async signupLocal(
+		@Body() dto: AuthSignUp,
+		@Res() res: Response,
+		@GetCurrentUser("user42") user42: string,
+	): Promise<void> {
+		// console.log(dto);
+		const tokens = await this.authService.updateLocal(dto, user42);
 		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}
 
@@ -47,7 +51,7 @@ export class AuthController {
 	@HttpCode(HttpStatus.OK)
 	async signinLocal(@Body() dto: AuthDto, @Res() res: Response): Promise<any> {
 		const tokens = await this.authService.signinLocal(dto);
-		console.log("hello");
+		// console.log("hello");
 		return (await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}
 
@@ -55,17 +59,20 @@ export class AuthController {
 	@Get("intra/login")
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(AuthGuard("intra"))
+	@Redirect('http://localhost:3001/')
 	intraLogin(@Body() user: any) {
 		console.log("first");
+		return {helllo : "hello" };
 	}
-
+	
 	@Get("callback_42")
 	@Public()
 	@UseGuards(AuthGuard("intra"))
+	@Redirect('http://localhost:3001/')
 	async handleCallback(@GetUser() userdto: AuthIntraDto, @Res() res: Response): Promise<void> {
-		const tokens = await this.authService.handle_intra(userdto);
+		const [token, signUpstate] = await this.authService.handle_intra(userdto);
+		(await this.authService.syncTokensHttpOnly(res, token)).json({ signUpstate: signUpstate }).end();
 
-		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}
 
 	@Post("logout")
@@ -76,9 +83,8 @@ export class AuthController {
 
 	@Post("hello")
 	@HttpCode(HttpStatus.OK)
-	hello(@GetCurrentUser() papylod : any) {
-			
-		console.log(papylod);
+	hello(@GetCurrentUser() papylod: any) {
+		// console.log(papylod);
 		return { hello: "hello" };
 	}
 
@@ -91,7 +97,8 @@ export class AuthController {
 		@GetCurrentUser("refreshToken") refreshToken: string,
 		@Res() res: Response,
 	): Promise<void> {
-		const tokens = await this.authService.refreshTokens(userId, refreshToken);
+		console.log("refresh    ",refreshToken);
+		const tokens = await this.authService.refreshTokens(userId, refreshToken, res);
 		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}
 }
