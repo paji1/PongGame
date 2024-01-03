@@ -64,6 +64,7 @@ export  const SearchWindow = () => {
     const [params] = useSearchParams()
     const [rooms, roomstate] = useState <room[] | null>(null);
     const [users, usersstate] = useState<IUser[] | null>(null);
+    const [selector, setSelector] = useState(0)
     const query = params.get('query')
     const socket = useContext(SocketContext);
     useEffect(( () => {
@@ -95,16 +96,24 @@ export  const SearchWindow = () => {
 .catch(() => toast.error(`search: network error`))
 
 }), [query])
+
     return (
+            <>
+            <div className="flex flex-row gap-2 gap-y-10 p-8 mt-2 max-w-[1536px] m-auto"> 
+                
+                <p className="border border-solid  w-[100px]">filters</p> :
+                <button className={`${!selector? "bg-black text-sucessColor" : ""} border border-solid  w-[100px]`} onClick={() => setSelector(0)}> all</button>
+                <button  className={`${selector == 1? "bg-black text-sucessColor" : ""} border border-solid  w-[100px] `} onClick={() => setSelector(1)}> rooms</button>
+                <button className={`${selector == 2? "bg-black text-sucessColor" : ""}  border border-solid  w-[100px]`}  onClick={() => setSelector(2)}> users</button>
+            </div>
         <div className="flex flex-col gap-y-10 p-8 mt-2 max-w-[1536px] m-auto" >
-            <h1 className='m-auto  p-2 truncate w-full'>rooms</h1>
             {
-                rooms ? rooms.map((ob: room) => <RoomItem socket={socket} room={ob}/>) : <></>
+                (rooms && (!selector || selector === 1))  ? rooms.map((ob: room) => <RoomItem socket={socket} room={ob}/>) : <></>
             }
-            <h1 className='m-auto  p-2 truncate w-full'>users</h1>
             {
-                users ? users.map((ob: IUser) => <UserItem user={ob}/> ) : <></>
+                (users&& (!selector || selector === 2)) ? users.map((ob: IUser) => <UserItem user={ob}/> ) : <></>
             }
         </div>
+        </>
     )
 }
