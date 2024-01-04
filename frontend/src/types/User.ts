@@ -1,9 +1,9 @@
 interface IUser {
-	id: number,
-	nickname: string,
-	user42: string
-	avatar: string
-	created_at:string
+	id: number;
+	nickname: string;
+	user42: string;
+	avatar: string;
+	created_at: string;
 }
 
-export default IUser
+export default IUser;

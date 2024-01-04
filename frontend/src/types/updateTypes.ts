@@ -1,4 +1,4 @@
 export type updateType = {
-    type: string,
-    data:any;
-}
+	type: string;
+	data: any;
+};

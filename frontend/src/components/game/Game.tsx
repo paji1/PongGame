@@ -1,11 +1,5 @@
 const PlayGround = () => {
-	
-	return (
-		<div>
-			Game started...
-		</div>
-	)
+	return <div>Game started...</div>;
+};
 
-}
-
-export default PlayGround
+export default PlayGround;

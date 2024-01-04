@@ -8,10 +8,10 @@ import { Link } from "react-router-dom";
 const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; glimpse: messages[] }) => {
 	let preview;
 	const user = useContext(currentUser);
-	const friend  = room.rooms_members.filter((ob) => ob.id !== user?.id)
-	if (Array.isArray(glimpse) && glimpse.length ==1)
-		preview = (glimpse[0].messages.length > 25) ? glimpse[0].messages.substring(0,25) :  glimpse[0].messages
-	const name = friend[0].user_id.nickname
+	const friend = room.rooms_members.filter((ob) => ob.id !== user?.id);
+	if (Array.isArray(glimpse) && glimpse.length == 1)
+		preview = glimpse[0].messages.length > 25 ? glimpse[0].messages.substring(0, 25) : glimpse[0].messages;
+	const name = friend[0].user_id.nickname;
 	const display = name.length > 15 ? name.substring(0, 15) : name;
 
 	return (
@@ -23,18 +23,21 @@ const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; gl
 				<p className=" text-center  text-ellipsis overflow-hidden text-primary text-xl">{display}</p>
 				<p className="text-ellipsis overflow-hidden">{preview}</p>
 			</div>
-			<div  className="flex items-center justify-center w-1/6 ">
-			<Link to={`/profile/${name}`}>
-				<svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path
-						d="M4 9H5V10H11V9H12V8H13V2H12V1H11V0H5V1H4V2H3V8H4V9ZM5 4H6V3H7V2H9V3H10V4H11V6H10V7H9V8H7V7H6V6H5V4Z"
-						fill="black"
+			<div className="flex items-center justify-center w-1/6 ">
+				<Link to={`/profile/${name}`}>
+					<svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path
+							d="M4 9H5V10H11V9H12V8H13V2H12V1H11V0H5V1H4V2H3V8H4V9ZM5 4H6V3H7V2H9V3H10V4H11V6H10V7H9V8H7V7H6V6H5V4Z"
+							fill="black"
 						/>
-					<path d="M14 12H13V11H2V12H1V13H0V18H2V15H3V14H4V13H11V14H12V15H13V18H15V13H14V12Z" fill="black" />
-					<path d="M16 9H17V8H18V2H17V1H16V0H15H14V3H15V4H16V5V6H15V7H14V10H16V9Z" fill="black" />
-					<path d="M19 13V12H18V11H16V14H17V15H18V18H20V13H19Z" fill="black" />
-				</svg>
-			</Link>
+						<path
+							d="M14 12H13V11H2V12H1V13H0V18H2V15H3V14H4V13H11V14H12V15H13V18H15V13H14V12Z"
+							fill="black"
+						/>
+						<path d="M16 9H17V8H18V2H17V1H16V0H15H14V3H15V4H16V5V6H15V7H14V10H16V9Z" fill="black" />
+						<path d="M19 13V12H18V11H16V14H17V15H18V18H20V13H19Z" fill="black" />
+					</svg>
+				</Link>
 			</div>
 			<div className="flex items-center justify-center w-1/7 ">
 				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
