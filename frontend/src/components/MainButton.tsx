@@ -48,17 +48,14 @@ const Popup: React.FC<PopupProps> = ({ onClose }) =>  {
         if (event.origin === "http://localhost:3000") {
           console.log("hello1");
           if (event.data.success) {
-            // Handle successful response (if needed)
     
-            // Close the popup window
             console.log("hello");
             
             onClose();
             window.location.reload();
             popupWindowRef.current.close();
           } else {
-            // Handle unsuccessful response
-            console.error('Response from NestJS failed:', event.data.error);
+            console.error('Response  failed:', event.data.error);
           }
         }
       };
