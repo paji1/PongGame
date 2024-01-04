@@ -87,11 +87,7 @@ const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 				return <SideBarItemFilter rooms={friendroom} query="" roomselector={setChatSelector} />;
 			case 2:
 				return (
-					<>
-						<CreateRoom socket={socket} />
-						<SideBarItemFilter rooms={grouproom} query="" roomselector={setChatSelector} />
-					</>
-				);
+						<SideBarItemFilter rooms={grouproom} query="" roomselector={setChatSelector} />);
 		}
 	};
 	return (
@@ -143,8 +139,10 @@ const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 							<h3 className="flex items-center justify-center h-full">Chat rooms</h3>
 						</div>
 					</div>
-
-					<div className={`flex-1 min-h-[100px] border-solid border-blue-500 border-2`}>{RenderOption()}</div>
+						{searchSelection == 2  && chatSelector === -1?<CreateRoom socket={socket} /> : null}
+					<div className={`flex-1 min-h-[100px]  justify-center `}>
+						{RenderOption()}
+						</div>
 				</div>
 			</section>
 		</>
@@ -159,9 +157,9 @@ const CreateRoom = ({ socket }: { socket: Socket }) => {
 	if (type !== "protected" && password.length) setPassword("");
 	if (!clicked) return (
 		<button
-					className=" rounded
+					className=" rounded 
 			border-y-2 border-l-2 border-r-0 border-solid border-textColor
-			h-[39px] w-40 px-4 font-pixelify focus:outline-none shadow-buttonShadow
+			h-[39px] w-full  font-pixelify focus:outline-none shadow-buttonShadow
 			`"
 					onClick={() => click(true)}
 				>
@@ -186,14 +184,14 @@ const CreateRoom = ({ socket }: { socket: Socket }) => {
 	return (
 		<div
 			onClick={() => click(!clicked)}
-			className="absolute inset-0  flex items-center justify-center bg-black bg-opacity-80 "
+			className="absolute inset-0  flex items-center justify-center bg-black bg-opacity-80 h-fu "
 		>
 			<div
 				onClick={(e) => (() => e.stopPropagation())()}
 				className="w-2/3 p-6 rounded-lg shadow-xl bg-background"
 			>
 				
-		<form className="flex flex-col">
+		<form  className="flex flex-col">
 			<div>
 				<div >
 					<p>name</p>
@@ -214,38 +212,12 @@ const CreateRoom = ({ socket }: { socket: Socket }) => {
 			) : (
 				<></>
 			)}
-			<img className="h-[40px]" src={Writesvg}></img>
+			<img className="h-[40px] cursor-pointer"  src={Writesvg} onClick={createRoom}></img>
 		</form>
 			</div>
 		</div>
 	)
-	return (
-		
-		<form className="flex flex-col">
-			<div className="flex flex-row">
-				<div className="flex flex-row">
-					<p>name</p>
-					<input onChange={(e) => setName(e.target.value)} placeholder="type a name" type="text"></input>
-				</div>
-				<p>RoomType</p>
-				<select onChange={(e) => setType(e.target.value)}>
-					<option value="public">public</option>
-					<option value="protected">protected</option>
-					<option value="private">private</option>
-				</select>
-			</div>
-			{type === "protected" ? (
-				<div className="flex flex-row">
-					<p>Password</p>
-					<input onChange={(e) => setPassword(e.target.value)} placeholder="***" type="password"></input>
-				</div>
-			) : (
-				<></>
-			)}
-			<button onClick={createRoom}> Create </button>
-			<button onClick={() => click(false)}>dismiss</button>
-		</form>
-	);
+
 };
 
 export default SideBar;

@@ -52,7 +52,7 @@ export const ChangeRoomType = ({ room }: { room: room | null }) => {
 				onClick={(e) => (() => e.stopPropagation())()}
 				className="w-2/3 p-6 rounded-lg shadow-xl bg-background"
 			>
-				<form className="flex flex-col  items-center">
+				<form  className="flex flex-col  items-center">
 					<div>
 						<div>
 							<p>New name</p>

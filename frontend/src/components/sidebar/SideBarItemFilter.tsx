@@ -49,7 +49,7 @@ const SideBarItemFilter = ({
 		}
 	}
 	return (
-		<div className="border-solid border-white border-2 flex h-full flex-col flex-auto gap-2 overflow-y-scroll">
+		<div className=" flex h-full flex-col flex-auto gap-2 overflow-y-scroll">
 			{list}
 		</div>
 	);
