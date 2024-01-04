@@ -23,6 +23,7 @@ import Dashboard from "./components/Dashboard/Dashboard";
 import { SearchWindow } from "./Search/Search";
 import { use } from "matter-js";
 import axios, { Axios } from "axios";
+import Loading from "./components/loading/loading";
 
 const getuser = (setuser: any) => {
 	fetch("http://" + ip + "3001/users", { credentials: "include" })
@@ -161,38 +162,38 @@ const router = createBrowserRouter([
 const Refreshinterval = () => {
 	const [error, setError] = useState<string | null>(null);
 	const intervalRef = useRef<NodeJS.Timer | undefined>();
-  
+
 	const getToken = useCallback(() => {
-	  axios
-		.post("http://localhost:3001/auth/refresh", {}, { withCredentials: true })
-		.then((res) => {
-		  console.log(res);
-		  console.log(res.data);
-		})
-		.catch((err): any => {
-		  console.error("axios get refresh error:", err);
-		  setError("error : refresh token not found");
-		});
+		axios
+			.post("http://localhost:3001/auth/refresh", {}, { withCredentials: true })
+			.then((res) => {
+				console.log(res);
+				console.log(res.data);
+			})
+			.catch((err): any => {
+				console.error("axios get refresh error:", err);
+				setError("error : refresh token not found");
+			});
 	}, []);
-  
+
 	useEffect(() => {
-	  const interval = setInterval(() => getToken(),   14 * 60 * 1000);
-	  intervalRef.current = interval;
-  
-	  return () => clearInterval(interval);
+		const interval = setInterval(() => getToken(), 14 * 60 * 1000);
+		intervalRef.current = interval;
+
+		return () => clearInterval(interval);
 	}, [getToken]);
-  
+
 	useEffect(() => {
-	  if (error) {
-		toast.error(error);
-		setError(null); 
-	  }
+		if (error) {
+			toast.error(error);
+			setError(null);
+		}
 	}, [error]);
-  
-	return <></>; 
-  };
-	
-	const App = () => {
+
+	return <></>;
+};
+
+const App = () => {
 	const [user, setuser] = useState<CurrentUser | null>(null);
 	const socket = useContext(SocketContext);
 	const [togglebar, settoglebar] = useState(0);
@@ -209,27 +210,32 @@ const Refreshinterval = () => {
 				<currentUser.Provider value={user}>
 					<div>
 						<BrowserRouter>
-							<Navbar />
-							{(togglebar === 0 || togglebar === 1) && user ? (
-								<SideBar toogle={togglebar} settogle={settoglebar} />
-							) : (
-								<></>
-							)}
-							{(togglebar === 0 || togglebar === 2)  && user ? (
-								<NotificationBar toogle={togglebar} settogle={settoglebar} />
-							) : (
-								<></>
+							{window.location.pathname !== "/loading" && (
+								<>
+									<Navbar />
+									{(togglebar === 0 || togglebar === 1) && user ? (
+										<SideBar toogle={togglebar} settogle={settoglebar} />
+									) : (
+										<></>
+									)}
+									{(togglebar === 0 || togglebar === 2) && user ? (
+										<NotificationBar toogle={togglebar} settogle={settoglebar} />
+									) : (
+										<></>
+									)}
+								</>
 							)}
 							<Routes>
 								<Route path="/search" element={<SearchWindow />} />
 								<Route path="/" element={<Dashboard />} />
 								<Route path="/game" element={<GameMain />} />
+								<Route path="/loading" element={<Loading />} />
+								<Route path="/*" element={<Dashboard />} />
 							</Routes>
 						</BrowserRouter>
 					</div>
 				</currentUser.Provider>
 			}
-
 		</div>
 	);
 };

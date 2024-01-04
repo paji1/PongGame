@@ -9,10 +9,15 @@ import { AuthDto } from "./dto";
 import { Tokens } from "./types";
 import { Response } from "express";
 import { retry } from "rxjs";
+import * as path from "path";
+import { UsersService } from "src/users/users.service";
 
 @Controller("auth")
 export class AuthController {
-	constructor(private authService: AuthService) {}
+	constructor(
+		private authService: AuthService,
+		private readonly usersService: UsersService,
+	) {}
 
 	// @Get("create")
 	// @Public()
@@ -59,22 +64,36 @@ export class AuthController {
 	@Get("intra/login")
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(AuthGuard("intra"))
-	@Redirect('http://localhost:3001/')
+	@Redirect("http://localhost:3001/")
 	intraLogin(@Body() user: any) {
 		console.log("first");
-		return {helllo : "hello" };
+		return { helllo: "hello" };
 	}
 	
 	@Get("callback_42")
 	@Public()
 	@UseGuards(AuthGuard("intra"))
-	@Redirect('http://localhost:3001/')
+	@Redirect("http://localhost:3001/")
 	async handleCallback(@GetUser() userdto: AuthIntraDto, @Res() res: Response): Promise<void> {
-		const [token, signUpstate] = await this.authService.handle_intra(userdto);
-		(await this.authService.syncTokensHttpOnly(res, token)).json({ signUpstate: signUpstate }).end();
+		try {
+			const [token, signUpstate] = await this.authService.handle_intra(userdto);
+			const userData = { ...(await this.usersService.getUser42(userdto.user42)), signUpstate };
 
+			await Promise.all([
+				res.cookie("userData", JSON.stringify({ userData }), { httpOnly: false }),
+				this.authService.syncTokensHttpOnly(res, token),
+			]);
+			// const windowRef = window;
+			
+
+			res.redirect("http://localhost:3000/loading");
+		} catch (error) {
+			console.error("Error in handleCallback:", error);
+			res.status(500).send("Internal Server Error");
+		}
 	}
 
+	
 	@Post("logout")
 	@HttpCode(HttpStatus.OK)
 	async logout(@GetCurrentUser("user42") user42: string, @Res() res: Response): Promise<boolean> {
@@ -97,7 +116,7 @@ export class AuthController {
 		@GetCurrentUser("refreshToken") refreshToken: string,
 		@Res() res: Response,
 	): Promise<void> {
-		console.log("refresh    ",refreshToken);
+		console.log("refresh    ", refreshToken);
 		const tokens = await this.authService.refreshTokens(userId, refreshToken, res);
 		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}

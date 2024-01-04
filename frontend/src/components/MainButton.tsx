@@ -3,6 +3,9 @@ import karontdo from "../assets/42.png"
 import { currentUser, CurrentUser } from "./Context/AuthContext";
 import { ip } from "../network/ipaddr";
 
+import Cookies from "js-cookie";
+import { Sleeping } from "matter-js";
+
 
 
 
@@ -25,17 +28,9 @@ interface buttonVariables {
 }
 
 
-const getuser = (setuser: any) => {
-	fetch("http://" + ip + "3001/users", { credentials: "include" })
-		.then((data) => data.json())
-		.then((data) => {
-			let res = data.statusCode;
-			if (res === undefined) {
-				setuser(data);
-			}
-		})
-		.catch((e) => console.error(e));
-};
+
+
+
 
 interface PopupProps {
     onClose: () => void;
@@ -44,10 +39,37 @@ const Popup: React.FC<PopupProps> = ({ onClose }) =>  {
 
 
     
-    const [user,setuser] = useState<CurrentUser | null>(null);
+    const [user,setUser] = useState<CurrentUser | null>(null);
 
     const popupWindowRef = useRef<any>(null);
-    const intervalIdRef = useRef<any>(null);
+    useEffect(() => {
+      const handleMessage = (event:any) => {
+        console.log(event.origin);
+        if (event.origin === "http://localhost:3000") {
+          console.log("hello1");
+          if (event.data.success) {
+            // Handle successful response (if needed)
+    
+            // Close the popup window
+            console.log("hello");
+            
+            onClose();
+            window.location.reload();
+            popupWindowRef.current.close();
+          } else {
+            // Handle unsuccessful response
+            console.error('Response from NestJS failed:', event.data.error);
+          }
+        }
+      };
+    
+      window.addEventListener('message', handleMessage);
+    
+      return () => {
+        window.removeEventListener('message', handleMessage);
+      };
+    }, [popupWindowRef]); 
+
     const  KarontdoIntra = () => {
             const oauthUrl = 'http://localhost:3001/auth/intra/login';
             var title="OAuth Pop-up";
@@ -62,24 +84,10 @@ const Popup: React.FC<PopupProps> = ({ onClose }) =>  {
               );
             console.log("her");
       };
-      useEffect(() => {
-        const intervalid = setInterval(() => {
-          const popupWindo = popupWindowRef.current; 
-          getuser(setuser);
-          console.log("popwindow", popupWindo);
-          console.log(user);
 
-          if (user !== null)
-          {
-            if (popupWindo)
-              popupWindo.close();
-            clearInterval(intervalid);
-            onClose();
-          }
-        }, 2000);
-    
-        return () => clearInterval(intervalid); 
-      }, [user]);
+
+
+
   
 
 
@@ -128,7 +136,7 @@ const MainButton: React.FC<buttonVariables> = (props) => {
 	return (
 		<>
 		<a
-			href={`${(props.name === "signin" ? "/#": props.url )}`}
+			href={`${(props.name === "signin" ? "#" : props.url )}`}
 			className={`bg-buttonColor text-textColor w-full py-2 px-8
 			rounded-full shadow-buttonShadow border-solid border-textColor border-2
 			`}

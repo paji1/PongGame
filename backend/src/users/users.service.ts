@@ -32,6 +32,23 @@ export class UsersService {
 			throw new HttpException("failed to fetch user", HttpStatus.BAD_REQUEST);
 		return data;
 	}
+	async getUser42(user42 :string)
+	{
+		const data = await this.prisma.user.findUnique({where:{user42:user42}
+		,
+		select:
+		{
+			id:true,
+			user42:true,
+			nickname:true,
+			avatar:true,
+			status:true,
+		}
+		})
+		if (!data)
+			throw new HttpException("failed to fetch user", HttpStatus.BAD_REQUEST);
+		return data;
+	}
 	//   async validate_user()
 
 

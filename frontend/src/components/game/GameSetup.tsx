@@ -100,7 +100,7 @@ const ConfigElems = () => {
 	)
 }
 
-const AnimatedElement = () => {
+export const AnimatedElement = () => {
 
 	const container = useRef(null)
 	const [difficulty, _] = useContext(DifficultyContext)
