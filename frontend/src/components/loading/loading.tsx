@@ -20,7 +20,7 @@ const Loading: FC<LoadingProps> = () => {
     async function makeRequest() {
       const data : string | undefined = await Cookies.get('userData');
       
-      await delay(1000);
+      await delay(12* 1000);
       if (window.opener)
       {
         await window.opener.postMessage({

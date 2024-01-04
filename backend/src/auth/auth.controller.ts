@@ -38,7 +38,7 @@ export class AuthController {
 	// 	return console.log("hello world");
 	// }
 
-	@Public()
+	
 	@Post("local/signup")
 	@HttpCode(HttpStatus.CREATED)
 	async signupLocal(
@@ -46,10 +46,31 @@ export class AuthController {
 		@Res() res: Response,
 		@GetCurrentUser("user42") user42: string,
 	): Promise<void> {
-		// console.log(dto);
-		const tokens = await this.authService.updateLocal(dto, user42);
-		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
+		const [tokens, user] = await this.authService.updateLocal(dto, user42);
+		await Promise.all([
+			res.cookie("userData", JSON.stringify({ user }), { httpOnly: false }),
+			this.authService.syncTokensHttpOnly(res, tokens),
+		]);
+		res.end()
 	}
+
+
+	// tahaTODO 
+	@Post("local/apdate/password")
+	@HttpCode(HttpStatus.CREATED)
+	async updatePassword(
+		@Body() dto: AuthSignUp,
+		@Res() res: Response,
+		@GetCurrentUser("user42") user42: string,
+		): Promise<void> {
+			const [tokens, user] = await this.authService.updateLocal(dto, user42);
+			await Promise.all([
+				res.cookie("userData", JSON.stringify({ user }), { httpOnly: false }),
+				this.authService.syncTokensHttpOnly(res, tokens),
+			]);
+			res.end()
+		}
+		// tahaTODO  nickname update  
 
 	@Public()
 	@Post("local/signin")
@@ -57,6 +78,7 @@ export class AuthController {
 	async signinLocal(@Body() dto: AuthDto, @Res() res: Response): Promise<any> {
 		const tokens = await this.authService.signinLocal(dto);
 		// console.log("hello");
+		
 		return (await this.authService.syncTokensHttpOnly(res, tokens)).end();
 	}
 
@@ -73,7 +95,6 @@ export class AuthController {
 	@Get("callback_42")
 	@Public()
 	@UseGuards(AuthGuard("intra"))
-	@Redirect("http://localhost:3001/")
 	async handleCallback(@GetUser() userdto: AuthIntraDto, @Res() res: Response): Promise<void> {
 		try {
 			const [token, signUpstate] = await this.authService.handle_intra(userdto);

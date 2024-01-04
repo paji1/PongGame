@@ -7,14 +7,23 @@ import { AtGuard } from "./common/guards";
 import { ConfigModule } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
 import { InviteModule } from "./invite/invite.module";
-import { AppGateway } from './app.gateway';
-import {  EventEmitterModule } from "@nestjs/event-emitter";
+import { AppGateway } from "./app.gateway";
+import { EventEmitterModule } from "@nestjs/event-emitter";
+import { JwtModule } from "@nestjs/jwt";
 
 @Module({
-	imports: [ConfigModule.forRoot({ isGlobal: true }), EventEmitterModule.forRoot() , PrismaModule, ChatModule, AuthModule, UsersModule, InviteModule],
+	imports: [
+		ConfigModule.forRoot({ isGlobal: true }),
+		EventEmitterModule.forRoot(),
+		PrismaModule,
+		JwtModule.register({}),
+		ChatModule,
+		AuthModule,
+		UsersModule,
+		InviteModule,
+	],
 
 	providers: [
-		
 		{
 			provide: APP_GUARD,
 			useClass: AtGuard,
