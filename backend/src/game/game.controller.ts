@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Res, HttpException, HttpStatus } from '@nestjs/common';
 import { GameService } from './game.service';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
@@ -26,6 +26,8 @@ export class GameController {
 	@Get(':id')
 	async findOne(@Param('id') id: string) {
 		const game = await this.gameService.findOne(id);
+		if (!game)
+			throw new HttpException("Game not found", HttpStatus.BAD_REQUEST);
 		return game
 	}
 

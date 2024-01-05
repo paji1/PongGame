@@ -151,13 +151,10 @@ export class GameMatchingService {
 		queue.push({id, socket_id})
 	}
 
-	isInQueue(id: number): EDifficulty | null {
-		const difficulties = [EDifficulty.EASY, EDifficulty.MEDIUM, EDifficulty.HARD];
-		
-		for (const difficulty of difficulties) {
-			if (this.queues.get(difficulty).find(queue => queue.id === id))
-				return difficulty
-		}
+	isInQueue(id: number): string | null {
+		for (const [key, queue] of this.queues)
+			if (queue.find(elem => elem.id === id))
+				return key
 		return null;
 	}
 
@@ -168,7 +165,12 @@ export class GameMatchingService {
 		const queue = this.queues.get(found)
 		const index = queue.findIndex(queue => queue.id === id)
 		if (index !== -1)
+		{
 			queue.splice(index, 1);
+			if (found !== EDifficulty.EASY && found !== EDifficulty.MEDIUM
+				&& found !== EDifficulty.HARD && queue.length === 0)
+				this.queues.delete(found)
+		}
 	}
 
 	randomMatchingHandler(id: number, difficulty: EDifficulty, socket_id: string) {
@@ -207,8 +209,17 @@ export class GameMatchingService {
 		let queue = this.queues.get(game_id)
 		if (!queue)
 			throw new Error(`Invalid queueing system`)
-		if (queue.length > 2)
+		if (queue.length >= 2)
 			throw new Error(`Invalid invitation`)
 		queue.push({id: player_id, socket_id})
+	}
+
+	getUserSocketInQueue(player_id: number, queue_id: string)
+	{
+		const queue = this.queues.get(queue_id)
+		if (!queue)
+			return null
+		const q = queue.find(elem => elem.id === player_id)
+		return q ? q.socket_id : null
 	}
 }

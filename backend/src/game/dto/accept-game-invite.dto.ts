@@ -4,12 +4,16 @@ import { EDifficulty } from "src/types.ts/game-matching.interface"
 export class AcceptGameInviteDto {
 
 	@IsNumber()
+	@Min(1, {message: "Invalid invite ID"})
+	invite_id: number
+
+	@IsNumber()
 	@Min(1, {message: "Invalid user ID"})
 	issuer_id: number
 
 	@IsNumber()
 	@Min(1, {message: "Invalid user ID"})
-	reciever_id: number
+	receiver_id: number
 
 	@IsString()
 	@IsNotEmpty({message: "Invalid issuer username"})
@@ -29,5 +33,5 @@ export class AcceptGameInviteDto {
 
 	@IsString()
 	@IsNotEmpty({message: "Invalid socket ID"})
-	issuer_socket_id: string
+	issuer_socket: string
 }

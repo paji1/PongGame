@@ -296,7 +296,32 @@ export class InviteService {
 			},
 			data: {
 				status: actionstatus.accepted,
-			}
+			},
+			select:
+            {
+                id:true,
+                type:true,
+                created_at:true,
+                status:true,
+                issuer_id:
+                {
+                    select:
+                    {
+                        id:true,
+                        nickname:true,
+                        user42:true,
+                        avatar:true
+                    },
+                },
+                reciever_id:
+                {
+                    select:
+                    {
+                        nickname:true,
+						user42: true,
+                    }
+                },
+            }
 		})
 	}
 }
