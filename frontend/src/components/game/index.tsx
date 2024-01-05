@@ -6,6 +6,8 @@ import QueueLoader from "./QueueLoader";
 import { SocketContext } from "../Context/SocketContext";
 import PlayGround from "./Game";
 import { useParams } from "react-router-dom";
+import { ip } from "../../network/ipaddr";
+import { toast } from "react-toastify";
 
 const ButtonComponent = () => {
 	return (
@@ -43,7 +45,7 @@ const GameFooter = () => (
     </div>
 )
 
-const GameBody = () => {
+const GameBody = ({isReady}: {isReady: boolean}) => {
 
 	const gameBodyRef = useRef(null)
 	const [preparation, setPreparation] = useState(EGamePreparationState.CONFIG_STATE)
@@ -54,10 +56,6 @@ const GameBody = () => {
 			setPreparation(EGamePreparationState.QUEUING_STATE)
 		})
 
-		socket.on('start_game', () => {
-			setPreparation(EGamePreparationState.READY_STATE)
-		})
-
 		socket.on('SUCCESSFUL_INVITE', () => {
 			setPreparation(EGamePreparationState.QUEUING_STATE)
 		})
@@ -66,7 +64,6 @@ const GameBody = () => {
 		return (
 			() => {
 				socket.off('enter_queue')
-				socket.off('start_game')
 				socket.off('SUCCESSFUL_INVITE')
 			}
 		)
@@ -77,9 +74,10 @@ const GameBody = () => {
 		sm:w-[576px] md:w-[691px] lg:w-[921px] xl:w-[1152px] 2xl:w-[1346px] w-[281px]
 		sm:h-[324px] md:h-[389px] lg:h-[518px] xl:h-[648px] 2xl:h-[757px] h-[500px]`}>
 		{
-			preparation === EGamePreparationState.CONFIG_STATE ? <GameSetup /> :
-			preparation === EGamePreparationState.QUEUING_STATE ? <QueueLoader /> :
-			preparation === EGamePreparationState.READY_STATE ? <PlayGround /> : null
+			isReady ? <PlayGround /> : 
+				preparation === EGamePreparationState.CONFIG_STATE ? <GameSetup /> :
+				preparation === EGamePreparationState.QUEUING_STATE ? <QueueLoader /> :
+				preparation === EGamePreparationState.READY_STATE ? <PlayGround /> : null
 		}
 		</div>
 	)
@@ -95,14 +93,38 @@ const GameFrame = () => {
 }
 
 const GameUI = () => {
-
+	
 	const params = useParams()
+	const [isSet, setIsSet] = useState(false)
+
+	useEffect(() => {
+		if (params.gameID)
+		{
+			(async () => {
+				const res = await fetch(`http://${ip}3001/game/${params.gameID}`, {
+					credentials: 'include',
+					method: 'GET'
+				})
+				if (res.status !== 200)
+				{
+					toast.error("You are not allowed to enter this game")
+					return
+				}
+				setIsSet(true)
+				console.log(res)
+			})()
+		}
+		else
+		{
+			setIsSet(false)
+		}
+	}, [])
 
 	return (
 		<div id="game-ui" className={`flex flex-col items-center h-auto inset-0`}>
 			<div className={`flex flex-col items-center p-1 sm:p-5 mt-6
 				`}>
-				<GameBody />
+				<GameBody isReady={isSet} />
 				<GameFooter />
 			</div>
 		</div>

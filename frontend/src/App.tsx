@@ -158,6 +158,15 @@ const App = () => {
 		socket.connect()
 	}
 
+	useEffect(() => {
+		socket.on('start_game', (data) => {
+			window.location.replace(`${window.location.origin}/game/${data.game_id}`)
+		})
+		return (
+			() => {socket.off('start_game')}
+		)
+	}, [])
+
 	socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."))
 	return (
 		
