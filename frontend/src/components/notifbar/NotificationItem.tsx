@@ -16,17 +16,19 @@ const RejectFriend = async (id:number) =>
 }
 
 
-const acceptGameInvite = async (id: number, notif: INotificaion, socket: any) => {
-	await fetch(`http://${ip}3001/invite/game/accept?id=${id}` , { credentials: "include", method: "GET" ,});
-	socket.emit("ACCEPT_GAME_INVITE", {
+const acceptGameInvite = async (notif: INotificaion, socket: any) => {
+	console.log('Accepting game invite')
+	const e = {
+		invite_id: notif.id,
 		issuer_id: notif.issuer_id.id,
 		receiver_id: notif.reciever_id.id,
 		issuer_name: notif.issuer_id.user42,
 		reciever_name: notif.reciever_id.user42,
-		issuer_socket: socket.id,
+		issuer_socket: socket.id, // TODO:hadi ma blanx
 		game_id: notif.game_id,
 		game_mode: notif.difficulty
-	})
+	}
+	socket.emit("ACCEPT_GAME_INVITE", e)
 }
 
 
@@ -38,7 +40,8 @@ const routeinvites = (what:string, notif:INotificaion,  socket: any) =>
 			AcceptFriend(notif.id)
 		if (notif.type ===  InviteType.Game)
 		{
-			acceptGameInvite(notif.id, notif, socket)
+			console.log('notif:', notif)
+			acceptGameInvite(notif, socket)
 		}
 		if (notif.type ===  InviteType.Room)
 			socket.emit("ROOMACTION", {room:notif.room_id.id, target:notif.id, What: what})
