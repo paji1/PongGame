@@ -3,6 +3,7 @@ import { member } from "../../../types/room";
 import {
 	AdminButton,
 	BanButton,
+	Blockbutton,
 	DeleteRoom,
 	KickButton,
 	LeaveButton,
@@ -13,7 +14,9 @@ import { SocketContext } from "../../Context/SocketContext";
 import AdminSvg from "../../../assets/admin.svg";
 import Ownersvg from "../../../assets/owner.svg";
 import Normalsvg from "../../../assets/normal.svg";
+
 import { toast } from "react-toastify";
+import { CurrentUser } from "../../Context/AuthContext";
 
 const filter = (str: string) => {
 	if (str === "admin") return AdminSvg;
@@ -106,52 +109,25 @@ export const RoomsettingItem = ({
 	);
 };
 
-export const FriendsettingItem = ({ user, roomid }: { user: member | undefined; roomid: number | undefined }) => {
-	const [expand, setExpand] = useState(false);
+export const FriendsettingItem = ({ user, roomid }: { user: member | undefined; roomid: number | undefined}) => {
 	const socket = useContext(SocketContext);
-	var more;
-	if (typeof user == "undefined" || typeof roomid === "undefined") return <></>;
-	if (expand)
-		more = (
-			<div className="flex flex-col">
-				{!user.isblocked ? (
-					<button
-						onClick={() =>
-							socket.connected
-								? socket.emit("BLOCK", { target: user.user_id.id, room: roomid, What: "BLOCK" })
-								: toast.error("socket not conected")
-						}
-					>
-						block
-					</button>
-				) : (
-					<button
-						onClick={() =>
-							socket.connected
-								? socket.emit("BLOCK", { target: user.user_id.id, room: roomid, What: "UNBLOCK" })
-								: toast.error("socket not conected")
-						}
-					>
-						unblock
-					</button>
-				)}
-			</div>
-		);
+	if (typeof user == "undefined" || typeof roomid === "undefined")
+		return <></>;
 	return (
-		<div>
-			<div className="flex flex-row border-solid border-2 gap-2">
-				<div className="max-h-[75px] max-w-[75px]">
-					<img src={user?.user_id.avatar}></img>
+			<div className="flex flex-row border-solid border-2 p-3 gap-y-4">
+				<div className=" flex flex-col items-center">
+					<img className="border-solid border-2 max-h-[75px] max-w-[75px]" src={user?.user_id.avatar}></img>
+					<h1 className="m-x">{user.user_id.nickname}</h1>
 				</div>
-				<div>
-					<p>{user.user_id.nickname}</p>
-				</div>
-				<div></div>
-				<div>
-					<button onClick={() => setExpand(!expand)}>{expand ? "less" : "more"} </button>
+
+				<div className="flex flex-row  justify-between  m-5 w-full h-full">
+					<div>
+						<h1 className="h-[50px] w-[50px]" >{user.isblocked ? "blocked" : filter(user.permission)}</h1>	
+					</div>
+					<div>
+						<Blockbutton user={user} socket={socket} roomid={roomid} />
+					</div>
 				</div>
 			</div>
-			{more}
-		</div>
 	);
 };

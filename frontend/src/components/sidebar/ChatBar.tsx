@@ -1,26 +1,28 @@
 import React, { useContext } from "react";
 import { useState } from "react";
 import { room } from "../../types/room";
-import { SocketMessage, messages, roommessages } from "../../types/messages";
-import useMessages from "../../hooks/useMessages";
+import {  messages, roommessages } from "../../types/messages";
 import { toast } from "react-toastify";
 import { currentUser, CurrentUser } from "../../components/Context/AuthContext";
-import { log } from "console";
 import { SocketContext } from "../Context/SocketContext";
 import RoomSettings from "./RoomSettings";
 import FriendSetting from "./FriendSetting";
 import { ip } from "../../network/ipaddr";
+import Sendsvg from "../../assets/send.svg"
+import Datasvg from "../../assets/data.svg"
+
 
 const Messageitem = ({ user, messages }: { user: CurrentUser; messages: messages }) => {
 	return (
-		<div
-			className={`flex  ${
-				user?.id === messages.senderid.id ? "flex-row-reverse" : "flex-row"
-			} border rounded  justify-between`}
+		<div className={`flex  ${user?.id === messages.senderid.id ? "flex-row-reverse" : "flex-row"}     justify-between `}
 		>
-			<img className="max-h-[60px] max-w-[60px]" src={messages.senderid.avatar}></img>
-			<p>{messages.messages}</p>
-			<p>{new Date(messages.created_at).toDateString()}</p>
+			<div className="w-[15%] flex justify-center ">
+				<img className=" border-solid border-2 rounded-full h-[60px] w-[60px]" src={messages.senderid.avatar}></img>
+			</div>
+			<div className={`p-2 rounded-2xl border-solid  border-2 w-[80%] flex items-center ${user?.id === messages.senderid.id ? "justify-end bg-MeColor" : "justify-start bg-YouColor"}` }>
+				<p className={`w-full  break-words  ${user?.id === messages.senderid.id ? "text-right" : ""}  `} >{messages.messages}</p>
+			</div>
+			<div className="w-[10px]"></div>
 		</div>
 	);
 };
@@ -70,7 +72,6 @@ const ChatBar = ({
 						toast(`reached the  top`);
 						return;
 					}
-					toast.error("youforget to fetch here");
 				} else toast.error(data.message);
 			})
 			.catch(() => toast.error(`network error`));
@@ -100,9 +101,17 @@ const ChatBar = ({
 					</svg>
 				</button>
 			</div>
-			{pajination ? <button onClick={() => getMoreMessages(room?.id)}>more</button> : <></>}
-			<div className="  flex overflow-y-scroll   flex-col-reverse basis-full p-1 ">{messages}</div>
-			<div className="bg-gray-600">
+			{pajination ? 
+			<div className="flex justify-center">
+				 
+				<img onClick={() => getMoreMessages(room?.id)} className="h-[30px]  cursor-pointer rounded-lg " src={Datasvg}>
+				</img>
+			</div>
+			 : null}
+			<div className="  flex overflow-y-scroll   flex-col-reverse basis-full p-1 gap-y-6 ">
+				{messages}
+			</div>
+			<div >
 				<MessageBar roomnumber={conversation ? conversation.id : -1} />
 			</div>
 		</div>
@@ -137,11 +146,29 @@ const MessageBar = ({ roomnumber }: { roomnumber: number }) => {
 		input.target.value = "";
 		settextmessage(input.target.value);
 	};
+	const  submitOnEnter = (event :any) =>{
+		
+		if (event.which == 13)
+		{
+			event.preventDefault(); 
+			event.target.value = ""
+			settextmessage(event.target.value)
+			sendSocket(event);
+			return ;
+		}
+	}
 
 	return (
-		<form>
-			<input type="text" value={textmessage} onChange={setMessage} placeholder="write something here"></input>
-			<button onClick={sendSocket}>sendMessage</button>
+
+		<form className="h-[60px] flex flex-row  justify-between ">
+			<div className="h-full w-full  flex items-center justify-center  ">
+				<textarea onKeyDown={(e) => submitOnEnter(e)} className=" max-h-[3rem] min-h-[3rem]  rounded-lg w-[95%] h-[80%] break-words text-black"  value={textmessage} onChange={setMessage} placeholder="send a new message"></textarea>
+			</div>
+			<div className=" h-full w-[20%]   flex items-center justify-center">
+				<button className=" w-[80%] h-[80%]" onClick={sendSocket}>
+					<img  className="h-full w-full rounded-lg border-solid border-white border-2" src={Sendsvg}></img>
+				</button>
+			</div>
 		</form>
 	);
 };

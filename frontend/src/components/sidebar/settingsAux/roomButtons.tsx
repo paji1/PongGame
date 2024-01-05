@@ -8,6 +8,7 @@ import AdminSvg from "../../../assets/admin.svg";
 import Ownersvg from "../../../assets/owner.svg";
 import Leavesvg from "../../../assets/leave.svg";
 import Deletesvg from "../../../assets/delete.svg";
+import BlockSvg from "../../../assets/blockicon.svg";
 
 export const MuteButton = ({ room, roomuser, socket }: { room: number; roomuser: member; socket: Socket }) =>
 	roomuser.ismuted ? (
@@ -139,3 +140,44 @@ export const LeaveButton = ({
 		<img title="leave user" className="h-[30px] w-[30px]" src={Leavesvg}></img>
 	</button>
 );
+
+
+export const Blockbutton = ({
+	user,
+	socket,
+	roomid
+}:
+{
+	user: member ,
+	socket: Socket,
+	roomid: number| undefined
+
+}
+) => 
+(
+	<div className="flex flex-col">
+				{!user.isblocked ? (
+					<button
+						onClick={() =>
+							socket.connected
+								? socket.emit("BLOCK", { target: user.user_id.id, room: roomid, What: "BLOCK" })
+								: toast.error("socket not conected")
+						}
+					>
+							<img title="Block user" className="h-[30px] w-[30px]" src={BlockSvg}></img>
+
+					</button>
+				) : (
+					<button
+						onClick={() =>
+							socket.connected
+								? socket.emit("BLOCK", { target: user.user_id.id, room: roomid, What: "UNBLOCK" })
+								: toast.error("socket not conected")
+						}
+					>
+							<img title="Block user" className="h-[30px] w-[30px] bg-teal-600" src={BlockSvg}></img>
+
+					</button>
+				)}
+			</div>
+)

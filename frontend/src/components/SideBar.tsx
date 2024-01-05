@@ -10,8 +10,6 @@ import { messages, roommessages } from "../types/messages";
 import useMessages from "../hooks/useMessages";
 import { SocketContext } from "./Context/SocketContext";
 import { toast } from "react-toastify";
-import { backendretun } from "../types/backendreturn";
-import { ip } from "../network/ipaddr";
 import { update } from "./sidebar/updater";
 import { currentUser } from "./Context/AuthContext";
 import { Socket } from "socket.io-client";
@@ -30,7 +28,7 @@ const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 	const [subscriberooms, setsubscriptrooms] = useState(false);
 	const [newAlert, setNewAlert] = useState(false);
 
-	socket.off("connect").on("connect", () => setsubscriptrooms(!subscriberooms));
+
 	const friendroom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof === "chat") : null;
 	const grouproom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof !== "chat") : null;
 	useMessages(false, setChatState);
@@ -40,6 +38,7 @@ const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 	}, [roomsState, subscriberooms]);
 	const currentchat = Array.isArray(chatState) ? chatState.find((ob: roommessages) => ob.id === chatSelector) : null;
 	const currentroom = Array.isArray(roomsState) ? roomsState.find((ob: room) => ob.id === chatSelector) : null;
+	socket.off("connect").on("connect", () => setsubscriptrooms(!subscriberooms));
 	socket.off("ACTION").on("ACTION", (data) => {
 		update(data, roomsState, setRoomsState, chatState, setChatState, user);
 		if (data.region == "CHAT" && data.action == "NEW") setNewAlert(true);

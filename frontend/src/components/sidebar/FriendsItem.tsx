@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; glimpse: messages[] }) => {
 	let preview;
 	const user = useContext(currentUser);
-	const friend = room.rooms_members.filter((ob) => ob.id !== user?.id);
+	const friend = room.rooms_members.filter((ob) => ob.user_id.id !== user?.id);
 	if (Array.isArray(glimpse) && glimpse.length == 1)
 		preview = glimpse[0].messages.length > 25 ? glimpse[0].messages.substring(0, 25) : glimpse[0].messages;
 	const name = friend[0].user_id.nickname;
