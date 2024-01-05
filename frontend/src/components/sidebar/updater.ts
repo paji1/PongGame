@@ -74,7 +74,8 @@ export const update = (
 				break;
 			case "MOD":
 				const room2 = data.data as room;
-				let indexr = newroomState.findIndex((ob: room) => (ob.id = room2.id));
+				console.log("MOD asdas", room2)
+				let indexr = newroomState.findIndex((ob: room) => (ob.id === room2.id));
 				newroomState[indexr].name = room2.name;
 				newroomState[indexr].roomtypeof = room2.roomtypeof;
 				break;
