@@ -22,7 +22,9 @@ module.exports = {
 				'errorColor': "#F18DB3",
 				'BkColor': "#E7E5DF",
 				'DefaultColor': "#F2F2F2",
-				'JacobsBlueColor': "#24BEC8"
+				'JacobsBlueColor': "#24BEC8",
+				'MeColor' : "#3F97D0",
+				'YouColor': "#015184"
 			},
 			boxShadow: {
 				'buttonShadow': '6px 5px 0 0 #000301',
