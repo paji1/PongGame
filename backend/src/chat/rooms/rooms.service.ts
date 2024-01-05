@@ -265,6 +265,11 @@ export class RoomsService {
 					isBanned: true,
 					ismuted: true,
 					created_at: true,
+					rooms:{
+						select:{
+							name:true,
+						}
+					},
 					user_id: {
 						select: {
 							id: true,
@@ -657,6 +662,10 @@ export class RoomsService {
 					isblocked: true,
 					isBanned: true,
 					ismuted: true,
+					rooms:
+					{
+						select:{name:true},
+					},
 					created_at: true,
 					user_id: {
 						select: {
@@ -698,6 +707,11 @@ export class RoomsService {
 					isBanned: true,
 					ismuted: true,
 					created_at: true,
+					rooms:{
+						select:{
+							name:true,
+						}
+					},
 					user_id: {
 						select: {
 							id: true,
@@ -914,6 +928,7 @@ export class RoomsService {
                 type:true,
                 created_at:true,
                 status:true,
+				
                 issuer_id:
                 {
                     select:

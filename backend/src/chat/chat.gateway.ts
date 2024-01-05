@@ -69,7 +69,6 @@ export class ChatGateway {
 		try
 		{
 			const newroom = await this.service.rooms.join_room(id, room.room, room);
-			console.log("join room try", newroom)
 			if (newroom)
 				{
 					this.server.to(identifier).emit("ACTION", {region: "ROOM", action:"JOIN", data: newroom}) 
@@ -77,13 +76,11 @@ export class ChatGateway {
 				}
 			else
 			{
-				console.log("reefsadfdsfdsfdsfsdfdsfdsfdsfdsfdsfdsfdsfdsfdsfsfsdfds")
 				throw new Error("user probably in room")
 			}
 	}	
 	catch (e)
 	{
-		console.log("reefsadfdsfdsfdsf165156156156156156156156s")
 
 			client.emit("ChatError", e.message);
 		}
@@ -101,7 +98,7 @@ export class ChatGateway {
 		{
 			const newroom = await this.service.rooms.modify_room(id,room.room, room);
 			this.server.to(room.room.toString()).emit("ACTION", {region: "ROOM", action:"MOD", data: newroom}) 
-			this.server.to(room.room.toString()).emit("NOTIFY", `room ${newroom.name} owner changet its permition`)
+			this.server.to(room.room.toString()).emit("NOTIFY", `room ${newroom.name} setting are changed `)
 		}	
 		catch (e)
 		{
@@ -177,7 +174,7 @@ export class ChatGateway {
 		}
 
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})
-		this.server.to(Message.room.toString()).emit("NOTIFY", `user: ${res.user_id.nickname} been blocked`)
+		this.server.to(Message.room.toString()).emit("NOTIFY", `user: ${res.user_id.nickname} is blocked`)
 
 	}
 
@@ -242,7 +239,7 @@ export class ChatGateway {
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})
-		this.server.to(Message.room.toString()).emit("NOTIFY", ` ${identifier} ${Message.What} ${res.user_id.nickname}`)
+		this.server.to(Message.room.toString()).emit("NOTIFY", ` ${identifier} did  ${Message.What} ${res.user_id.nickname}`)
 		if (Message.What ==="UNBAN")
 			return
 		this.server.sockets.adapter.rooms.get(identifier).forEach((client)=> 
@@ -326,13 +323,8 @@ export class ChatGateway {
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})
-		this.server.to(Message.room.toString()).emit("NOTIFY", ` ${identifier} in a new admin`)
+		this.server.to(Message.room.toString()).emit("NOTIFY", ` ${res.user_id.nickname} in an Admin for ${res.rooms.name}`)
 	}
-
-
-
-
-
 
 
 	@SubscribeMessage("OUTDIWANA")
@@ -349,7 +341,7 @@ export class ChatGateway {
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})
-		this.server.to(Message.room.toString()).emit("NOTIFY", ` ${identifier} removed from admins`)
+		this.server.to(Message.room.toString()).emit("NOTIFY", ` ${identifier}  not an - room  ${res.rooms.name}`)
 
 	}
 
@@ -366,7 +358,7 @@ export class ChatGateway {
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"KICK" , data: res})
-		this.server.to(Message.room.toString()).emit("NOTIFY", ` ${identifier} left the room`)
+		this.server.to(Message.room.toString()).emit("NOTIFY", ` ${identifier} left  ${res.rooms.name}`)
 		const clients = this.server.sockets.adapter.rooms.get(identifier).forEach((client)=> 
 		
 			this.server.sockets.sockets.get(client).leave(Message.room.toString())
@@ -387,6 +379,8 @@ export class ChatGateway {
 			return ;
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"DELETE" , data: res})
+		this.server.to(Message.room.toString()).emit("NOTIFY", `Room: ${res.name} is deleted`)
+
 		this.server.in(Message.room.toString()).socketsLeave(Message.room.toString());
 	}
 
@@ -424,7 +418,7 @@ export class ChatGateway {
 		}
 		this.server.to(res.reciever_id.user42).emit("INVITES", res)
 		this.server.to(res.issuer_id.user42).emit("INVITES", res)
-
+		this.server.to(res.room_id.id.toString()).emit("NOTIFY", `User ${res.issuer_id.nickname} invited ${res.reciever_id.nickname} to room ${res.room_id.name}`)
 
 		}
 		
@@ -445,7 +439,6 @@ export class ChatGateway {
 			}
 			if (Message.What == "no")
 			{
-				console.log("said no", res)
 				this.server.to(res.issuer_id.user42).emit("INVITES", res);
 				this.server.to(res.reciever_id.user42).emit("INVITES", res);
 				return 
