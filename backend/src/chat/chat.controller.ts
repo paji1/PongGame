@@ -48,10 +48,7 @@ export class ChatController {
 	@Get("/search/:user")
     async getQueryrooms(@Param("user") room : string)
     {
-		console.log(room);
 		const rooms = await this.service.rooms.getroomsbyname(room)
-		console.log(rooms)
 		return rooms;
-		// return await this.service.rooms.getroomsbyname(room);
     }
 }

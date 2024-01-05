@@ -51,7 +51,7 @@ export class RoomGuard implements CanActivate {
                 if (Number.isNaN(roomid))
                     return false;
                 const frdbroom = await this.prisma.rooms.findUnique({where: { id: roomid },});
-                console.log(roomid)
+                console.log(roomid, "what")
                 if (!frdbroom)
                 {
                     if(reqType==="ws")

@@ -19,7 +19,7 @@ export const MuteButton = ({ room, roomuser, socket }: { room: number; roomuser:
 					: toast.error("socket not conected");
 			}}
 		>
-			<img title="unmute user" className="h-[30px] w-[30px]  bg-teal-600" src={Mutesvg}></img>
+			<img alt="mute" title="unmute user" className="h-[30px] w-[30px]  bg-teal-600" src={Mutesvg}></img>
 		</button>
 	) : (
 		<button
@@ -29,7 +29,7 @@ export const MuteButton = ({ room, roomuser, socket }: { room: number; roomuser:
 					: toast.error("socket not conected");
 			}}
 		>
-			<img title="mute user" className="h-[30px] w-[30px]" src={Mutesvg}></img>
+			<img alt="mute"  title="mute user" className="h-[30px] w-[30px]" src={Mutesvg}></img>
 		</button>
 	);
 export const DeleteRoom = ({ socket, returnf, room }: { socket: Socket; returnf: any; room: number }) => (
@@ -41,7 +41,7 @@ export const DeleteRoom = ({ socket, returnf, room }: { socket: Socket; returnf:
 			returnf(-1);
 		}}
 	>
-		<img title="mute user" className="h-[30px] w-[30px]" src={Deletesvg}></img>
+		<img alt="delete"  title="delete room" className="h-[30px] w-[30px]" src={Deletesvg}></img>
 	</button>
 );
 export const KickButton = ({ socket, room, roomuser }: { socket: Socket; room: number; roomuser: member }) => {
@@ -53,7 +53,7 @@ export const KickButton = ({ socket, room, roomuser }: { socket: Socket; room: n
 					: toast.error("socket not conected")
 			}
 		>
-			<img className="h-[30px] w-[30px]" src={Kicksvg}></img>
+			<img alt="kick" title="kick user" className="h-[30px] w-[30px]" src={Kicksvg}></img>
 		</button>
 	);
 };
@@ -68,7 +68,7 @@ export const AdminButton = ({ socket, room, roomuser }: { socket: Socket; room: 
 					: toast.error("socket not conected")
 			}
 		>
-			<img className="h-[30px] w-[30px]  bg-teal-600" src={AdminSvg}></img>
+			<img alt="Admin" title="revoke admin" className="h-[30px] w-[30px]  bg-teal-600" src={AdminSvg}></img>
 		</button>
 	) : (
 		<button
@@ -78,7 +78,7 @@ export const AdminButton = ({ socket, room, roomuser }: { socket: Socket; room: 
 					: toast.error("socket not conected")
 			}
 		>
-			<img title="make admin" className="h-[30px] w-[30px]" src={AdminSvg}></img>
+			<img alt="Admin" title="make admin" className="h-[30px] w-[30px]" src={AdminSvg}></img>
 		</button>
 	);
 };
@@ -92,7 +92,7 @@ export const BanButton = ({ socket, room, roomuser }: { socket: Socket; room: nu
 					: toast.error("socket not conected")
 			}
 		>
-			<img title="unban user " className="h-[30px] w-[30px]  bg-teal-600" src={Bansvg}></img>
+			<img alt="ban" title="unban user" className="h-[30px] w-[30px]  bg-teal-600" src={Bansvg}></img>
 		</button>
 	) : (
 		<button
@@ -102,10 +102,12 @@ export const BanButton = ({ socket, room, roomuser }: { socket: Socket; room: nu
 					: toast.error("socket not conected")
 			}
 		>
-			<img title="ban user" className="h-[30px] w-[30px]" src={Bansvg}></img>
+			<img  alt="ban" title="ban user" className="h-[30px] w-[30px]" src={Bansvg}></img>
 		</button>
 	);
 };
+
+
 export const OwnershipButton = ({ socket, room, roomuser }: { socket: Socket; room: number; roomuser: member }) => (
 	<button
 		onClick={() =>
@@ -114,7 +116,7 @@ export const OwnershipButton = ({ socket, room, roomuser }: { socket: Socket; ro
 				: toast.error("socket not conected")
 		}
 	>
-		<img title="make owner" className="h-[30px] w-[30px]" src={Ownersvg}></img>
+		<img alt="ownership" title="make owner" className="h-[30px] w-[30px]" src={Ownersvg}></img>
 	</button>
 );
 
@@ -137,7 +139,7 @@ export const LeaveButton = ({
 			returnf(-1);
 		}}
 	>
-		<img title="leave user" className="h-[30px] w-[30px]" src={Leavesvg}></img>
+		<img alt="leave" title="leave user" className="h-[30px] w-[30px]" src={Leavesvg}></img>
 	</button>
 );
 
@@ -164,7 +166,7 @@ export const Blockbutton = ({
 								: toast.error("socket not conected")
 						}
 					>
-							<img title="Block user" className="h-[30px] w-[30px]" src={BlockSvg}></img>
+							<img alt="block" title="Block user" className="h-[30px] w-[30px]" src={BlockSvg}></img>
 
 					</button>
 				) : (
@@ -175,7 +177,7 @@ export const Blockbutton = ({
 								: toast.error("socket not conected")
 						}
 					>
-							<img title="Block user" className="h-[30px] w-[30px] bg-teal-600" src={BlockSvg}></img>
+							<img  alt="block" title="Unblock user" className="h-[30px] w-[30px] bg-teal-600" src={BlockSvg}></img>
 
 					</button>
 				)}

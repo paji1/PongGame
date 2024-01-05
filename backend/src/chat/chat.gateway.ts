@@ -43,6 +43,8 @@ export class ChatGateway {
 	@RoomStatus(Roomstattypes.NOTBAN, Roomstattypes.NOTBLOCK)
 	async subscribeRoom(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: {room:number }) {
 		client.join(room.room.toString());
+		console.log(room.room, "what rrom")
+
 
 	}
 
@@ -50,7 +52,6 @@ export class ChatGateway {
 
 	@SubscribeMessage("CREATE")
 	async createroom(@GetCurrentUser("user42") identifier:string,@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: RoomDto) {
-		console.log(room)
 		try
 		{
 			const newroom = await this.service.rooms.create_room(id, room);
@@ -68,17 +69,23 @@ export class ChatGateway {
 		try
 		{
 			const newroom = await this.service.rooms.join_room(id, room.room, room);
+			console.log("join room try", newroom)
 			if (newroom)
 				{
 					this.server.to(identifier).emit("ACTION", {region: "ROOM", action:"JOIN", data: newroom}) 
 					this.server.to(room.room.toString()).emit("NOTIFY", ` ${identifier} joined ${newroom.name}`)
 				}
 			else
+			{
+				console.log("reefsadfdsfdsfdsfsdfdsfdsfdsfdsfdsfdsfdsfdsfdsfsfsdfds")
 				throw new Error("user probably in room")
-		}	
-		catch (e)
-		{
-			client.emit("CHATerror", e.message);
+			}
+	}	
+	catch (e)
+	{
+		console.log("reefsadfdsfdsfdsf165156156156156156156156s")
+
+			client.emit("ChatError", e.message);
 		}
 	}	
 

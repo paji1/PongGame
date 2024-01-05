@@ -15,8 +15,7 @@ import AdminSvg from "../../../assets/admin.svg";
 import Ownersvg from "../../../assets/owner.svg";
 import Normalsvg from "../../../assets/normal.svg";
 
-import { toast } from "react-toastify";
-import { CurrentUser } from "../../Context/AuthContext";
+import { Link } from "react-router-dom";
 
 const filter = (str: string) => {
 	if (str === "admin") return AdminSvg;
@@ -36,9 +35,7 @@ export const RoomsettingItem = ({
 	roomid: number;
 	userPerm: member | undefined;
 }) => {
-	const [expand, setExpand] = useState(false);
 	var more;
-
 	const socket = useContext(SocketContext);
 
 	if (userPerm?.permission === "participation")
@@ -95,8 +92,10 @@ export const RoomsettingItem = ({
 	return (
 		<div className="flex flex-row border-solid border-2 p-3 gap-y-4">
 			<div className=" flex flex-col items-center">
+			<Link to={`/profile/${user.user_id.nickname}`}>
 				<img className="border-solid border-2 max-h-[75px] max-w-[75px]" src={user?.user_id.avatar}></img>
 				<h1 className="m-x">{user.user_id.nickname}</h1>
+			</Link>
 			</div>
 
 			<div className="flex flex-row  justify-between  m-5 w-full h-full">
@@ -116,8 +115,10 @@ export const FriendsettingItem = ({ user, roomid }: { user: member | undefined; 
 	return (
 			<div className="flex flex-row border-solid border-2 p-3 gap-y-4">
 				<div className=" flex flex-col items-center">
-					<img className="border-solid border-2 max-h-[75px] max-w-[75px]" src={user?.user_id.avatar}></img>
-					<h1 className="m-x">{user.user_id.nickname}</h1>
+					<Link to={`/profile/${user.user_id.nickname}`}>
+						<img className="border-solid border-2 max-h-[75px] max-w-[75px]" src={user?.user_id.avatar}></img>
+						<h1 className="m-x">{user.user_id.nickname}</h1>
+					</Link>
 				</div>
 
 				<div className="flex flex-row  justify-between  m-5 w-full h-full">

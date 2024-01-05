@@ -10,6 +10,7 @@ import FriendSetting from "./FriendSetting";
 import { ip } from "../../network/ipaddr";
 import Sendsvg from "../../assets/send.svg"
 import Datasvg from "../../assets/data.svg"
+import { Link } from "react-router-dom";
 
 
 const Messageitem = ({ user, messages }: { user: CurrentUser; messages: messages }) => {
@@ -17,7 +18,9 @@ const Messageitem = ({ user, messages }: { user: CurrentUser; messages: messages
 		<div className={`flex  ${user?.id === messages.senderid.id ? "flex-row-reverse" : "flex-row"}     justify-between `}
 		>
 			<div className="w-[15%] flex justify-center ">
-				<img className=" border-solid border-2 rounded-full h-[60px] w-[60px]" src={messages.senderid.avatar}></img>
+				<Link to={`/profile/${messages.senderid.nickname}`}>
+				<img  className=" border-solid border-2 rounded-full h-[60px] w-[60px]" src={messages.senderid.avatar}></img>
+				</Link>
 			</div>
 			<div className={`p-2 rounded-2xl border-solid  border-2 w-[80%] flex items-center ${user?.id === messages.senderid.id ? "justify-end bg-MeColor" : "justify-start bg-YouColor"}` }>
 				<p className={`w-full  break-words  ${user?.id === messages.senderid.id ? "text-right" : ""}  `} >{messages.messages}</p>
