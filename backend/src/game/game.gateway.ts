@@ -11,7 +11,8 @@ import { GameService } from './game.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AcceptGameInviteDto } from './dto/accept-game-invite.dto';
 import { InviteService } from 'src/invite/invite.service';
-import { game_modes } from '@prisma/client';
+import { actionstatus, game_modes } from '@prisma/client';
+import { RejectGameInviteDto } from './dto/reject-game-invite.dto';
 
 
 @WebSocketGateway({transports: ['websocket']})
@@ -45,22 +46,21 @@ export class GameGateway {
 
 	async inviteHandler(id: number, nickname: string, issuer_socket: Socket, difficulty: EDifficulty)
 	{
+		var notifInfo = null
 		try {
-			if (!issuer_socket)
-				return // TODO: issuer is no longer available
 			const invited = await this.matching.findIDByNickname(nickname)
 			if (!invited)
 				throw new Error('This opponent does not exist')
-			const notifInfo = await this.matching.inviteHandler(id, invited.id, difficulty)
-			const game_id = Date.now().toString()
-			this.matching.newInviteQueue(game_id)
-			this.matching.inviteQueueing(game_id, issuer_socket.id, notifInfo.issuer_id.id)
-			notifInfo["game_id"] = game_id
+			notifInfo = await this.matching.inviteHandler(id, invited.id, difficulty)
+			this.matching.newInviteQueue(notifInfo.game_id)
+			this.matching.inviteQueueing(notifInfo.game_id, issuer_socket.id, notifInfo.issuer_id.id)
+			notifInfo["game_id"] = notifInfo.game_id
 			notifInfo["difficulty"] = difficulty
 			this.event.emit("PUSH", notifInfo.reciever_id.user42, notifInfo , "INVITES")
+			this.event.emit("PUSH", notifInfo.issuer_id.user42, notifInfo , "INVITES")
 			issuer_socket.emit('SUCCESSFUL_INVITE', {})
 		} catch (error) {
-			this.server.emit('game_error', error.message)
+			issuer_socket.emit('game_error', error.message)
 		}
 	}
 
@@ -114,8 +114,12 @@ export class GameGateway {
 	async acceptGameInvite(@MessageBody() payload: AcceptGameInviteDto, @ConnectedSocket() client: Socket) 
 	{
 		try {
-			console.log('id:', payload)
-			const acceptence = await this.inviteService.acceptGameInvite(payload.receiver_id, payload.invite_id)
+			let acceptence = null
+			try {
+				acceptence = await this.inviteService.updateGameInvite(payload.receiver_id, payload.invite_id, actionstatus.accepted, payload.game_id)
+			} catch (error) {
+				throw new Error(`Inviting error`)
+			}
 			this.matching.inviteQueueing(payload.game_id, client.id, payload.receiver_id)
 			const reciever = this.server.sockets.sockets.get(client.id)
 			if (!reciever)
@@ -124,25 +128,48 @@ export class GameGateway {
 			if (!cuurentQueue)
 				throw new Error(`Error`);
 			const issuer_socket_id = this.matching.getUserSocketInQueue(payload.issuer_id, cuurentQueue)
-			if (!cuurentQueue)
-				throw new Error(`This user is n o longer available`);
+			if (!issuer_socket_id)
+				throw new Error(`This user is no longer available`);
 			const issuer = this.server.sockets.sockets.get(issuer_socket_id)
 			if (!issuer)
-				throw new Error(`Invite error: the issuer user is no longer available`)
+				throw new Error(`This user is no longer available`);
 			acceptence['game_id'] = payload.game_id
 			this.event.emit("PUSH", acceptence.reciever_id.user42, acceptence, "INVITES")
 			this.event.emit("PUSH", acceptence.issuer_id.user42, acceptence, "INVITES")
 			this.start_game(payload.game_id, issuer, reciever, payload.issuer_id, payload.receiver_id, payload.game_mode)
 		} catch (error) {
-			client.emit('INVITE_ERROR', error.message)
+			client.emit('FEEDBACK_ERROR', error.message)
 		} 
+	}
+
+	@SubscribeMessage('REJECT_GAME_INVITE')
+	async rejectGameInvite(@MessageBody() payload: any, @ConnectedSocket() client: Socket)
+	{
+		try {
+			let rejection = null;
+			try {
+				rejection = await this.inviteService.updateGameInvite(payload.reciever_id, payload.id, actionstatus.refused, payload.game_id)
+			} catch (error) {
+				throw new Error(`Inviting error`)
+			}
+			this.event.emit("PUSH", rejection.reciever_id.user42, rejection, "INVITES")
+			this.event.emit("PUSH", rejection.issuer_id.user42, rejection, "INVITES")
+			const curentQueue = this.matching.isInQueue(payload.issuer_id)
+			if (!curentQueue)
+				throw new Error(`The user is no longer available`);
+			const issuer_socket_id = this.matching.getUserSocketInQueue(payload.issuer_id, curentQueue)
+			if (!issuer_socket_id)
+				throw new Error(`This user is no longer available`);
+			this.server.to(issuer_socket_id).emit('GAME_INVITE_REFUSED', {})
+			this.matching.leaveQueue(payload.issuer_id)
+		} catch (error) {
+			client.emit('FEEDBACK_ERROR', error.message)
+		}
 	}
 
 	async start_game(game_id: string, user1: Socket, user2: Socket, user1_id: number, user2_id: number, difficulty: game_modes) {
 		user1.join(game_id)
 		user2.join(game_id)
-		console.log('user1:', user1.id)
-		console.log('user2:', user2.id)
 		const new_game = await this.gameService.create({
 			id: game_id,
 			game_mode: difficulty,

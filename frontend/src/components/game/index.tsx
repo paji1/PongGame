@@ -60,11 +60,16 @@ const GameBody = ({isReady}: {isReady: boolean}) => {
 			setPreparation(EGamePreparationState.QUEUING_STATE)
 		})
 		
+		socket.on('GAME_INVITE_REFUSED', () => {
+			setPreparation(EGamePreparationState.CONFIG_STATE)
+			toast.info('ma mssalix azbi')
+		})
 
 		return (
 			() => {
 				socket.off('enter_queue')
 				socket.off('SUCCESSFUL_INVITE')
+				socket.off('GAME_INVITE_REFUSED')
 			}
 		)
 	}, [])

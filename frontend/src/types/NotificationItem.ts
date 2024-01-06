@@ -11,7 +11,7 @@ export interface INotificaion {
 	status: NotificationStatus,
 	room_id: room,
 	game_id: string
-	difficulty: EDifficulty
+	game_mode: EDifficulty
 }
 
 export enum InviteType {

@@ -24,11 +24,24 @@ const acceptGameInvite = async (notif: INotificaion, socket: any) => {
 		receiver_id: notif.reciever_id.id,
 		issuer_name: notif.issuer_id.user42,
 		reciever_name: notif.reciever_id.user42,
-		issuer_socket: socket.id, // TODO:hadi ma blanx
 		game_id: notif.game_id,
-		game_mode: notif.difficulty
+		game_mode: notif.game_mode
 	}
+	console.log('------>', e)
 	socket.emit("ACCEPT_GAME_INVITE", e)
+}
+
+const refuseGameInvite = async (notif: INotificaion, socket: any) => {
+	const e = {
+		id: notif.id,
+		type: notif.type,
+		issuer_id: notif.issuer_id.id,
+		reciever_id:notif.reciever_id.id,
+		game_id: notif.game_id,
+		status: notif.status,
+	}
+	console.log('------>', e)
+	socket.emit("REJECT_GAME_INVITE", e)
 }
 
 
@@ -40,8 +53,8 @@ const routeinvites = (what:string, notif:INotificaion,  socket: any) =>
 			AcceptFriend(notif.id)
 		if (notif.type ===  InviteType.Game)
 		{
-			console.log('notif:', notif)
 			acceptGameInvite(notif, socket)
+			console.log('notif', notif)
 		}
 		if (notif.type ===  InviteType.Room)
 			socket.emit("ROOMACTION", {room:notif.room_id.id, target:notif.id, What: what})
@@ -53,6 +66,8 @@ const routeinvites = (what:string, notif:INotificaion,  socket: any) =>
 		if (notif.type ===  InviteType.Game)
 		{
 			(()=>( console.log(" MGS do your logic  here ")))()
+			console.log('----> notif:', notif)
+			refuseGameInvite(notif, socket)
 		}
 		/**
 		 * 

@@ -2,6 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { game_state } from '@prisma/client';
 
 @Injectable()
 export class GameService {
@@ -18,6 +19,7 @@ export class GameService {
 				id: createGameDto.id,
 				player1: createGameDto.player1,
 				player2: createGameDto.player2,
+				state: game_state.IN_PLAY,
 				mode: createGameDto.game_mode
 			}
 		})

@@ -30,8 +30,4 @@ export class AcceptGameInviteDto {
 	@IsEnum(EDifficulty)
 	@IsNotEmpty({message: "Invalid game mode"})
 	game_mode: EDifficulty
-
-	@IsString()
-	@IsNotEmpty({message: "Invalid socket ID"})
-	issuer_socket: string
 }

@@ -48,7 +48,9 @@ export class InviteService {
                 {
                     select:
                     {
+						id:true,
                         nickname:true,
+						user42: true
                     }
                 },
                 room_id: {
@@ -57,6 +59,9 @@ export class InviteService {
                         name: true
                     }
                 },
+				game_id:true,
+				game_mode:true,
+
             },
         })
         return (invites);
@@ -286,7 +291,7 @@ export class InviteService {
         )
     }
 
-	async acceptGameInvite(current_user: number, id: number) {
+	async updateGameInvite(current_user: number, id: number, status: actionstatus, game_id: string) {
 		return await this.prisma.invites.update({
 			where: {
 				id: id,
@@ -295,33 +300,35 @@ export class InviteService {
 				type: invitetype.Game
 			},
 			data: {
-				status: actionstatus.accepted,
+				status: status,
+				game_id: game_id
 			},
-			select:
-            {
-                id:true,
-                type:true,
-                created_at:true,
-                status:true,
-                issuer_id:
-                {
-                    select:
-                    {
-                        id:true,
-                        nickname:true,
-                        user42:true,
-                        avatar:true
-                    },
-                },
-                reciever_id:
-                {
-                    select:
-                    {
-                        nickname:true,
-						user42: true,
-                    }
-                },
-            }
+			select: {
+				id: true,
+				status: true,
+				type: true,
+				reciever: true,
+				issuer: true,
+				game_mode: true,
+				game_id: true,
+				issuer_id: {
+					select:
+					{
+						id:true,
+						nickname:true,
+						user42:true,
+						avatar:true
+					},
+				},
+				reciever_id: {
+					select:
+					{
+						id:true,
+						user42:true,
+						nickname:true,
+					}
+				}
+			}
 		})
 	}
 }

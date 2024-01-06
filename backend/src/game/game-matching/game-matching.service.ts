@@ -68,7 +68,8 @@ export class GameMatchingService {
 					type: invite.type,
 					reciever: invite.reciever,
 					issuer: invite.issuer,
-					game_mode: invite.game_mode
+					game_mode: invite.game_mode,
+					game_id: invite.game_id,
 				},
 				select: {
 					id: true,
@@ -77,6 +78,7 @@ export class GameMatchingService {
 					reciever: true,
 					issuer: true,
 					game_mode: true,
+					game_id: true,
 					issuer_id: {
 						select:
 						{
@@ -134,7 +136,8 @@ export class GameMatchingService {
 				reciever: invited,
 				status: actionstatus.pending,
 				game_mode: difficulty,
-				type: invitetype.Game
+				type: invitetype.Game,
+				game_id: Date.now().toString()
 			}
 			const new_created = await this.createInvite(newNotif)
 			return new_created

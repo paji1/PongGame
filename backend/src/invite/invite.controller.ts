@@ -2,6 +2,7 @@ import { Controller, Get, Post,Delete, Query,Patch, HttpException, HttpStatus, R
 import { InviteService } from './invite.service';
 import { GetCurrentUserId, Public } from 'src/common/decorators';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { actionstatus } from '@prisma/client';
 
 @Controller('invite')
 export class InviteController {
@@ -68,14 +69,4 @@ export class InviteController {
     
 
   }
-
-	@Get('game/accept')
-	async acceptGameInvite(@GetCurrentUserId() current_user, @Query('id') id: number) {
-		try {
-			this.inviteService.acceptGameInvite(current_user, id)
-		} catch {
-			throw new HttpException("Error accepting game invite", HttpStatus.BAD_REQUEST)
-		}
-	}
-
 }

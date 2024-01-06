@@ -160,10 +160,18 @@ const App = () => {
 
 	useEffect(() => {
 		socket.on('start_game', (data) => {
-			window.location.replace(`${window.location.origin}/game/${data.game_id}`)
+			// window.location.replace(`${window.location.origin}/game/${data.game_id}`)
 		})
+
+		socket.on('FEEDBACK_ERROR', (data) => {
+			toast.error(data)
+		})
+
 		return (
-			() => {socket.off('start_game')}
+			() => {
+				socket.off('start_game')
+				socket.off('FEEDBACK_ERROR')
+			}
 		)
 	}, [])
 
