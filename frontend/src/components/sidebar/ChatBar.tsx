@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
 
 const Messageitem = ({ user, messages }: { user: CurrentUser; messages: messages }) => {
 	return (
-		<div className={`flex  ${user?.id === messages.senderid.id ? "flex-row-reverse" : "flex-row"}     justify-between `}
+		<div className={`flex   ${user?.id === messages.senderid.id ? "flex-row-reverse" : "flex-row"}     justify-between `}
 		>
 			<div className="w-[15%] flex justify-center ">
 				<Link to={`/profile/${messages.senderid.nickname}`}>

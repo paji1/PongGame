@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import { room } from "../../types/room";
 import FriendItem from "./FriendsItem";
 import GroupItem from "./GroupItem";
-import { toast } from "react-toastify";
 import { currentUser } from "../Context/AuthContext";
 
 const SideBarItemFilter = ({
@@ -15,7 +14,6 @@ const SideBarItemFilter = ({
 	roomselector: any;
 }) => {
 	const user = useContext(currentUser);
-	let i = 0;
 	if (!Array.isArray(rooms))
 		return null;
 	var list;
@@ -39,7 +37,8 @@ const SideBarItemFilter = ({
 					return (
 						<GroupItem key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />
 					);
-				} else i++;
+				}
+				return <></>;
 			});
 		} else {
 			list = rooms.map((ob: room, index: number) => {
@@ -52,10 +51,11 @@ const SideBarItemFilter = ({
 		}
 	}
 	return (
-		<div className=" flex h-full flex-col flex-auto gap-2 overflow-y-scroll">
+		<div className=" mt-2 flex h-full  flex-col flex-auto gap-4 overflow-y-scroll">
 			{list}
 		</div>
 	);
 };
+
 
 export default SideBarItemFilter;

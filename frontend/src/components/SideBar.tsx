@@ -3,10 +3,10 @@ import { ToggleSidBar } from "./sidebar/ToggleSidBar";
 import { HoverDiv } from "./Common";
 import ChatSearchBar from "./sidebar/ChatSearchBar";
 import SideBarItemFilter from "./sidebar/SideBarItemFilter";
-import { member, room } from "../types/room";
+import {  room } from "../types/room";
 import useRooms from "../hooks/useRooms";
 import ChatBar from "./sidebar/ChatBar";
-import { messages, roommessages } from "../types/messages";
+import { roommessages } from "../types/messages";
 import useMessages from "../hooks/useMessages";
 import { SocketContext } from "./Context/SocketContext";
 import { toast } from "react-toastify";
@@ -33,10 +33,12 @@ const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 	const grouproom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof !== "chat") : null;
 	useMessages(false, setChatState);
 	useRooms(false, setRoomsState);
+	
 	useEffect(() => {
 		if ( Array.isArray(roomsState))
 		roomsState?.map((ob: room) => socket.emit("ROOMSUBSCRIBE", { room: ob.id }));
-	}, [roomsState, subscriberooms]);
+	}, [roomsState,  subscriberooms, socket]);
+
 	const currentchat = Array.isArray(chatState) ? chatState.find((ob: roommessages) => ob.id === chatSelector) : null;
 	const currentroom = Array.isArray(roomsState) ? roomsState.find((ob: room) => ob.id === chatSelector) : null;
 	socket.off("connect").on("connect", () => setsubscriptrooms(!subscriberooms));
@@ -44,7 +46,7 @@ const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 		console.log("updateing", data)
 
 		update(data, roomsState, setRoomsState, chatState, setChatState, user);
-		if (data.region == "CHAT" && data.action == "NEW") setNewAlert(true);
+		if (data.region === "CHAT" && data.action === "NEW") setNewAlert(true);
 	});
 	socket.off("ChatError").on("ChatError", (data) => toast.error(data));
 	socket.off("NOTIFY").on("NOTIFY", (data) => {
@@ -141,7 +143,7 @@ const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 							<h3 className="flex items-center justify-center h-full">Chat rooms</h3>
 						</div>
 					</div>
-						{searchSelection == 2  && chatSelector === -1?<CreateRoom socket={socket} /> : null}
+						{searchSelection === 2  && chatSelector === -1?<CreateRoom socket={socket} /> : null}
 					<div className={`flex-1 min-h-[100px]  justify-center `}>
 						{RenderOption()}
 						</div>
@@ -158,15 +160,16 @@ const CreateRoom = ({ socket }: { socket: Socket }) => {
 	const [name, setName] = useState("");
 	if (type !== "protected" && password.length) setPassword("");
 	if (!clicked) return (
+		<div className="flex h-[50px] justify-center w-full ">
+
 		<button
-					className=" rounded 
-			border-y-2 border-l-2 border-r-0 border-solid border-textColor
-			h-[39px] w-full  font-pixelify focus:outline-none shadow-buttonShadow
-			`"
+					className=" w-[98%] ffont-Nova text-center border-solid border-2 text-white bg-black  shadow-buttonShadow
+					`"
 					onClick={() => click(true)}
-				>
-					create Room
+					>
+					create room
 			</button>
+	</div>
 	);
 	const createRoom = (e: any) => {
 		e.preventDefault();
@@ -185,12 +188,12 @@ const CreateRoom = ({ socket }: { socket: Socket }) => {
 	};
 	const  submitOnEnter = (event :any) =>{
 		
-		if (event.which == 13)
+		if (event.which === 13)
 		{
 			event.preventDefault(); 
 			event.target.value = ""
 			createRoom(event)
-	
+			return ;
 		}
 	}
 	return (
@@ -224,7 +227,8 @@ const CreateRoom = ({ socket }: { socket: Socket }) => {
 			) : (
 				<></>
 			)}
-			<img className="h-[40px] cursor-pointer"  src={Writesvg} onClick={createRoom}></img>
+			<img alt="create room" className="h-[40px] cursor-pointer"  src={Writesvg} onClick={createRoom}></img>
+
 		</form>
 			</div>
 		</div>
