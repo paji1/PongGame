@@ -52,10 +52,10 @@ model matchhistory {
   player2    Int
   score1     Int        @default(0)
   score2     Int        @default(0)
-  winner_id  Int        @default(-1)
-  loser_id   Int        @default(-1)
+  winner_id  Int?
+  loser_id   Int?
   mode       game_modes @default(EASY)
-  state      game_state @default(PENDING)
+  state      game_state @default(IN_PLAY)
   created_at DateTime   @default(now())
   updated_at DateTime   @updatedAt
   player1_id user       @relation("player1", fields: [player1], references: [id])
@@ -167,7 +167,6 @@ enum game_modes {
 }
 
 enum game_state {
-  PENDING
   IN_PLAY
   FINISHED
 }
