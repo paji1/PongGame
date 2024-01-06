@@ -324,13 +324,10 @@ export class RoomsService {
 							isblocked:true,
 						}
 					})
-					return await  trx.rooms_members.findUnique({
+					return await  trx.rooms_members.findMany({
 						where: {
-							combination:
-							{
-								roomid:roomtarget,
-								userid:targeted,
-							}
+							roomid:roomtarget,
+							permission: "chat",
 						},
 						select: {
 							id: true,
@@ -344,6 +341,7 @@ export class RoomsService {
 								select: {
 									id: true,
 									nickname: true,
+									user42:true,
 									avatar: true,
 								},
 							},
@@ -392,13 +390,10 @@ export class RoomsService {
 							isblocked:false,
 						}
 					})
-					return await  trx.rooms_members.findUnique({
+					return await  trx.rooms_members.findMany({
 						where: {
-							combination:
-							{
-								roomid:roomtarget,
-								userid:targeted,
-							}
+							roomid:roomtarget,
+							permission: "chat",
 						},
 						select: {
 							id: true,
@@ -412,6 +407,7 @@ export class RoomsService {
 								select: {
 									id: true,
 									nickname: true,
+									user42:true,
 									avatar: true,
 								},
 							},

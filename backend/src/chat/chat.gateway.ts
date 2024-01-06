@@ -29,7 +29,6 @@ export class ChatGateway {
 
 	@WebSocketServer()
 	server: Server;
-	id: string;
 
 
 	
@@ -43,7 +42,6 @@ export class ChatGateway {
 	@RoomStatus(Roomstattypes.NOTBAN, Roomstattypes.NOTBLOCK)
 	async subscribeRoom(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: {room:number }) {
 		client.join(room.room.toString());
-		console.log(room.room, "what rrom")
 	}
 
 
@@ -168,6 +166,7 @@ export class ChatGateway {
 				}
 			}
 		)).filter((mem) => !blocked.includes(mem.user_id.id))
+
 		memes.map(async (memeber) => {
 			if ((await this.server.to(memeber.user_id.user42).fetchSockets()).length)	
 				this.server.to(memeber.user_id.user42).emit("ACTION", {region: "CHAT", action:"NEW", data: res})
@@ -191,6 +190,7 @@ export class ChatGateway {
 	async block(@GetCurrentUserId() id:number, @ConnectedSocket() client,  @MessageBody() Message: ActionDTO ,@GetCurrentUser("user42") identifier:string) {
 
 		let res;
+		console.log( "bloction", Message)
 		if (Message.What === "BLOCK")
 			res = await this.service.rooms.block_user(id ,Message.target, Message.room);
 		if (Message.What === "UNBLOCK")
@@ -207,9 +207,14 @@ export class ChatGateway {
 			client.emit("ChatError", `failed to ${Message.What}`);
 			return ;
 		}
+		const to = (identifier === res[1].user_id.user42) ?  res[0].user_id.user42 : res[1].user_id.user42;
+		
 
-		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: res})
-		this.server.to(Message.room.toString()).emit("NOTIFY", `user: ${res.user_id.nickname} is blocked`)
+		this.server.to(identifier).emit("ACTION", {region: "ROOM", action:"update" , data: (res[1].user_id.user42 === identifier) ? res[0] : res[1]})
+		this.server.to(to).emit("ACTION", {region: "ROOM", action:"update" , data:  (res[1].user_id.user42 === to) ? res[0] : res[1]})
+
+		this.server.to(res.user_id.user42).emit("NOTIFY", `user: ${res.user_id.nickname} is blocked`)
+
 
 	}
 
@@ -454,7 +459,6 @@ export class ChatGateway {
 		this.server.to(res.reciever_id.user42).emit("INVITES", res)
 		this.server.to(res.issuer_id.user42).emit("INVITES", res)
 		this.server.to(res.room_id.id.toString()).emit("NOTIFY", `User ${res.issuer_id.nickname} invited ${res.reciever_id.nickname} to room ${res.room_id.name}`)
-
 		}
 		
 		@SubscribeMessage("ROOMACTION")
