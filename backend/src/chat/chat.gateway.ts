@@ -44,8 +44,6 @@ export class ChatGateway {
 	async subscribeRoom(@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: {room:number }) {
 		client.join(room.room.toString());
 		console.log(room.room, "what rrom")
-
-
 	}
 
 
@@ -136,8 +134,46 @@ export class ChatGateway {
 			{
 				client.emit("ChatError", "failed to send message");
 				return ;
+		}
+		const blocked = (await this.prisma.friendship.findMany({
+			where:
+				{
+					status:{
+						not: "DEFAULT"
+					},
+					OR:[
+						{
+							initiator: id,
+						},
+						{
+							reciever: id,
+						}
+					]
+				}
+		})).map((blockrel) => blockrel.initiator === id ? blockrel.reciever : blockrel.initiator)
+		const memes = (await this.prisma.rooms_members.findMany(
+			{
+				where:{
+					roomid:message.room,
+					isBanned:false,
+				},
+				select:{
+					user_id: {
+						select:{
+							id:true,
+							user42:true,
+						}
+					}
+				}
 			}
-		this.server.to(message.room.toString()).emit("ACTION", {region: "CHAT", action:"NEW", data: res});
+		)).filter((mem) => !blocked.includes(mem.user_id.id))
+		console.log("to-------->" ,memes)
+		
+		memes.map(async (memeber) => {
+			if ((await this.server.to(memeber.user_id.user42).fetchSockets()).length)	
+				this.server.to(memeber.user_id.user42).emit("ACTION", {region: "CHAT", action:"NEW", data: res})
+		})
+	
 	}
 
 

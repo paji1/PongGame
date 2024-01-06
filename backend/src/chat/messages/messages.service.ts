@@ -45,17 +45,34 @@ export class MessagesService {
 		}
 	}
 	async get_messages(Requester: number) {
+		const blocked = (await this.prisma.friendship.findMany({
+			where:
+				{
+					status:{
+						not: "DEFAULT"
+					},
+					OR:[
+						{
+							initiator: Requester,
+						},
+						{
+							reciever: Requester,
+						}
+					]
+				}
+		})).map((blockrel) => blockrel.initiator === Requester ? blockrel.reciever : blockrel.initiator)
+		console.log("blocked re ", blocked)
 		const conversation = await this.prisma.rooms.findMany({
 			where: {
-				rooms_members: {
-					some: {
-						userid: Requester,
-						NOT:
+					rooms_members: {
+						some: {
+							userid: Requester,
+							NOT:
 							{
 								isBanned:true,
 							}
-					},
-				},
+							},
+						},
 			},
 			select: {
 				id: true,
@@ -81,6 +98,9 @@ export class MessagesService {
 				updated_at: "desc",
 			},
 		});
+		
+		conversation.map((conv) =>  conv.messages = conv.messages.filter((message) => !blocked.includes(message.senderid.id)))
+		
 		return conversation;
 	}
 
@@ -157,6 +177,22 @@ export class MessagesService {
 
 	async satisfy(Requester : number, room: number, ofsset:number)
 	{
+		const blocked = (await this.prisma.friendship.findMany({
+			where:
+				{
+					status:{
+						not: "DEFAULT"
+					},
+					OR:[
+						{
+							initiator: Requester,
+						},
+						{
+							reciever: Requester,
+						}
+					]
+				}
+		})).map((blockrel) => blockrel.initiator === Requester ? blockrel.reciever : blockrel.initiator)
 		const conversation = await this.prisma.rooms.findUnique({
 			where: {
 					id: room,		
@@ -182,9 +218,8 @@ export class MessagesService {
 					skip: ofsset
 				},
 			},
-					
-
 		});
+		conversation.messages = conversation.messages.filter((message) =>  !blocked.includes(message.senderid.id));
 		return conversation;
 	}
 }
