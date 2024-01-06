@@ -16,22 +16,25 @@ const SideBarItemFilter = ({
 }) => {
 	const user = useContext(currentUser);
 	let i = 0;
-	if (!Array.isArray(rooms)) return <>empty</>;
+	if (!Array.isArray(rooms))
+		return null;
 	var list;
 	if (rooms) {
+		console.log(rooms)
 		if (query.length) {
 			list = rooms.map((ob: room, index: number) => {
 				let group = ob.name.toLowerCase();
-
-				let name =
-					ob.rooms_members[0].user_id.id === user?.id
+				console.log("mappin" ,index,  ob);
+				if (ob.roomtypeof === "chat" )
+					{
+						let name =
+					 ob.rooms_members[0]?.user_id.id === user?.id
 						? ob.rooms_members[1].user_id.nickname.toLowerCase()
 						: ob.rooms_members[0].user_id.nickname.toLowerCase();
-
-				if (ob.roomtypeof === "chat" && name.includes(query.toLowerCase()))
-					return (
-						<FriendItem key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />
-					);
+						if ( name.includes(query.toLowerCase()))
+							return (
+							<FriendItem key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />);
+				}
 				else if (ob.roomtypeof !== "chat" && group.includes(query.toLowerCase())) {
 					return (
 						<GroupItem key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />

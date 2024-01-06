@@ -183,6 +183,16 @@ const CreateRoom = ({ socket }: { socket: Socket }) => {
 		setType("public");
 		click(false);
 	};
+	const  submitOnEnter = (event :any) =>{
+		
+		if (event.which == 13)
+		{
+			event.preventDefault(); 
+			event.target.value = ""
+			createRoom(event)
+	
+		}
+	}
 	return (
 		<div
 			onClick={() => click(!clicked)}
@@ -193,7 +203,7 @@ const CreateRoom = ({ socket }: { socket: Socket }) => {
 				className="w-2/3 p-6 rounded-lg shadow-xl bg-background"
 			>
 				
-		<form  className="flex flex-col">
+		<form  onKeyDown={(e) => submitOnEnter(e)} className="flex flex-col">
 			<div>
 				<div >
 					<p>name</p>
