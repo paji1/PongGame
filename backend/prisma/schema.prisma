@@ -131,6 +131,7 @@ model invites {
   issuer_id   user         @relation("issuer", fields: [issuer], references: [id])
   reciever_id user         @relation("reciever", fields: [reciever], references: [id])
   room_id     rooms?       @relation(fields: [room], references: [id])
+  game_id     String?
 }
 
 enum user_permission {
