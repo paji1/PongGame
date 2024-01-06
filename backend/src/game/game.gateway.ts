@@ -53,7 +53,7 @@ export class GameGateway {
 				throw new Error('This opponent does not exist')
 			notifInfo = await this.matching.inviteHandler(id, invited.id, difficulty)
 			this.matching.newInviteQueue(notifInfo.game_id)
-			this.matching.inviteQueueing(notifInfo.game_id, issuer_socket.id, notifInfo.issuer_id.id)
+			this.matching.inviteQueueing(notifInfo.game_id, issuer_socket.id, notifInfo.issuer_id.id, difficulty)
 			notifInfo["game_id"] = notifInfo.game_id
 			notifInfo["difficulty"] = difficulty
 			this.event.emit("PUSH", notifInfo.reciever_id.user42, notifInfo , "INVITES")
@@ -87,8 +87,6 @@ export class GameGateway {
 					this.randomQueueingHandler(id1.id, difficulty, id1.socket_id)
 					return 
 				}
-				this.matching.leaveQueue(id1.id)
-				this.matching.leaveQueue(id2.id)
 				const room_id = `${Date.now().toString()}`
 				this.start_game(room_id, sock1, sock2, id1.id, id2.id, difficulty)
 				const err = new Error('Failed to create new game');
@@ -119,7 +117,7 @@ export class GameGateway {
 			} catch (error) {
 				throw new Error(`Inviting error`)
 			}
-			this.matching.inviteQueueing(payload.game_id, client.id, payload.receiver_id)
+			this.matching.inviteQueueing(payload.game_id, client.id, payload.receiver_id, payload.game_mode)
 			const reciever = this.server.sockets.sockets.get(client.id)
 			if (!reciever)
 				throw new Error(`Invite error: the invited user is no longer available`)
@@ -142,7 +140,7 @@ export class GameGateway {
 	}
 
 	@SubscribeMessage('REJECT_GAME_INVITE')
-	async rejectGameInvite(@MessageBody() payload: any, @ConnectedSocket() client: Socket)
+	async rejectGameInvite(@MessageBody() payload: RejectGameInviteDto, @ConnectedSocket() client: Socket)
 	{
 		try {
 			let rejection = null;
@@ -167,6 +165,8 @@ export class GameGateway {
 	}
 
 	async start_game(game_id: string, user1: Socket, user2: Socket, user1_id: number, user2_id: number, difficulty: game_modes) {
+		this.matching.leaveQueue(user1_id)
+		this.matching.leaveQueue(user2_id)
 		user1.join(game_id)
 		user2.join(game_id)
 		const new_game = await this.gameService.create({
@@ -177,6 +177,6 @@ export class GameGateway {
 		})
 		if (!new_game)
 			throw new Error('Failed to create new game')
-		this.server.to(game_id).emit('start_game', {game_id, user1_id, user2_id})
+		this.server.to(game_id).emit('start_game', {game_id, user1_id, user2_id, difficulty})
 	}
 }

@@ -7,7 +7,8 @@ import { actionstatus, invitetype, relationsip_status } from '@prisma/client';
 
 interface IStoredClient {
 	id: number,
-	socket_id: string
+	socket_id: string,
+	difficulty: EDifficulty
 }
 
 
@@ -146,12 +147,12 @@ export class GameMatchingService {
 		}
 	}
 
-	addToQueue(id: number, difficulty: string, socket_id: string)
+	addToQueue(id: number, difficulty: EDifficulty, socket_id: string)
 	{
 		const queue = this.queues.get(difficulty)
 		if (!queue)
 			throw new Error(`Invalid queuing system: ${difficulty}`)
-		queue.push({id, socket_id})
+		queue.push({id, socket_id, difficulty})
 	}
 
 	isInQueue(id: number): string | null {
@@ -208,13 +209,13 @@ export class GameMatchingService {
 		this.queues.set(game_id, [])
 	}
 
-	inviteQueueing(game_id: string, socket_id: string, player_id: number) {
+	inviteQueueing(game_id: string, socket_id: string, player_id: number, difficulty: EDifficulty) {
 		let queue = this.queues.get(game_id)
 		if (!queue)
 			throw new Error(`Invalid queueing system`)
 		if (queue.length >= 2)
 			throw new Error(`Invalid invitation`)
-		queue.push({id: player_id, socket_id})
+		queue.push({id: player_id, socket_id, difficulty})
 	}
 
 	getUserSocketInQueue(player_id: number, queue_id: string)
@@ -224,5 +225,9 @@ export class GameMatchingService {
 			return null
 		const q = queue.find(elem => elem.id === player_id)
 		return q ? q.socket_id : null
+	}
+
+	getQueue(queue_name: string) {
+		return this.queues.get(queue_name)
 	}
 }
