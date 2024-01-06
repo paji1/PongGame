@@ -151,6 +151,7 @@ export class ChatGateway {
 					]
 				}
 		})).map((blockrel) => blockrel.initiator === id ? blockrel.reciever : blockrel.initiator)
+
 		const memes = (await this.prisma.rooms_members.findMany(
 			{
 				where:{
@@ -167,8 +168,6 @@ export class ChatGateway {
 				}
 			}
 		)).filter((mem) => !blocked.includes(mem.user_id.id))
-		console.log("to-------->" ,memes)
-		
 		memes.map(async (memeber) => {
 			if ((await this.server.to(memeber.user_id.user42).fetchSockets()).length)	
 				this.server.to(memeber.user_id.user42).emit("ACTION", {region: "CHAT", action:"NEW", data: res})
