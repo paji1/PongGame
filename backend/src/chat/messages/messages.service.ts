@@ -187,11 +187,12 @@ export class MessagesService {
 				},
 			});
 			data.map((room) =>  {
-				if (room.messages[0].messages && blocked.includes(room.messages[0].sender_id))
+				if (room.messages[0]?.messages && blocked.includes(room.messages[0].sender_id))
 					room.messages[0].messages = "from a blocked user";
 			})
 			return data;
-		} catch {
+		} catch (e){
+			console.log(e.message)
 			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
 		}
 	}

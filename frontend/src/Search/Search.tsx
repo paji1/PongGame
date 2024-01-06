@@ -7,6 +7,7 @@ import IUser from "../types/User";
 import { Socket } from "socket.io-client";
 import { SocketContext } from "../components/Context/SocketContext";
 import Dashboard from "../components/Dashboard/Dashboard";
+import { use } from "matter-js";
 
 const RoomItem = ({ room, socket }: { room: room; socket: Socket }) => {
 	const [password, setPassword] = useState("");
@@ -14,12 +15,18 @@ const RoomItem = ({ room, socket }: { room: room; socket: Socket }) => {
 		socket.emit("JOIN", { room: room.id, name: room.name, type: room.roomtypeof, password: password });
 	};
 	return (
-		<div className="m-auto ring-black ring-2 p-4 w-full truncate" onClick={joinroom}>
-			<p>{room.name}</p>
-			<p>{room.roomtypeof}</p>
-			<p>{new Date(room.created_at).toDateString()}</p>
+		<div className=" flex-col sm:flex-row gap-y-6 gap-x-4 sm:gap-y-0 sm:items-center justify-between flex  m-auto ring-black shadow-buttonShadow ring-2 p-4 w-full truncate" >
+			<div className="flex w-[45%] justify-between  gap-x-8 sm:gap-x-4 items-center">
+					<img className="w-[6rem] h-[6rem] shadow-buttonShadow" src={`https://fakeimg.pl/600x600?text=${room.name}`}></img>
+					<div className="flex flex-col">
+						<p>{room.name}</p>
+						<p className="italic">{room.roomtypeof}</p>
+						<p>{new Date(room.created_at).toDateString()}</p>
+					</div>
+			</div>
 			{room.roomtypeof === "protected" ? (
 				<input
+				className="shadow-buttonShadow border-solid border-2 p-1 sm:w-auto w-[35%]"
 					type="password"
 					value={password}
 					onChange={(e) => setPassword(e.target.value)}
@@ -28,7 +35,8 @@ const RoomItem = ({ room, socket }: { room: room; socket: Socket }) => {
 			) : (
 				<></>
 			)}
-			<button> join </button>
+
+			<button className="border border-solid p-2 shadow-buttonShadow w-[35%] sm:w-[15%]" onClick={joinroom} > join </button>
 		</div>
 	);
 };
@@ -45,18 +53,21 @@ const UserItem = ({ user }: { user: IUser }) => {
 			.catch(() => toast.error(`search: network error`));
 	};
 	return (
-		<div className="m-auto ring-black ring-2 p-4 w-full truncate">
-			<p>{user.nickname}</p>
-			<p>Joined join {new Date(user.created_at).toDateString()}</p>
+		<div className="flex-col sm:flex-row gap-y-6 gap-x-4 sm:gap-y-0 sm:items-center justify-between flex  m-auto ring-black shadow-buttonShadow ring-2 p-4 w-full truncate">
+			<div className="flex w-[45%] justify-between  gap-x-8 sm:gap-x-4 items-center">
+					<img className="w-[6rem] h-[6rem] shadow-buttonShadow" src={user.avatar}></img>
+					<div className="flex flex-col">
+						<p>{user.nickname}</p>
+
+						<p>{new Date(user.created_at).toDateString()}</p>
+					</div>
+			</div>
 			<Link
-				to={{
-					pathname: "/",
-					search: `?query=${user.nickname}`,
-				}}
+			className=" text-center border border-solid p-2 shadow-buttonShadow w-[35%] sm:w-[15%]"
+				to={`/profile/${user.nickname}`}
 			>
-				visite profile
+				visit profile
 			</Link>
-			<button onClick={addFR}>invite</button>
 		</div>
 	);
 };
@@ -64,7 +75,9 @@ export const SearchWindow = () => {
 	const [params] = useSearchParams();
 	const [rooms, roomstate] = useState<room[] | null>(null);
 	const [users, usersstate] = useState<IUser[] | null>(null);
-	const [selector, setSelector] = useState(0);
+	const [userselector, usersetSelector] = useState(true);
+	const [roomselector, roomsetSelector] = useState(true);
+
 	const query = params.get("query");
 	const socket = useContext(SocketContext);
 	useEffect(() => {
@@ -90,39 +103,34 @@ export const SearchWindow = () => {
 	}, [query]);
 
 	return (
-		<>
-			<div className="flex flex-row gap-2 gap-y-10 p-8 mt-2 max-w-[1536px] m-auto">
-				<p className="border border-solid  w-[100px]">filters</p> :
+		<div className="h-[98vh] p-2 my-4 mx-auto  mt-8 max-w-[1536px] min-[0px]:mx-5 2xl:m-auto shadow-[2px_4px_0px0px#000301] font-Nova text-sm sm:text-base md:text-lg lg:text-xl">
+			<div className="w-full flex flex-col sm:flex-row gap-2 gap-y-10 p-8 mt-2 m-auto justify-evenly items-center" >
+			<div className=" sm:w-[20%] md:w-[25%] lg:w-[20%] border-solid border-2 p-2 shadow-buttonShadow font-extrabold text-center">Selected Filters</div>
+				<div className="w-[55%] flex justify-around gap-x-6 md:gap-x-0">
 				<button
-					className={`${!selector ? "bg-black text-sucessColor" : ""} border border-solid  w-[100px]`}
-					onClick={() => setSelector(0)}
-				>
-					{" "}
-					all
-				</button>
-				<button
-					className={`${selector == 1 ? "bg-black text-sucessColor" : ""} border border-solid  w-[100px] `}
-					onClick={() => setSelector(1)}
-				>
+					className={`${roomselector ? "bg-black text-white" : ""} border border-solid  w-[100px] p-2 shadow-buttonShadow`}
+					onClick={() => roomsetSelector(!roomselector)}
+					>
 					{" "}
 					rooms
 				</button>
 				<button
-					className={`${selector == 2 ? "bg-black text-sucessColor" : ""}  border border-solid  w-[100px]`}
-					onClick={() => setSelector(2)}
-				>
+					className={`${userselector ? "bg-black text-white" : ""}  border border-solid  w-[100px] p-2 shadow-buttonShadow`}
+					onClick={() => usersetSelector(!userselector)}
+					>
 					{" "}
 					users
 				</button>
+					</div>
 			</div>
 			<div className="flex flex-col gap-y-10 p-8 mt-2 max-w-[1536px] m-auto">
-				{rooms && (!selector || selector === 1) ? (
-					rooms.map((ob: room) => <RoomItem socket={socket} room={ob} />)
-				) : (
-					<></>
-				)}
-				{users && (!selector || selector === 2) ? users.map((ob: IUser) => <UserItem user={ob} />) : <></>}
+				{rooms && roomselector  ? (rooms.map((ob: room) => <RoomItem socket={socket} room={ob} />)) : (null)}
+
+				{users && userselector ? users.map((ob: IUser) => <UserItem user={ob} />) : null}
+				{(!roomselector && !userselector && (rooms?.length || users?.length))? <h1 >Select a Filter</h1>: null }
+				{!rooms?.length && !users?.length ? <h1>No result Found</h1> : null } 
+				
 			</div>
-		</>
+		</div>
 	);
 };

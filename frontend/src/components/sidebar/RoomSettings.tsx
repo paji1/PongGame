@@ -37,19 +37,16 @@ const RoomSettings = ({ returnf, returnbutton, room }: { returnf: any; returnbut
 			</div>
 			<div>
 				<div className={`flex flex-row-reverse justify-between h-fill`}>
+					<div>{thisuser?.permission === "owner" ? <ChangeRoomType room={room} /> : <></>}</div>
 					<input
 						type="search"
 						id="search-dropdown"
 						onChange={setQueryonchange}
 						value={query}
-						className={`rounded
-						border-y-2 border-l-2 border-r-0 border-solid border-textColor
-						h-[39px] w-40 px-4 font-pixelify focus:outline-none shadow-buttonShadow
-						`}
+						className="text-center shadow-buttonShadow border-solid border-2 p-1 sm:w-auto w-[35%]"
 						placeholder="Search"
 						required
 					></input>
-					<div>{thisuser?.permission === "owner" ? <ChangeRoomType room={room} /> : <></>}</div>
 				</div>
 			</div>
 			<InviteButton roomid={room ? room.id : -1} type={room ? room.roomtypeof : ""} socket={socket} />

@@ -14,7 +14,7 @@ export const ChangeRoomType = ({ room }: { room: room | null }) => {
 	if (!clicked)
 		return (
 			<button
-				className=" rounded
+				className="  
 	border-y-2 border-l-2 border-r-0 border-solid border-textColor
 	h-[39px] w-40 px-4 font-pixelify focus:outline-none shadow-buttonShadow
 	`"

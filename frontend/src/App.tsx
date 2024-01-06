@@ -175,11 +175,11 @@ const App = () => {
 	socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."))
 	return (
 		
-		<div>
+		<div className="h-screen">
 			<ToastContainer />
 			{user ?
 			<currentUser.Provider value={user}>
-				<div>
+				<div className="h-full">
 				<BrowserRouter>
 					<Navbar />
 					{

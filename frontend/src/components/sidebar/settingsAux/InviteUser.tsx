@@ -11,9 +11,9 @@ export const InviteButton = ({ roomid, type, socket }: { roomid: number; type: s
 		setfreind("");
 	};
 	return (
-		<div className="flex flex-row">
-			<input value={friend} onChange={(e) => setfreind(e.target.value)} placeholder="invite a friend?" />
-			<button onClick={invite}>invite</button>
+		<div className="flex flex-row justify-between">
+			<input className="  text-center shadow-buttonShadow border-solid border-2 p-1 sm:w-auto w-[35%]" value={friend} onChange={(e) => setfreind(e.target.value)} placeholder="invite a friend?" />
+			<button className="shadow-buttonShadow border-2 border-solid p-2 text-center" onClick={invite}>invite</button>
 		</div>
 	);
 };

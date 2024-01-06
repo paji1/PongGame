@@ -34,6 +34,7 @@ const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 	useMessages(false, setChatState);
 	useRooms(false, setRoomsState);
 	useEffect(() => {
+		if ( Array.isArray(roomsState))
 		roomsState?.map((ob: room) => socket.emit("ROOMSUBSCRIBE", { room: ob.id }));
 	}, [roomsState, subscriberooms]);
 	const currentchat = Array.isArray(chatState) ? chatState.find((ob: roommessages) => ob.id === chatSelector) : null;
