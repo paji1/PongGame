@@ -90,7 +90,6 @@ export class GameGateway {
 				this.matching.leaveQueue(id1.id)
 				this.matching.leaveQueue(id2.id)
 				const room_id = `${Date.now().toString()}`
-				console.log('room_id ---->', room_id)
 				this.start_game(room_id, sock1, sock2, id1.id, id2.id, difficulty)
 				const err = new Error('Failed to create new game');
 				err["room"] = room_id

@@ -116,7 +116,6 @@ const GameUI = () => {
 					return
 				}
 				setIsSet(true)
-				console.log(res)
 			})()
 		}
 		else

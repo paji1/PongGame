@@ -62,7 +62,6 @@ const NotificationBar = ({toogle, settogle} : {toogle:number, settogle:any}) => 
 	})
 	
 	let invites;
-	console.log("na7wimok", notification)
 	if (notification)
 		invites = notification.map((ha, key) => <NotificationItem key={ha.id} notif={ha} />)
 	return (
