@@ -1,6 +1,6 @@
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { AtGuard } from './common/guards';
-import { UseGuards } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { GetCurrentUser, GetCurrentUserId } from './common/decorators';
 import { PrismaService } from './prisma/prisma.service';
 import { current_state, relationsip_status } from '@prisma/client';
@@ -9,10 +9,12 @@ import { stat } from 'fs';
 import { RoomGuard } from './common/guards/chat/RoomGuards.guard';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { use } from 'passport';
+import { WsValidationExeption } from './common/filters/ws.exeption.filter';
 
 @WebSocketGateway()
 @UseGuards(RoomGuard)
 @UseGuards(AtGuard)
+@UseFilters(WsValidationExeption)
 export class AppGateway {
 
   constructor(
