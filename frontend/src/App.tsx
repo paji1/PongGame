@@ -2,12 +2,13 @@ import { ToastContainer, toast } from "react-toastify";
 import Navbar from "./components/Navbar";
 import SideBar from "./components/SideBar";
 import NotificationBar from "./components/notifbar/NotificationBar";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { ErrorInfo, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { currentUser, CurrentUser } from "./components/Context/AuthContext";
 import { log } from "console";
 import { ip } from "./network/ipaddr";
 import { SocketContext } from "./components/Context/SocketContext";
 import GameMain from "./components/game";
+import Cookies from "js-cookie";
 
 import {
 	BrowserRouter,
@@ -24,7 +25,6 @@ import { SearchWindow } from "./Search/Search";
 import { use } from "matter-js";
 import axios, { Axios } from "axios";
 import Loading from "./components/loading/loading";
-
 
 // TODO: this is a temporary trqi3a
 
@@ -57,6 +57,7 @@ const Refreshinterval = () => {
 	}, []);
 
 	useEffect(() => {
+		getToken();
 		const interval = setInterval(() => getToken(), 14 * 60 * 1000);
 		intervalRef.current = interval;
 
@@ -75,11 +76,36 @@ const Refreshinterval = () => {
 
 const App = () => {
 	const [user, setuser] = useState<CurrentUser | null>(null);
+	const [islogin, setIsLogin] = useState<boolean>(false);
 	const socket = useContext(SocketContext);
 	const [togglebar, settoglebar] = useState(0);
+	useEffect(() => {
+		console.log("start");
+		const isLoggedIn = async () => {
+			const res = await fetch(`http://${ip}3001/users/isLogin`, { credentials: "include", method: "GET" })
+				.then((res) => {
+					if (!res.ok) {
+						setIsLogin(false);
+						throw new Error(`Error! status ${res.status}`);
+					}
+					setIsLogin(true);
+				})
+				.catch((e) => console.log("hiiiii"));
+
+			console.log("finish");
+		};
+
+		isLoggedIn();
+		const items = Cookies.get("userData");
+		if (items && islogin) {
+			setuser(JSON.parse(items));
+		}
+	}, [islogin]);
+
 	if (user) {
 		socket.connect();
 	}
+
 	socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."));
 	return (
 		<div>
@@ -107,7 +133,7 @@ const App = () => {
 							<Routes>
 								<Route path="/search" element={<SearchWindow />} />
 								<Route path="/" element={<Dashboard />} />
-								<Route path="/game" element={<GameMain />} />
+								<Route path="/game" element={islogin ? <GameMain /> : <Dashboard />} />
 								<Route path="/loading" element={<Loading />} />
 								<Route path="/*" element={<Dashboard />} />
 							</Routes>

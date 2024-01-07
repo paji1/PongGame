@@ -20,7 +20,7 @@ const RejectFriend = async (id:number) =>
 
 const routeinvites = (what:string, notif:INotificaion,  socket: any) => 
 {
-	if (what == "ok")
+	if (what === "ok")
 	{
 		if (notif.type ===  InviteType.Friend)
 			AcceptFriend(notif.id)

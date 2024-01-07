@@ -21,7 +21,7 @@ const listItems = ["home", "about", "our-team", "button"].map((item: String, key
 				{item.replace("-", " ")}
 			</a>
 		</li>
-	),
+	)
 );
 
 interface isOpen {
@@ -119,7 +119,6 @@ const Navbar = () => {
 					</svg>
 				</button>
 			</div>
-
 		</div>
 	);
 };

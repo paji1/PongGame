@@ -14,26 +14,23 @@ const delay  = (ms : number ) => new Promise(
 
 const Loading: FC<LoadingProps> = () => {
 
+  
 
   const navigate = useNavigate();
   useEffect(() => {
     async function makeRequest() {
       const data : string | undefined = await Cookies.get('userData');
-      
-      await delay(12* 1000);
+
+      await delay(1000);
       if (window.opener)
       {
         await window.opener.postMessage({
           success: (data) ? true : false,
-          payload: "" 
+          payload: data
         }, "http://localhost:3000/");
-      }
-      else
-      {
       }
     }
     makeRequest();
-
   });
   if (!window.opener)
   {
