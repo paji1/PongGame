@@ -40,7 +40,7 @@ export class RoomGuard implements CanActivate {
         {
             context.switchToWs().getClient().request.headers["user"] = request.user[key2];
             roomid = context.switchToWs().getData().room;
-            console.log(context.switchToWs().getData())
+            console.log("hona",context.switchToWs().getData(), userState)
         }
         else
             roomid = +request.query["room"]
@@ -101,7 +101,7 @@ export class RoomGuard implements CanActivate {
                         context.switchToWs().getClient().emit("ChatError", "you are blocked by this user")
                         return false
                     }
-                    if (membership.isBanned && userState.includes(Roomstattypes.NOTBAN))
+                    if (membership.isBanned && userState.includes(Roomstattypes.NOTBAN) && Object.keys(context.switchToWs().getData()).length > 1)
                     {
                         if(reqType==="ws")
                             context.switchToWs().getClient().emit("ChatError", "your banned from thi room")
