@@ -6,8 +6,6 @@ import { room } from "../types/room";
 import IUser from "../types/User";
 import { Socket } from "socket.io-client";
 import { SocketContext } from "../components/Context/SocketContext";
-import Dashboard from "../components/Dashboard/Dashboard";
-import { use } from "matter-js";
 
 const RoomItem = ({ room, socket }: { room: room; socket: Socket }) => {
 	const [password, setPassword] = useState("");
@@ -17,7 +15,7 @@ const RoomItem = ({ room, socket }: { room: room; socket: Socket }) => {
 	return (
 		<div className=" flex-col sm:flex-row gap-y-6 gap-x-4 sm:gap-y-0 sm:items-center justify-between flex  m-auto ring-black shadow-buttonShadow ring-2 p-4 w-full truncate" >
 			<div className="flex w-[45%] justify-between  gap-x-8 sm:gap-x-4 items-center">
-					<img className="w-[6rem] h-[6rem] shadow-buttonShadow" src={`https://fakeimg.pl/600x600?text=${"@ " +room.name.substring(0, 5)}`}></img>
+					<img alt="name" className="w-[6rem] h-[6rem] shadow-buttonShadow" src={`https://fakeimg.pl/600x600?text=${"@ " +room.name.substring(0, 5)}`}></img>
 					<div className="flex flex-col">
 						<p>{room.name}</p>
 						<p className="italic">{room.roomtypeof}</p>
@@ -41,21 +39,21 @@ const RoomItem = ({ room, socket }: { room: room; socket: Socket }) => {
 	);
 };
 const UserItem = ({ user }: { user: IUser }) => {
-	const addFR = () => {
-		fetch(`http://${ip}3001/invite/friend?friend=${user.id}`, {
-			method: "POST",
-			credentials: "include",
-		})
-			.then((data) => data.json())
-			.then((data) => {
-				console.log(data);
-			})
-			.catch(() => toast.error(`search: network error`));
-	};
+	// const addFR = () => {
+	// 	fetch(`http://${ip}3001/invite/friend?friend=${user.id}`, {
+	// 		method: "POST",
+	// 		credentials: "include",
+	// 	})
+	// 		.then((data) => data.json())
+	// 		.then((data) => {
+	// 			console.log(data);
+	// 		})
+	// 		.catch(() => toast.error(`search: network error`));
+	// };
 	return (
 		<div className="flex-col sm:flex-row gap-y-6 gap-x-4 sm:gap-y-0 sm:items-center justify-between flex  m-auto ring-black shadow-buttonShadow ring-2 p-4 w-full truncate">
 			<div className="flex w-[45%] justify-between  gap-x-8 sm:gap-x-4 items-center">
-					<img className="w-[6rem] h-[6rem] shadow-buttonShadow" src={user.avatar}></img>
+					<img alt="avatar" className="w-[6rem] h-[6rem] shadow-buttonShadow" src={user.avatar}></img>
 					<div className="flex flex-col">
 						<p>{user.nickname}</p>
 

@@ -14,7 +14,7 @@ export const update = (
 	user: CurrentUser | null,
 ) => {
 	if (!user) return;
-	if (data.region == "CHAT" && chatState && roomsState) {
+	if (data.region === "CHAT" && chatState && roomsState) {
 		var newchatState = chatState.slice();
 		var newroomstate = roomsState.slice();
 		switch (data.action) {
@@ -34,7 +34,7 @@ export const update = (
 		setchatState(newchatState);
 	}
 
-	if (data.region == "ROOM" && roomsState && chatState) {
+	if (data.region === "ROOM" && roomsState && chatState) {
 		var newroomState = roomsState.slice();
 		switch (data.action) {
 			case "update":
@@ -66,11 +66,11 @@ export const update = (
 				break;
 			case "NEW":
 				const room1 = data.data as room;
-				var newchatStatetmp1 = chatState?.slice();
-				const messaged: roommessages = { id: room1.id, messages: new Array() };
-				newchatStatetmp1 = newchatStatetmp1.concat(messaged);
+				var newchatStatetmp11 = chatState?.slice();
+				const messaged: roommessages = { id: room1.id, messages: [] };
+				newchatStatetmp11 = newchatStatetmp11.concat(messaged);
 				newroomState = newroomState.concat(room1);
-				setchatState(newchatStatetmp1);
+				setchatState(newchatStatetmp11);
 				break;
 			case "MOD":
 				const room2 = data.data as room;
@@ -82,7 +82,7 @@ export const update = (
 			case "JOIN":
 				const room3 = data.data as room;
 				console.log(room3);
-				let indexer = newroomState.unshift(room3);
+				newroomState.unshift(room3);
 				getmessages(room3.id, chatState, setchatState);
 				break;
 			case "status":
@@ -100,7 +100,7 @@ const getmessages = (room: number, chatState: roommessages[], setchatState: any)
 		toast.error("la mabghitch men hna");
 		return;
 	}
-	const data = fetch(`http://${ip}3001/chat/paginate?room=${room}&offset=0`, {
+	fetch(`http://${ip}3001/chat/paginate?room=${room}&offset=0`, {
 		credentials: "include",
 	})
 		.then((data) => data.json())

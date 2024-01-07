@@ -1,6 +1,5 @@
 import { useContext, useState } from "react";
 import { room } from "../../../types/room";
-import { toast } from "react-toastify";
 import { SocketContext } from "../../Context/SocketContext";
 import Writesvg from "../../../assets/write.svg";
 
@@ -38,10 +37,10 @@ export const ChangeRoomType = ({ room }: { room: room | null }) => {
 		setName(name);
 		setType(type);
 	};
-	function DeleteRecordAction(id: any, event: any) {
-		event.stopPropagation();
-		console.log("n7wi mok");
-	}
+	// function DeleteRecordAction(id: any, event: any) {
+	// 	event.stopPropagation();
+	// 	console.log("n7wi mok");
+	// }
 
 	return (
 		<div
@@ -83,7 +82,7 @@ export const ChangeRoomType = ({ room }: { room: room | null }) => {
 						<></>
 					)}
 					<button onClick={modRoom}>
-						<img className="h-[40px]" src={Writesvg}></img>
+						<img alt="write" className="h-[40px]" src={Writesvg}></img>
 					</button>
 				</form>
 			</div>

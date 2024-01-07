@@ -1,11 +1,10 @@
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { ChatService } from "./chat.service";
 import { user_permission, roomtype } from "@prisma/client";
-import { RoomDto, MessageDto } from "../Dto/rooms.dto";
+import { RoomDto } from "../Dto/rooms.dto";
 import { RoomPermitions } from "src/common/decorators/RoomPermitions.decorator";
 import { RoomType } from "src/common/decorators/RoomType.decorator";
-import { IsFriend } from "src/common/decorators/Friend.decorator";
-import { GetCurrentUser, GetCurrentUserId } from "src/common/decorators";
+import {  GetCurrentUserId } from "src/common/decorators";
 import { RoomGuard } from "src/common/guards/chat/RoomGuards.guard";
 
 @UseGuards(RoomGuard)

@@ -1,6 +1,5 @@
-import React, { useContext } from "react";
+import  { useContext } from "react";
 import { room } from "../../types/room";
-import Profile from "../../assets/profile.png";
 import { messages } from "../../types/messages";
 import { currentUser } from "../Context/AuthContext";
 import { Link } from "react-router-dom";
@@ -9,7 +8,7 @@ const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; gl
 	let preview;
 	const user = useContext(currentUser);
 	const friend = room.rooms_members.filter((ob) => ob.user_id.id !== user?.id);
-	if (Array.isArray(glimpse) && glimpse.length == 1)
+	if (Array.isArray(glimpse) && glimpse.length === 1)
 		preview = glimpse[0].messages.length > 25 ? glimpse[0].messages.substring(0, 25) : glimpse[0].messages;
 	const name = friend[0].user_id.nickname;
 	const display = name.length > 15 ? name.substring(0, 15) : name;
@@ -17,7 +16,7 @@ const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; gl
 	return (
 		<div className="flex flex-row mx-2 gap-3 p-2 rounded border-solid border-textColor border-2">
 			<div className=" w-1/6 justify-center rounded">
-				<img className="max-h-[75px] max-w-[75px]" src={friend[0].user_id.avatar}></img>
+				<img alt="avatar" className="max-h-[75px] max-w-[75px]" src={friend[0].user_id.avatar}></img>
 			</div>
 			<div onClick={selector} className="flex flex-col flex-auto cursor-pointer gap-2 ">
 				<p className=" text-center  text-ellipsis overflow-hidden text-primary text-xl">{display}</p>

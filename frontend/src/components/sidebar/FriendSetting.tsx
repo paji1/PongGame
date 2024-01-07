@@ -1,9 +1,6 @@
 import { member, room } from "../../types/room";
-import Profile from "../../assets/profile.png";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { currentUser } from "../Context/AuthContext";
-import { toast } from "react-toastify";
-import { ip } from "../../network/ipaddr";
 import { FriendsettingItem } from "./settingsAux/settingsitems";
 
 const FriendSetting = ({ returnbutton, room }: { returnbutton: any; room: room | null }) => {

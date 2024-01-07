@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { member } from "../../../types/room";
 import {
 	AdminButton,
@@ -93,14 +93,14 @@ export const RoomsettingItem = ({
 		<div className="flex flex-row border-solid border-2 p-3 gap-y-4">
 			<div className=" flex flex-col items-center">
 			<Link to={`/profile/${user.user_id.nickname}`}>
-				<img className="border-solid border-2 max-h-[75px] max-w-[75px]" src={user?.user_id.avatar}></img>
+				<img alt="avatar" className="border-solid border-2 max-h-[75px] max-w-[75px]" src={user?.user_id.avatar}></img>
 				<h1 className="m-x">{user.user_id.nickname}</h1>
 			</Link>
 			</div>
 
 			<div className="flex flex-row  justify-between  m-5 w-full h-full">
 				<div>
-					<img className="h-[50px] w-[50px]" src={filter(user.permission)}></img>
+					<img alt="permission" className="h-[50px] w-[50px]" src={filter(user.permission)}></img>
 				</div>
 				<div>{more}</div>
 			</div>
@@ -116,7 +116,7 @@ export const FriendsettingItem = ({ user, roomid }: { user: member | undefined; 
 			<div className="flex flex-row border-solid border-2 p-3 gap-y-4">
 				<div className=" flex flex-col items-center">
 					<Link to={`/profile/${user.user_id.nickname}`}>
-						<img className="border-solid border-2 max-h-[75px] max-w-[75px]" src={user?.user_id.avatar}></img>
+						<img alt="avatar" className="border-solid border-2 max-h-[75px] max-w-[75px]" src={user?.user_id.avatar}></img>
 						<h1 className="m-x">{user.user_id.nickname}</h1>
 					</Link>
 				</div>

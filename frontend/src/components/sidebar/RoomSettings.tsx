@@ -18,6 +18,7 @@ const RoomSettings = ({ returnf, returnbutton, room }: { returnf: any; returnbut
 			let nickname = ob.user_id.nickname.toLowerCase();
 			if (nickname.includes(query.toLowerCase()))
 				return <RoomsettingItem returnf={returnf} user={ob} roomid={room.id} userPerm={thisuser} />;
+			return <></>
 		});
 	}
 	const setQueryonchange = (object: any) => {

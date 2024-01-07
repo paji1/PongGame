@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { useState } from "react";
 import { room } from "../../types/room";
 import {  messages, roommessages } from "../../types/messages";
@@ -19,7 +19,7 @@ const Messageitem = ({ user, messages }: { user: CurrentUser; messages: messages
 		>
 			<div className="w-[15%] flex justify-center ">
 				<Link to={`/profile/${messages.senderid.nickname}`}>
-				<img  className=" border-solid border-2 rounded-full h-[60px] w-[60px]" src={messages.senderid.avatar}></img>
+				<img  alt="avatar" className=" border-solid border-2 rounded-full h-[60px] w-[60px]" src={messages.senderid.avatar}></img>
 				</Link>
 			</div>
 			<div className={`p-2 rounded-2xl border-solid  border-2 w-[80%] flex items-center ${user?.id === messages.senderid.id ? "justify-end bg-MeColor" : "justify-start bg-YouColor"}` }>
@@ -63,7 +63,7 @@ const ChatBar = ({
 			toast.error("la mabghitch");
 			return;
 		}
-		const data = fetch(`http://${ip}3001/chat/paginate?room=${room}&offset=${conversation?.messages.length}`, {
+		fetch(`http://${ip}3001/chat/paginate?room=${room}&offset=${conversation?.messages.length}`, {
 			credentials: "include",
 		})
 			.then((data) => data.json())
@@ -108,7 +108,7 @@ const ChatBar = ({
 			{pajination ? 
 			<div className="flex justify-center">
 				 
-				<img onClick={() => getMoreMessages(room?.id)} className="h-[30px]  cursor-pointer rounded-lg " src={Datasvg}>
+				<img alt="more" onClick={() => getMoreMessages(room?.id)} className="h-[30px]  cursor-pointer rounded-lg " src={Datasvg}>
 				</img>
 			</div>
 			 : null}
@@ -125,11 +125,11 @@ const MessageBar = ({ roomnumber }: { roomnumber: number }) => {
 	const socket = useContext(SocketContext);
 
 	const [textmessage, settextmessage] = useState<string>("");
-	const writing = () => {
-		/**
-		 * user is sending message!!!!!!!!
-		 */
-	};
+	// const writing = () => {
+	// 	/**
+	// 	 * user is sending message!!!!!!!!
+	// 	 */
+	// };
 	const setMessage = (object: any) => {
 		settextmessage(object.target.value);
 	};
@@ -152,7 +152,7 @@ const MessageBar = ({ roomnumber }: { roomnumber: number }) => {
 	};
 	const  submitOnEnter = (event :any) =>{
 		
-		if (event.which == 13)
+		if (event.which === 13)
 		{
 			event.preventDefault(); 
 			event.target.value = ""
@@ -170,7 +170,7 @@ const MessageBar = ({ roomnumber }: { roomnumber: number }) => {
 			</div>
 			<div className=" h-full w-[20%]   flex items-center justify-center">
 				<button className=" w-[80%] h-[80%]" onClick={sendSocket}>
-					<img  className="h-full w-full rounded-lg border-solid border-white border-2" src={Sendsvg}></img>
+					<img alt="send" className="h-full w-full rounded-lg border-solid border-white border-2" src={Sendsvg}></img>
 				</button>
 			</div>
 		</form>
