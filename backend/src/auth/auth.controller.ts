@@ -38,7 +38,8 @@ export class AuthController {
 	// 	return console.log("hello world");
 	// }
 
-	
+
+	// TO DO  refactor code to service
 	@Post("local/signup")
 	@HttpCode(HttpStatus.CREATED)
 	async signupLocal(
@@ -55,7 +56,7 @@ export class AuthController {
 	}
 
 
-	// tahaTODO 
+	// tahaTODO password update
 	@Post("local/apdate/password")
 	@HttpCode(HttpStatus.CREATED)
 	async updatePassword(
@@ -70,6 +71,7 @@ export class AuthController {
 			]);
 			res.end()
 		}
+	
 		// tahaTODO  nickname update  
 
 	@Public()
@@ -92,6 +94,8 @@ export class AuthController {
 		return { helllo: "hello" };
 	}
 	
+
+	// taha to do re refactor
 	@Get("callback_42")
 	@Public()
 	@UseGuards(AuthGuard("intra"))

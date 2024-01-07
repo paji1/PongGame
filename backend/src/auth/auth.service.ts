@@ -5,11 +5,13 @@ import * as argon from "argon2";
 import { PrismaService } from "../prisma/prisma.service";
 import { Prisma, user } from "@prisma/client";
 
-import { AuthDto, AuthIntraDto, AuthSignUp } from "./dto";
+import { AuthDto, AuthIntraDto, AuthSignUp, userDatadto } from "./dto";
 import { JwtPayload, Tokens } from "./types";
 import { Response } from "express";
 import { find } from "rxjs";
 import { use } from "passport";
+
+
 
 @Injectable()
 export class AuthService {
@@ -19,7 +21,7 @@ export class AuthService {
 		private config: ConfigService,
 	) {}
 
-	async updateLocal(dto: AuthSignUp, user42: string): Promise<[Tokens, user]> {
+	async updateLocal(dto: AuthSignUp, user42: string): Promise<[Tokens, userDatadto]> {
 		const hash = await argon.hash(dto.password);
 		const user = await this.prisma.user
 			.update({
@@ -30,6 +32,14 @@ export class AuthService {
 					nickname: dto.nickname,
 					hash,
 				},
+				select:
+				{
+					id:true,
+					user42:true,
+					nickname:true,
+					avatar:true,
+					status:true,
+				}
 			})
 			.catch((error) => {
 				if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -39,6 +49,7 @@ export class AuthService {
 				}
 				throw error;
 			});
+		
 
 		const tokens = await this.getTokens(user.id, user.user42);
 		await this.updateRtHash(user.id, tokens.refresh_token);
@@ -105,6 +116,7 @@ export class AuthService {
 		console.log("user42", user42);
 		res.cookie("atToken", "", { expires: new Date(Date.now()) });
 		res.cookie("rtToken", "", { expires: new Date(Date.now()) });
+		res.cookie("userData", "", { expires: new Date(Date.now()) });
 		await this.prisma.user.updateMany({
 			where: {
 				user42: user42,
