@@ -479,6 +479,7 @@ export class RoomsService {
 				},
 				data: {
 					ismuted: true,
+					mutetime: new Date(),
 				},
 				select: {
 					id: true,
@@ -522,6 +523,7 @@ export class RoomsService {
 				},
 				data: {
 					ismuted: false,
+					mutetime: null,
 				},
 				select: {
 					id: true,

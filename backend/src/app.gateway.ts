@@ -119,6 +119,12 @@ export class AppGateway {
 		return list;
 	}
 
+	@OnEvent("AUTOUNMUTE")
+	async inform(roomid, userstate)
+	{
+		this.server.to(roomid.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: userstate})
+	}
+	
 }
 
 
@@ -126,7 +132,7 @@ export class AppGateway {
 /**
  * 
  * 	user conects: 
- * 				->>>>> userstatus set as online
+ * 		->>>>> userstatus set as online
  * 	user join a game:
  * 				-> userstatus as in game
  * 	user leaves a game:

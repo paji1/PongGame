@@ -2,8 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Res } fro
 import { GameService } from './game.service';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
-import { GameUpdateGuard } from 'src/common/guards/game/game-update.guard';
-import { GameFindGuard } from 'src/common/guards/game/game-find.guard';
+
 
 @Controller('game')
 export class GameController {
@@ -26,7 +25,6 @@ export class GameController {
 	}
 
 	@Get(':id')
-	@UseGuards(GameFindGuard)
 	async findOne(@Param('id') id: string) {
 		const game = await this.gameService.findOne(id);
 		return game
@@ -39,14 +37,12 @@ export class GameController {
     }
 
 	@Patch(':id')
-	@UseGuards(GameFindGuard)
-	@UseGuards(GameUpdateGuard)
+
 	update(@Param('id') id: string, @Body() updateGameDto: UpdateGameDto) {
 		return this.gameService.update(id, updateGameDto);
 	}
 
 	@Delete(':id')
-	@UseGuards(GameFindGuard)
 	remove(@Param('id') id: string) {
 		return this.gameService.remove(id);
 	}
