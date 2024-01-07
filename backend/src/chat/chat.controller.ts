@@ -20,7 +20,6 @@ export class ChatController {
 
 	@Get("comunication")
 	async humanFetchMessage(@GetCurrentUserId() id:number) {
-		console.log("hi");
 		return await this.service.messages.get_messages(id);
 	}
 	

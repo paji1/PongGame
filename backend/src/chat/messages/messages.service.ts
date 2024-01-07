@@ -67,14 +67,16 @@ export class MessagesService {
 					rooms_members: {
 						some: {
 							userid: Requester,
-							NOT:
-							{
-								isBanned:true,
-							}
 							},
 						},
 			},
 			select: {
+				rooms_members:{
+					select:
+					{
+						isBanned:true,
+					}
+				},
 				id: true,
 				messages: {
 					select: {
@@ -99,7 +101,12 @@ export class MessagesService {
 			},
 		});
 		
-		conversation.map((conv) =>  conv.messages = conv.messages.filter((message) => !blocked.includes(message.senderid.id)))
+		conversation.map((conv) =>  {
+			if (conv.rooms_members.find((member) => member.isBanned).isBanned === true)
+				conv.messages = new Array(0)
+			else
+				conv.messages = conv.messages.filter((message) => !blocked.includes(message.senderid.id))
+		})
 		
 		return conversation;
 	}

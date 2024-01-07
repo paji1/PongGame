@@ -28,7 +28,7 @@ const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 	const [subscriberooms, setsubscriptrooms] = useState(false);
 	const [newAlert, setNewAlert] = useState(false);
 
-
+	console.log("roomstate", roomsState,  "chatstate", chatState)
 	const friendroom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof === "chat") : null;
 	const grouproom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof !== "chat") : null;
 	useMessages(false, setChatState);

@@ -47,6 +47,7 @@ const ChatBar = ({
 	const [config, setConfig] = useState(false);
 	const [pajination, setpaginate] = useState(dopagin);
 	const user = useContext(currentUser);
+
 	if (conversation && typeof conversation.messages !== "undefined" && user) {
 		messages = conversation.messages.map((obj: messages, index) => <Messageitem user={user} messages={obj} />);
 	}

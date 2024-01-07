@@ -46,7 +46,7 @@ export class RoomGuard implements CanActivate {
             roomid = +request.query["room"]
 
         const now = new Date()
-        console.log("from room guard date is ", now.getTime() )
+        console.log("from room guard date is ", now.getTime(), "room id is", roomid )
         if (typeof types !== "undefined")
         {
             
@@ -96,9 +96,17 @@ export class RoomGuard implements CanActivate {
                 if (typeof userState !== "undefined" )
                 {
                     if (membership.isblocked && userState.includes(Roomstattypes.NOTBLOCK))
+                    {
+                        if(reqType==="ws")
+                        context.switchToWs().getClient().emit("ChatError", "you are blocked by this user")
                         return false
+                    }
                     if (membership.isBanned && userState.includes(Roomstattypes.NOTBAN))
+                    {
+                        if(reqType==="ws")
+                            context.switchToWs().getClient().emit("ChatError", "your banned from thi room")
                         return false
+                    }
                     if (membership.ismuted && userState.includes(Roomstattypes.NOTMUTE))
                     {
                         console.log((new Date()).getTime() - membership.mutetime.getTime() - 60000)
@@ -124,6 +132,8 @@ export class RoomGuard implements CanActivate {
                             this.events.emit("AUTOUNMUTE", membership.roomid, newres);
                             return true;
                         }
+                        if(reqType==="ws")
+                            context.switchToWs().getClient().emit("ChatError", "you are muted")
                         return false
                     }
                 }
