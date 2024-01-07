@@ -14,6 +14,7 @@ import { update } from "./sidebar/updater";
 import { currentUser } from "./Context/AuthContext";
 import { Socket } from "socket.io-client";
 import Writesvg from "../assets/write.svg";
+import IUser from "../types/User";
 
 
 const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
@@ -28,6 +29,21 @@ const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 	const [subscriberooms, setsubscriptrooms] = useState(false);
 	const [newAlert, setNewAlert] = useState(false);
 
+
+// this section to be moved out of this component
+	const [status, setstatus] = useState<Map<string, string>>(new Map())
+	useEffect(()=> {socket.emit("ONNSTATUS", {"room": -1})},[subscriberooms])
+	socket.off("ON_STATUS").on("ON_STATUS", (usersstatus: IUser[]) => 
+	{
+		
+		usersstatus.map((user:IUser)=> status.set(user.nickname, user.connection_state))
+		setstatus(new Map(status));
+		console.log("updateted status", status)
+	})
+// this section to be moved out of this component
+
+
+
 	console.log("roomstate", roomsState,  "chatstate", chatState)
 	const friendroom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof === "chat") : null;
 	const grouproom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof !== "chat") : null;
@@ -36,7 +52,7 @@ const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 	
 	useEffect(() => {
 		if ( Array.isArray(roomsState))
-		roomsState?.map((ob: room) => socket.emit("ROOMSUBSCRIBE", { room: ob.id }));
+			roomsState?.map((ob: room) => socket.emit("ROOMSUBSCRIBE", { room: ob.id }));
 	}, [roomsState,  subscriberooms, socket]);
 
 	const currentchat = Array.isArray(chatState) ? chatState.find((ob: roommessages) => ob.id === chatSelector) : null;
@@ -86,12 +102,12 @@ const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 			);
 		switch (searchSelection) {
 			case 0:
-				return <SideBarItemFilter rooms={roomsState} query={searchText} roomselector={setChatSelector} />;
+				return <SideBarItemFilter status={status} rooms={roomsState} query={searchText} roomselector={setChatSelector} />;
 			case 1:
-				return <SideBarItemFilter rooms={friendroom} query="" roomselector={setChatSelector} />;
+				return <SideBarItemFilter status={status} rooms={friendroom} query="" roomselector={setChatSelector} />;
 			case 2:
 				return (
-						<SideBarItemFilter rooms={grouproom} query="" roomselector={setChatSelector} />);
+						<SideBarItemFilter status={status} rooms={grouproom} query="" roomselector={setChatSelector} />);
 		}
 	};
 	return (

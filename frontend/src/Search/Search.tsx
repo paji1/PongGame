@@ -39,17 +39,17 @@ const RoomItem = ({ room, socket }: { room: room; socket: Socket }) => {
 	);
 };
 const UserItem = ({ user }: { user: IUser }) => {
-	// const addFR = () => {
-	// 	fetch(`http://${ip}3001/invite/friend?friend=${user.id}`, {
-	// 		method: "POST",
-	// 		credentials: "include",
-	// 	})
-	// 		.then((data) => data.json())
-	// 		.then((data) => {
-	// 			console.log(data);
-	// 		})
-	// 		.catch(() => toast.error(`search: network error`));
-	// };
+	const addFR = () => {
+		fetch(`http://${ip}3001/invite/friend?friend=${user.id}`, {
+			method: "POST",
+			credentials: "include",
+		})
+			.then((data) => data.json())
+			.then((data) => {
+				console.log(data);
+			})
+			.catch(() => toast.error(`search: network error`));
+	};
 	return (
 		<div className="flex-col sm:flex-row gap-y-6 gap-x-4 sm:gap-y-0 sm:items-center justify-between flex  m-auto ring-black shadow-buttonShadow ring-2 p-4 w-full truncate">
 			<div className="flex w-[45%] justify-between  gap-x-8 sm:gap-x-4 items-center">
@@ -66,6 +66,7 @@ const UserItem = ({ user }: { user: IUser }) => {
 			>
 				visit profile
 			</Link>
+			<button onClick={addFR}> add fr</button>
 		</div>
 	);
 };

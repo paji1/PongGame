@@ -5,10 +5,12 @@ import GroupItem from "./GroupItem";
 import { currentUser } from "../Context/AuthContext";
 
 const SideBarItemFilter = ({
+	status,
 	rooms,
 	query,
 	roomselector,
 }: {
+	status: Map<string, string>
 	rooms: room[] | null;
 	query: string;
 	roomselector: any;
@@ -31,7 +33,7 @@ const SideBarItemFilter = ({
 						: ob.rooms_members[0].user_id.nickname.toLowerCase();
 						if ( name.includes(query.toLowerCase()))
 							return (
-							<FriendItem key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />);
+							<FriendItem status={status} key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />);
 				}
 				else if (ob.roomtypeof !== "chat" && group.includes(query.toLowerCase())) {
 					return (
@@ -44,7 +46,7 @@ const SideBarItemFilter = ({
 			list = rooms.map((ob: room, index: number) => {
 				if (ob.roomtypeof === "chat")
 					return (
-						<FriendItem key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />
+						<FriendItem status={status} key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />
 					);
 				return <GroupItem key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />;
 			});

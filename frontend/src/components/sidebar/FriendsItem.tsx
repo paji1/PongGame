@@ -4,7 +4,7 @@ import { messages } from "../../types/messages";
 import { currentUser } from "../Context/AuthContext";
 import { Link } from "react-router-dom";
 
-const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; glimpse: messages[] }) => {
+const FriendItem = ({ status, selector, room, glimpse }: {status: Map<string, string>,  selector: any; room: room; glimpse: messages[] }) => {
 	let preview;
 	const user = useContext(currentUser);
 	const friend = room.rooms_members.filter((ob) => ob.user_id.id !== user?.id);
@@ -12,7 +12,8 @@ const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; gl
 		preview = glimpse[0].messages.length > 25 ? glimpse[0].messages.substring(0, 25) : glimpse[0].messages;
 	const name = friend[0].user_id.nickname;
 	const display = name.length > 15 ? name.substring(0, 15) : name;
-
+	const ping = status.get(name)
+	const activity = ping ? ping : "salina salina"
 	return (
 		<div className="flex flex-row mx-2 gap-3 p-2 rounded border-solid border-textColor border-2">
 			<div className=" w-1/6 justify-center rounded">
@@ -21,6 +22,7 @@ const FriendItem = ({ selector, room, glimpse }: { selector: any; room: room; gl
 			<div onClick={selector} className="flex flex-col flex-auto cursor-pointer gap-2 ">
 				<p className=" text-center  text-ellipsis overflow-hidden text-primary text-xl">{display}</p>
 				<p className="text-ellipsis overflow-hidden">{preview}</p>
+				<p className="text-ellipsis overflow-hidden" >{activity}</p>
 			</div>
 			<div className="flex items-center justify-center w-1/6 ">
 				<Link to={`/profile/${name}`}>

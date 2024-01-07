@@ -38,7 +38,7 @@ export class AppGateway {
 		if (!(await this.server.to(identifier).fetchSockets()).length)
 		{
 			const	state = await this.prisma.user.update({where:{user42:identifier,},data:{connection_state: current_state.OFFLINE}});
-			this.statusnotify.emit("PUSHSTATUS", state.user42 , state.connection_state)
+			this.statusnotify.emit("PUSHSTATUS", state.user42 , [{ nickname:state.nickname , connection_state: state.connection_state}])
 
 		}
 	}	
@@ -49,19 +49,63 @@ export class AppGateway {
 		if ((await this.server.to(identifier).fetchSockets()).length == 1)
 		{
 			const	state = await this.prisma.user.update({where:{user42:identifier,},data:{connection_state: current_state.ONLINE}});
-			this.statusnotify.emit("PUSHSTATUS", identifier, state.connection_state)
+			this.statusnotify.emit("PUSHSTATUS", state.user42 , [{ nickname:state.nickname , connection_state: state.connection_state}])
 		}
 		
 	}
 	
+	@SubscribeMessage("ONNSTATUS")
+	async getPrimarystatus( @GetCurrentUser("user42") identifier:string, @ConnectedSocket() client)
+	{
+		const status = await this.prisma.user.findUnique(
+			{
+				where:{
+					user42:identifier,
+				},
+				select:{
+					friendship1: {
+
+						select:{
+							reciever_id:true,
+							status:true,
+						}
+					},
+					friendship2: {
+						select:{
+							
+							initiator_id:true,
+							status:true
+						}
+					}
+
+				}
+			}
+		)
+		const allstatus = [];
+		status.friendship1?.map((friend) => {
+			friend.status === "DEFAULT"?
+			allstatus.push({nickname: friend.reciever_id.nickname, connection_state: friend.reciever_id.connection_state}):
+			allstatus.push({nickname: friend.reciever_id.nickname, connection_state: "BLOCKED"})
+		
+		})
+		status.friendship2?.map((friend) =>{
+			friend.status === "DEFAULT"?
+			allstatus.push({nickname: friend.initiator_id.nickname, connection_state: friend.initiator_id.connection_state}):
+			allstatus.push({nickname: friend.initiator_id.nickname, connection_state: "BLOCKED"})
+		})
+	
+		client.emit("ON_STATUS",   allstatus)
+		console.log("all send", allstatus)
+
+	}
 	@OnEvent('PUSHSTATUS')
-	async notifyALL(user: string, status:string)
+	async notifyALL(user: string, status:[])
 	{
 		const friends = await this.getfriends(user);
 		friends.forEach( async (friend) => 
 		{
 			if((await this.server.to(friend).fetchSockets()).length)
-				this.server.to(friend).emit("ACTION" , {region:"ROOM", action: "status", data: {userh:user, status:status}});
+				this.server.to(friend).emit("ON_STATUS" , status);
 		}
 	);
 	}
