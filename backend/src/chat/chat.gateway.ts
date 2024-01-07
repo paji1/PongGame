@@ -77,9 +77,8 @@ export class ChatGateway {
 	}	
 	catch (e)
 	{
-
 			client.emit("ChatError", e.message);
-		}
+	}
 	}	
 
 
