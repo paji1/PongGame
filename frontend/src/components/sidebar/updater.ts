@@ -81,6 +81,12 @@ export const update = (
 				break;
 			case "JOIN":
 				const room3 = data.data as room;
+				const i = newroomState.findIndex(roo => roo.id == room3.id)
+				if (i >= 0)
+				{
+					roomsState[i].rooms_members = room3.rooms_members;
+					break ;
+				}
 				console.log(room3);
 				newroomState.unshift(room3);
 				getmessages(room3.id, chatState, setchatState);
