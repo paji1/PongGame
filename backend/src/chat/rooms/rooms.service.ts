@@ -407,6 +407,7 @@ export class RoomsService {
 									nickname: true,
 									user42:true,
 									avatar: true,
+									connection_state:true
 								},
 							},
 						},

@@ -196,21 +196,29 @@ export class ChatGateway {
 			{
 				res = await this.service.rooms.unblock_user(id ,Message.target, Message.room);
 			}
-		if (typeof res === "string")
-		{
-			this.server.to(identifier).emit("ChatError", res);
-			return
-		}
-		if (!res)
-		{
-			client.emit("ChatError", `failed to ${Message.What}`);
-			return ;
-		}
-		const to = (identifier === res[1].user_id.user42) ?  res[0].user_id.user42 : res[1].user_id.user42;
+			if (typeof res === "string")
+			{
+				this.server.to(identifier).emit("ChatError", res);
+				return
+			}
+			if (!res)
+			{
+				client.emit("ChatError", `failed to ${Message.What}`);
+				return ;
+			}
+			
+		const meindex = (identifier === res[1].user_id.user42) ?  0 : 1;
+		const toindex = (identifier === res[1].user_id.user42) ?  1 : 0;
+		const mesituation = res[0].isblocked ? "BLOCKED" : res[meindex].user_id.connection_state
+		const tosituation = res[0].isblocked ? "BLOCKED" : res[toindex].user_id.connection_state
+
 		
+		this.server.to(res[meindex].user_id.user42).emit("ON_STATUS",[{"nickname": res[toindex].user_id.nickname , "connection_state": tosituation}])
+		this.server.to(res[toindex].user_id.user42 ).emit("ON_STATUS",[{"nickname": res[meindex].user_id.nickname  , "connection_state": mesituation}])
+
 
 		this.server.to(identifier).emit("ACTION", {region: "ROOM", action:"update" , data: (res[1].user_id.user42 === identifier) ? res[0] : res[1]})
-		this.server.to(to).emit("ACTION", {region: "ROOM", action:"update" , data:  (res[1].user_id.user42 === to) ? res[0] : res[1]})
+		this.server.to(res[toindex].user_id.user42).emit("ACTION", {region: "ROOM", action:"update" , data:  (res[1].user_id.user42 === res[toindex].user_id.user42) ? res[0] : res[1]})
 
 		this.server.to(res.user_id.user42).emit("NOTIFY", `user: ${res.user_id.nickname} is blocked`)
 
