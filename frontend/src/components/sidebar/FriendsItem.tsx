@@ -37,7 +37,7 @@ const FriendItem = ({ status, selector, room, glimpse }: {status: Map<string, st
 	const ping = status.get(name)
 	const activity = ping ? ping : "NotFriends"
 	return (
-		<div className={` ${ping ? "" : "grayscale" } flex flex-row mx-2 gap-3 p-2 shadow-buttonShadow rounded border-solid border-textColor border-2`}>
+		<div className={` ${!ping || ping ==="BLOCKED" ? "grayscale" : "" } flex flex-row mx-2 gap-3 p-2 shadow-buttonShadow rounded border-solid border-textColor border-2`}>
 			<div className=" w-1/6 justify-center rounded">
 				<img alt="avatar" className="shadow-buttonShadow max-h-[75px] max-w-[75px]" src={friend[0].user_id.avatar}></img>
 			</div>
