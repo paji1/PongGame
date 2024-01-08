@@ -13,7 +13,7 @@ const FriendItem = ({ status, selector, room, glimpse }: {status: Map<string, st
 	const name = friend[0].user_id.nickname;
 	const display = name.length > 15 ? name.substring(0, 15) : name;
 	const ping = status.get(name)
-	const activity = ping ? ping : "salina salina"
+	const activity = ping ? ping : "NotFriends"
 	return (
 		<div className="flex flex-row mx-2 gap-3 p-2 rounded border-solid border-textColor border-2">
 			<div className=" w-1/6 justify-center rounded">

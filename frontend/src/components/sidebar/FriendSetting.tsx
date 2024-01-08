@@ -1,7 +1,9 @@
 import { member, room } from "../../types/room";
 import { useContext } from "react";
 import { currentUser } from "../Context/AuthContext";
-import { FriendsettingItem } from "./settingsAux/settingsitems";
+import { FriendsettingItem } from "./FriendSettingItem";
+
+
 
 const FriendSetting = ({ returnbutton, room }: { returnbutton: any; room: room | null }) => {
 	var item;

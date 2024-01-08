@@ -97,8 +97,6 @@ export class RoomGuard implements CanActivate {
                 {
                     if (membership.isblocked && userState.includes(Roomstattypes.NOTBLOCK))
                     {
-                        if(reqType==="ws")
-                        context.switchToWs().getClient().emit("ChatError", "you are blocked by this user")
                         return false
                     }
                     if (membership.isBanned && userState.includes(Roomstattypes.NOTBAN) && Object.keys(context.switchToWs().getData()).length > 1)

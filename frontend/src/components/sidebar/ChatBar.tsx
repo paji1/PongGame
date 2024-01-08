@@ -3,32 +3,15 @@ import { useState } from "react";
 import { room } from "../../types/room";
 import {  messages, roommessages } from "../../types/messages";
 import { toast } from "react-toastify";
-import { currentUser, CurrentUser } from "../../components/Context/AuthContext";
-import { SocketContext } from "../Context/SocketContext";
+import { currentUser } from "../../components/Context/AuthContext";
 import RoomSettings from "./RoomSettings";
 import FriendSetting from "./FriendSetting";
 import { ip } from "../../network/ipaddr";
-import Sendsvg from "../../assets/send.svg"
 import Datasvg from "../../assets/data.svg"
-import { Link } from "react-router-dom";
+import { MessageBar } from "./MessageBar";
+import { Messageitem } from "./MessageItem";
 
 
-const Messageitem = ({ user, messages }: { user: CurrentUser; messages: messages }) => {
-	return (
-		<div className={`flex   ${user?.id === messages.senderid.id ? "flex-row-reverse" : "flex-row"}     justify-between `}
-		>
-			<div className="w-[15%] flex justify-center ">
-				<Link to={`/profile/${messages.senderid.nickname}`}>
-				<img  alt="avatar" className=" border-solid border-2 rounded-full h-[60px] w-[60px]" src={messages.senderid.avatar}></img>
-				</Link>
-			</div>
-			<div className={`p-2 rounded-2xl border-solid  border-2 w-[80%] flex items-center ${user?.id === messages.senderid.id ? "justify-end bg-MeColor" : "justify-start bg-YouColor"}` }>
-				<p className={`w-full  break-words  ${user?.id === messages.senderid.id ? "text-right" : ""}  `} >{messages.messages}</p>
-			</div>
-			<div className="w-[10px]"></div>
-		</div>
-	);
-};
 
 const ChatBar = ({
 	pajinationf,
@@ -121,59 +104,5 @@ const ChatBar = ({
 		</div>
 	);
 };
-const MessageBar = ({ roomnumber }: { roomnumber: number }) => {
-	const socket = useContext(SocketContext);
 
-	const [textmessage, settextmessage] = useState<string>("");
-	// const writing = () => {
-	// 	/**
-	// 	 * user is sending message!!!!!!!!
-	// 	 */
-	// };
-	const setMessage = (object: any) => {
-		settextmessage(object.target.value);
-	};
-	const sendSocket = (input: any) => {
-		input.preventDefault();
-		if (!socket.connected) {
-			toast.error("socket not conected");
-			return;
-		}
-		if (!textmessage.length) return;
-		const messsage = {
-			target: -1,
-			room: roomnumber,
-			What: textmessage,
-		};
-		console.log(messsage);
-		socket.emit("CHAT", messsage);
-		input.target.value = "";
-		settextmessage(input.target.value);
-	};
-	const  submitOnEnter = (event :any) =>{
-		
-		if (event.which === 13)
-		{
-			event.preventDefault(); 
-			event.target.value = ""
-			settextmessage(event.target.value)
-			sendSocket(event);
-			return ;
-		}
-	}
-
-	return (
-
-		<form className="h-[60px] flex flex-row  justify-between ">
-			<div className="h-full w-full  flex items-center justify-center  ">
-				<textarea onKeyDown={(e) => submitOnEnter(e)} className=" max-h-[3rem] min-h-[3rem]  rounded-lg w-[95%] h-[80%] break-words text-black"  value={textmessage} onChange={setMessage} placeholder="send a new message"></textarea>
-			</div>
-			<div className=" h-full w-[20%]   flex items-center justify-center">
-				<button className=" w-[80%] h-[80%]" onClick={sendSocket}>
-					<img alt="send" className="h-full w-full rounded-lg border-solid border-white border-2" src={Sendsvg}></img>
-				</button>
-			</div>
-		</form>
-	);
-};
 export default ChatBar;

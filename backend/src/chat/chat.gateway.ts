@@ -220,7 +220,6 @@ export class ChatGateway {
 		this.server.to(identifier).emit("ACTION", {region: "ROOM", action:"update" , data: (res[1].user_id.user42 === identifier) ? res[0] : res[1]})
 		this.server.to(res[toindex].user_id.user42).emit("ACTION", {region: "ROOM", action:"update" , data:  (res[1].user_id.user42 === res[toindex].user_id.user42) ? res[0] : res[1]})
 
-		this.server.to(res.user_id.user42).emit("NOTIFY", `user: ${res.user_id.nickname} is blocked`)
 
 
 	}
