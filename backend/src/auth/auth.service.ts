@@ -105,6 +105,7 @@ export class AuthService {
 			},
 		});
 		if (!user) return [await this.signUpIntra(dto), false];
+		console.log("here");
 
 		// const tokens = await this.getTokens(user.id, user.user42);
 		// await this.updateRtHash(user.id, tokens.refresh_token);

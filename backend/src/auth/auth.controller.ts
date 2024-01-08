@@ -111,10 +111,10 @@ export class AuthController {
 	async handleCallback(@GetUser() userdto: AuthIntraDto, @Res() res: Response): Promise<void> {
 		try {
 			const [token, signUpstate] = await this.authService.handle_intra(userdto);
-			const userData = { signUpstate };
+			const userData = { signUpstate , user: userdto.user42 };
 
 			await Promise.all([
-				res.cookie("userData", JSON.stringify({ userData }), { httpOnly: false }),
+				res.cookie("userData", JSON.stringify({ userData } ), { httpOnly: false }),
 				this.authService.syncTokensHttpOnlyIntra(res, token),
 			]);
 			// const windowRef = window;

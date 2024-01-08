@@ -12,67 +12,20 @@ import Cookies from "js-cookie";
 
 import {
 	BrowserRouter,
-	Link,
-	Navigate,
 	Route,
 	RouterProvider,
 	Routes,
-	createBrowserRouter,
-	useNavigate,
+
 } from "react-router-dom";
 import Dashboard from "./components/Dashboard/Dashboard";
 import { SearchWindow } from "./Search/Search";
 import { use } from "matter-js";
 import axios, { Axios } from "axios";
 import Loading from "./components/loading/loading";
+import Refreshinterval from "./components/refreshInterval/refreshInterval";
 
 // TODO: this is a temporary trqi3a
 
-const router = createBrowserRouter([
-	{
-		path: "/",
-		element: <Dashboard />,
-	},
-	{
-		path: "/game",
-		element: <GameMain />,
-	},
-]);
-
-const Refreshinterval = () => {
-	const [error, setError] = useState<string | null>(null);
-	const intervalRef = useRef<NodeJS.Timer | undefined>();
-
-	const getToken = useCallback(() => {
-		axios
-			.post("http://localhost:3001/auth/refresh", {}, { withCredentials: true })
-			.then((res) => {
-				console.log(res);
-				console.log(res.data);
-			})
-			.catch((err): any => {
-				// console.error("axios get refresh error:", err);
-				setError("error : refresh token not found");
-			});
-	}, []);
-
-	useEffect(() => {
-		getToken();
-		const interval = setInterval(() => getToken(), 14 * 60 * 1000);
-		intervalRef.current = interval;
-
-		return () => clearInterval(interval);
-	}, [getToken]);
-
-	useEffect(() => {
-		if (error) {
-			// toast.error(error);
-			setError(null);
-		}
-	}, [error]);
-
-	return <></>;
-};
 
 const App = () => {
 	const [user, setuser] = useState<CurrentUser | null>(null);
