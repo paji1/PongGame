@@ -51,7 +51,7 @@ const Refreshinterval = () => {
 				console.log(res.data);
 			})
 			.catch((err): any => {
-				console.error("axios get refresh error:", err);
+				// console.error("axios get refresh error:", err);
 				setError("error : refresh token not found");
 			});
 	}, []);
@@ -66,7 +66,7 @@ const Refreshinterval = () => {
 
 	useEffect(() => {
 		if (error) {
-			toast.error(error);
+			// toast.error(error);
 			setError(null);
 		}
 	}, [error]);
@@ -85,6 +85,7 @@ const App = () => {
 			const res = await fetch(`http://${ip}3001/users/isLogin`, { credentials: "include", method: "GET" })
 				.then((res) => {
 					if (!res.ok) {
+
 						setIsLogin(false);
 						throw new Error(`Error! status ${res.status}`);
 					}
@@ -97,7 +98,7 @@ const App = () => {
 
 		isLoggedIn();
 		const items = Cookies.get("userData");
-		if (items && islogin) {
+		if (items && islogin ) {
 			setuser(JSON.parse(items));
 		}
 	}, [islogin]);

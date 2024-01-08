@@ -18,6 +18,8 @@ model user {
   connection_state  current_state   @default(OFFLINE)
   experience_points Int             @default(0)
   created_at        DateTime        @default(now())
+  is2FA             Boolean         @default(false)
+  secret2FA         String?
   achieved          achieved[]
   friendship1       friendship[]    @relation("initiator")
   friendship2       friendship[]    @relation("reciever")

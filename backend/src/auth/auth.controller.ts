@@ -1,9 +1,9 @@
-import { AuthIntraDto, AuthSignUp, userDto } from "./dto";
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards, Get, Res, Req, Redirect } from "@nestjs/common";
+import { AuthIntraDto, AuthSignUp, UpdatePassDto, userDto } from "./dto";
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards, Get, Res, Req, Redirect, UnauthorizedException } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 
 import { Public, GetCurrentUserId, GetCurrentUser, GetUser } from "../common/decorators";
-import { RtGuard } from "../common/guards";
+import { ItGuard, RtGuard } from "../common/guards";
 import { AuthService } from "./auth.service";
 import { AuthDto } from "./dto";
 import { Tokens } from "./types";
@@ -38,8 +38,9 @@ export class AuthController {
 	// 	return console.log("hello world");
 	// }
 
-
 	// TO DO  refactor code to service
+	@Public()
+	@UseGuards(ItGuard)
 	@Post("local/signup")
 	@HttpCode(HttpStatus.CREATED)
 	async signupLocal(
@@ -51,37 +52,46 @@ export class AuthController {
 		await Promise.all([
 			res.cookie("userData", JSON.stringify({ user }), { httpOnly: false }),
 			this.authService.syncTokensHttpOnly(res, tokens),
-		]);
-		res.end()
-	}
+			res.cookie("itToken", "", { expires: new Date(Date.now()) }),
 
+		]);
+		res.end();
+	}
 
 	// tahaTODO password update
 	@Post("local/apdate/password")
 	@HttpCode(HttpStatus.CREATED)
 	async updatePassword(
-		@Body() dto: AuthSignUp,
+		@Body() dto: UpdatePassDto,
 		@Res() res: Response,
 		@GetCurrentUser("user42") user42: string,
-		): Promise<void> {
-			const [tokens, user] = await this.authService.updateLocal(dto, user42);
-			await Promise.all([
-				res.cookie("userData", JSON.stringify({ user }), { httpOnly: false }),
-				this.authService.syncTokensHttpOnly(res, tokens),
-			]);
-			res.end()
-		}
-	
-		// tahaTODO  nickname update  
+		@GetCurrentUser("isIntraAuth") isintra: boolean,
+	): Promise<void> {
+		const tokens = await this.authService.updatepassword(dto, user42);
+		await this.authService.syncTokensHttpOnly(res, tokens), res.end();
+	}
+
+	// tahaTODO  nickname update
 
 	@Public()
+	@UseGuards(ItGuard)
 	@Post("local/signin")
 	@HttpCode(HttpStatus.OK)
-	async signinLocal(@Body() dto: AuthDto, @Res() res: Response): Promise<any> {
-		const tokens = await this.authService.signinLocal(dto);
+	async signinLocal(@Body() dto: AuthDto, @Res() res: Response, @GetCurrentUser("user42") user42 : string): Promise<any> {
 		// console.log("hello");
-		
-		return (await this.authService.syncTokensHttpOnly(res, tokens)).end();
+		// try { 
+			console.log(dto.user42, user42);
+			if (dto.user42 !== user42)
+				throw new UnauthorizedException();
+			const tokens = await this.authService.signinLocal(dto);
+			const userData = { ...(await this.usersService.getUser42(dto.user42)), signUpstate: true };
+			await Promise.all([
+				res.cookie("userData", JSON.stringify({ userData }), { httpOnly: false }),
+				this.authService.syncTokensHttpOnly(res, tokens),
+				res.cookie("itToken", "", { expires: new Date(Date.now()) }),
+			]);
+
+			res.end();
 	}
 
 	@Public()
@@ -93,7 +103,6 @@ export class AuthController {
 		console.log("first");
 		return { helllo: "hello" };
 	}
-	
 
 	// taha to do re refactor
 	@Get("callback_42")
@@ -102,14 +111,13 @@ export class AuthController {
 	async handleCallback(@GetUser() userdto: AuthIntraDto, @Res() res: Response): Promise<void> {
 		try {
 			const [token, signUpstate] = await this.authService.handle_intra(userdto);
-			const userData = { ...(await this.usersService.getUser42(userdto.user42)), signUpstate };
+			const userData = { signUpstate };
 
 			await Promise.all([
 				res.cookie("userData", JSON.stringify({ userData }), { httpOnly: false }),
-				this.authService.syncTokensHttpOnly(res, token),
+				this.authService.syncTokensHttpOnlyIntra(res, token),
 			]);
 			// const windowRef = window;
-			
 
 			res.redirect("http://localhost:3000/loading");
 		} catch (error) {
@@ -118,7 +126,6 @@ export class AuthController {
 		}
 	}
 
-	
 	@Post("logout")
 	@HttpCode(HttpStatus.OK)
 	async logout(@GetCurrentUser("user42") user42: string, @Res() res: Response): Promise<boolean> {
@@ -134,6 +141,7 @@ export class AuthController {
 
 	@Public()
 	@UseGuards(RtGuard)
+	@UseGuards(ItGuard)
 	@Post("refresh")
 	@HttpCode(HttpStatus.OK)
 	async refreshTokens(

@@ -1,40 +1,40 @@
-// import { Injectable } from '@nestjs/common';
-// import { PassportStrategy } from '@nestjs/passport';
-// import { Strategy } from 'passport-totp';
-// import * as qrcode from 'qrcode';
-// import { UsersService } from 'src/users/users.service';
+// import { Injectable } from "@nestjs/common";
+// import { ConfigService } from "@nestjs/config";
+// import { PassportStrategy } from "@nestjs/passport";
+// import { ExtractJwt, Strategy } from "passport-jwt";
+// import { JwtPayload } from "../types";
+// import { Request as RequestType } from "express";
 
 // @Injectable()
-// export class TotpStrategy extends PassportStrategy(Strategy, 'totp') {
-//   constructor(private readonly usersService: UsersService) {
-//     super({
-//       // Your strategy options go here
-//     });
-//   }
+// export class TwoFactorStrategy extends PassportStrategy(Strategy, "jwt-") {
+// 	constructor(config: ConfigService) {
+// 		super({
+// 			jwtFromRequest: ExtractJwt.fromExtractors([
+// 				TwoFactorStrategy.extractJWT,
+// 				// ExtractJwt.fromAuthHeaderAsBearerToken(),
+// 			]),
+// 			secretOrKey: config.get<string>("AT_SECRET"),
+// 		});
+// 	}
 
-//   async validate(user: any, done: (error: any, key: string | null, period: number | null) => void): Promise<void> {
-//     // Implement your validation logic here
-//     // Use this.usersService to retrieve user information and keys
+// 	private static extractJWT(req: RequestType | any): string | null {
+// 		if (req.cookies && "atToken" in req.cookies && req.cookies.atToken?.length > 0) {
+// 			return req.cookies.atToken;
+// 		}
+// 		if (
+// 			req.request &&
+// 			req.request.headers.cookie &&
+// 			req.request.headers.cookie.search("atToken") != -1 &&
+// 			req.request.headers.cookie.length > 0
+// 		) {
+// 			const on = req.request.headers.cookie.split("; ")[0].replace("=", ":");
+// 			return on.split(":")[1];
+// 		}
 
-//     // Example:
-//     const obj = await this.usersService.findKeyForUserId(user.id);
-//     if (!obj) {
-//       return done(null, null, null);
-//     }
+// 		return null;
+// 	}
 
-//     return done(null, obj.key, obj.period);
-//   }
-
-//   async generateQRCode(user: any): Promise<string> {
-//     const obj = await this.usersService.findKeyForUserId(user.id);
-//     if (!obj) {
-//       throw new Error('User key not found');
-//     }
-
-//     const encodedKey = base32.encode(obj.key);
-//     const otpUrl = `otpauth://totp/${user.email}?secret=${encodedKey}&period=${obj.period || 30}`;
-//     const qrCode = await qrcode.toDataURL(otpUrl);
-
-//     return qrCode;
-//   }
+// 	validate(payload: JwtPayload) {
+// 		return payload;
+// 	}
 // }

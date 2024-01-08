@@ -8,6 +8,7 @@ import { JwtModule, JwtService } from "@nestjs/jwt";
 import { AtStrategy, RtStrategy } from "./strategy";
 import { PrismaModule } from "src/prisma/prisma.module";
 import { UsersService } from "src/users/users.service";
+import { ItStrategy } from "./strategy/it.strategy";
 
 @Module({
 	imports: [PrismaModule, PassportModule, JwtModule.register({})],
@@ -16,6 +17,7 @@ import { UsersService } from "src/users/users.service";
 		AuthService,
 		AtStrategy,
 		RtStrategy,
+		ItStrategy,
 		intraStrategy,
 		GoogleAuthenticatorStrategy,
 		UsersService
