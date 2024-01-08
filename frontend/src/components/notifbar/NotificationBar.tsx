@@ -40,6 +40,7 @@ const NotificationBar = ({ toogle, settogle }: { toogle: number; settogle: any }
 	const user: CurrentUser | null = useContext(currentUser);
 	useInvites(setNotification);
 	socket.off("INVITES").on("INVITES", (data: INotificaion) => {
+		console.log(data)
 		setNewAlert(true);
 		if (!notification || !data) return;
 		const newnotifstate = notification.slice();

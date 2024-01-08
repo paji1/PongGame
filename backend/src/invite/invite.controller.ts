@@ -48,18 +48,37 @@ export class InviteController {
   {
     console.log("accepting rquest " , id)
     const data =  await this.inviteService.AcceptFriend( user, id);
+    console.log("0")
     let invite;
-    invite = data
     if (Array.isArray(data))
        invite = data[0]
+      else
+      invite = data
+
     if (!invite)
-    throw new HttpException("Failed inviting", HttpStatus.BAD_REQUEST)
-  this.events.emit("PUSH", invite.reciever_id.user42, invite, "INVITES")
-  this.events.emit("PUSH", invite.issuer_id.user42, invite, "INVITES")
+      throw new HttpException("Failed inviting", HttpStatus.BAD_REQUEST)
+      console.log("1")
+
+    this.events.emit("PUSH", invite.reciever_id.user42, invite, "INVITES")
+    console.log("2")
+
+    this.events.emit("PUSH", invite.issuer_id.user42, invite, "INVITES")
+    console.log("3", invite.reciever_id, invite.issuer_id)
+
+    this.events.emit("PUSH", invite.reciever_id.user42, [ {"nickname": invite.issuer_id.nickname, "connection_state": invite.issuer_id.connection_state} ], "ON_STATUS")
+    console.log("4")
+
+    this.events.emit("PUSH", invite.issuer_id.user42, [ {"nickname": invite.reciever_id.nickname, "connection_state": invite.reciever_id.connection_state} ], "ON_STATUS")
+    console.log("5")
+
     if (Array.isArray(data))
     {
       this.events.emit("PUSH", invite.reciever_id.user42, {region: "ROOM", action:"JOIN", data: data[1]}, "ACTION")
+      console.log("6")
+
       this.events.emit("PUSH", invite.issuer_id.user42, {region: "ROOM", action:"JOIN", data: data[1]}, "ACTION")
+      console.log("7")
+
     }
 
   res.status(200).end()

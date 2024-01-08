@@ -188,9 +188,10 @@ export class InviteService {
                     select:
                     {
                         id:true,
-                        nickname:true,
                         user42:true,
-                        avatar:true
+                        nickname:true,
+                        avatar:true,
+                        connection_state:true
                     },
                 },
                 reciever_id:
@@ -200,6 +201,8 @@ export class InviteService {
                         id:true,
                         user42:true,
                         nickname:true,
+                        avatar:true,
+                        connection_state:true,
                     }
                 },
                 room_id: {

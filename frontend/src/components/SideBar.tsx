@@ -59,7 +59,7 @@ const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 	const currentroom = Array.isArray(roomsState) ? roomsState.find((ob: room) => ob.id === chatSelector) : null;
 	socket.off("connect").on("connect", () => setsubscriptrooms(!subscriberooms));
 	socket.off("ACTION").on("ACTION", (data) => {
-		console.log("updateing", data)
+		console.log("incomin sokcet data" , data)
 
 		update(data, roomsState, setRoomsState, chatState, setChatState, user);
 		if (data.region === "CHAT" && data.action === "NEW") setNewAlert(true);
