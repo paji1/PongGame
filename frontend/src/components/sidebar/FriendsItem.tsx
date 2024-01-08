@@ -3,6 +3,28 @@ import { room } from "../../types/room";
 import { messages } from "../../types/messages";
 import { currentUser } from "../Context/AuthContext";
 import { Link } from "react-router-dom";
+import ONLINE from "../../assets/online.svg"
+import OFFLINE from "../../assets/offline.svg"
+import GAME from "../../assets/game.svg"
+import BLOCKED from "../../assets/blockicon.svg"
+import SAD from "../../assets/sad.svg"
+
+const filterStatus= (str:string) => 
+{
+	switch (str)
+	{
+		case "ONLINE":
+				return ONLINE
+		case "OFFLINE":
+				return OFFLINE;
+		case "IN_GAME":
+				return GAME;
+		case "BLOCKED":
+			return BLOCKED;
+		default:
+				return SAD;
+	}
+}
 
 const FriendItem = ({ status, selector, room, glimpse }: {status: Map<string, string>,  selector: any; room: room; glimpse: messages[] }) => {
 	let preview;
@@ -15,14 +37,16 @@ const FriendItem = ({ status, selector, room, glimpse }: {status: Map<string, st
 	const ping = status.get(name)
 	const activity = ping ? ping : "NotFriends"
 	return (
-		<div className="flex flex-row mx-2 gap-3 p-2 rounded border-solid border-textColor border-2">
+		<div className={` ${ping ? "" : "grayscale" } flex flex-row mx-2 gap-3 p-2 shadow-buttonShadow rounded border-solid border-textColor border-2`}>
 			<div className=" w-1/6 justify-center rounded">
-				<img alt="avatar" className="max-h-[75px] max-w-[75px]" src={friend[0].user_id.avatar}></img>
+				<img alt="avatar" className="shadow-buttonShadow max-h-[75px] max-w-[75px]" src={friend[0].user_id.avatar}></img>
 			</div>
 			<div onClick={selector} className="flex flex-col flex-auto cursor-pointer gap-2 ">
 				<p className=" text-center  text-ellipsis overflow-hidden text-primary text-xl">{display}</p>
-				<p className="text-ellipsis overflow-hidden">{preview}</p>
-				<p className="text-ellipsis overflow-hidden" >{activity}</p>
+				<p className="text-ellipsis overflow-hidden ">{preview}</p>
+			</div>
+			<div className="flex items-center justify-center w-1/6 ">
+				<img title={activity} className={` ${ping ? " w-[20px] h-[20px]" : "w-[40px] h-[40px] border-2 border-solid rounded-full"} `} alt={activity} src={filterStatus(activity)}></img>
 			</div>
 			<div className="flex items-center justify-center w-1/6 ">
 				<Link to={`/profile/${name}`}>
