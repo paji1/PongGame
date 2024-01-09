@@ -217,12 +217,8 @@ export class ChatGateway {
 		
 		this.server.to(res[meindex].user_id.user42).emit("ON_STATUS",[{"nickname": res[toindex].user_id.nickname , "connection_state": tosituation}])
 		this.server.to(res[toindex].user_id.user42 ).emit("ON_STATUS",[{"nickname": res[meindex].user_id.nickname  , "connection_state": mesituation}])
-
-
 		this.server.to(res[meindex].user_id.user42).emit("ACTION", {region: "ROOM", action:"update" , data: res[toindex]})
 		this.server.to(res[toindex].user_id.user42).emit("ACTION", {region: "ROOM", action:"update" , data:  res[meindex]})
-
-
 
 	}
 
@@ -240,7 +236,6 @@ export class ChatGateway {
 	@RoomType(roomtype.protected, roomtype.public, roomtype.private)
 	async kick(@GetCurrentUserId() id:number, @GetCurrentUser("user42") identifier:string ,  @ConnectedSocket() client,  @MessageBody() Message: ActionDTO)
 	{
-    console.log(Message , "ja men bra")
 
 		const res =  await this.service.rooms.kick_room(Message.target, Message.room);
 		if (!res)
@@ -253,9 +248,8 @@ export class ChatGateway {
 		/**
 		 * delete user from th room
 		 */
-		this.server.sockets.adapter.rooms.get(identifier).forEach((client)=> 
-		this.server.sockets.sockets.get(client).leave(Message.room.toString()))
-
+		this.server.sockets.adapter.rooms.get(res.user_id.user42).forEach((client)=> 
+			this.server.sockets.sockets.get(client).leave(Message.room.toString()))
 
 	}
 
@@ -407,10 +401,8 @@ export class ChatGateway {
 		}
 		this.server.to(Message.room.toString()).emit("ACTION", {region: "ROOM", action:"KICK" , data: res})
 		this.server.to(Message.room.toString()).emit("NOTIFY", ` ${identifier} left  ${res.rooms.name}`)
-		const clients = this.server.sockets.adapter.rooms.get(identifier).forEach((client)=> 
-		
-			this.server.sockets.sockets.get(client).leave(Message.room.toString())
-		)
+		this.server.sockets.adapter.rooms.get(identifier).forEach((client)=> 
+			this.server.sockets.sockets.get(client).leave(Message.room.toString()))
 	}
 
   	@SubscribeMessage("DELETE")

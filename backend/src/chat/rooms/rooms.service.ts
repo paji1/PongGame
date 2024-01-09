@@ -449,6 +449,7 @@ export class RoomsService {
 							id: true,
 							nickname: true,
 							avatar: true,
+							user42:true,
 						},
 					},
 				},
