@@ -52,7 +52,7 @@ const Popup: React.FC<PopupProps> = ({ onClose, setPopupSignUpVisible, setPopupS
 		};
 	}, []);
 	return (
-		<div className="fixed inset-0  flex items-center justify-center bg-black bg-opacity-50">
+		<div className="fixed z-10 inset-0  flex items-center justify-center bg-black bg-opacity-50">
 			<div className="bg-white p-6 rounded-lg shadow-xl">
 				<div className="b-50 m-32 mx-auto max-w-[1199px] flex">
 					<div className="w-[45%]">

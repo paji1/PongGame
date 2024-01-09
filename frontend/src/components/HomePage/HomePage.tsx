@@ -6,7 +6,7 @@ import Footer from '../Footer'
 
 export default function HomePage(props: any){
 	return (
-	<div>
+		<div className="flex flex-col gap-y-16 mt-16">
 		<HomePageDiv/>
 		<Features/>
 		<Team/>

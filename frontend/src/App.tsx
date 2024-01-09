@@ -99,7 +99,7 @@ const App = () => {
 								<Route path="/game" element={islogin ? <GameMain /> : <HomePage />} />
 								<Route path="/homepage" element={ <HomePage />} />
 								<Route path="/loading" element={<Loading />} />
-								{/* <Route path="/*" element={<Dashboard />} /> */}
+								<Route path="/*" element={<HomePage />} />
 							</Routes>
 						</BrowserRouter>
 					</div>

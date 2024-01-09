@@ -63,7 +63,7 @@ const PopupSignUp: React.FC<SignUpPopupProps> = ({ setPopupSignUpVisible }) => {
 		};
 	}, []);
 	return (
-		<div className="fixed inset-0  flex items-center justify-center bg-black bg-opacity-50">
+		<div className="fixed z-10  inset-0  flex items-center justify-center bg-black bg-opacity-50">
 			<div className=" bg-white gap-[20%] p-6 rounded-lg shadow-xl flex  flex-row items-center justify-center w-[80%] h-[80%] border-solid border-2 border-black-700 ">
 				<p className="font-bold  text-3xl basis-1/4">Sign Up!</p>
 				<form className="w-full max-w-lg  flex-auto " onSubmit={handleSubmit}>
