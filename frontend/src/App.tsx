@@ -12,6 +12,7 @@ import { BrowserRouter, Link, Route, RouterProvider, Routes, createBrowserRouter
 import Dashboard from "./components/Dashboard/Dashboard";
 import { SearchWindow } from "./Search/Search";
 import { use } from "matter-js";
+import { URL } from "url";
 
 const getuser = (setuser:any)=>
 	{
@@ -179,7 +180,8 @@ const App = () => {
 			<ToastContainer />
 			{user ?
 			<currentUser.Provider value={user}>
-				<div className="h-full">
+				<UploadTest/>
+				{/* <div className="h-full">
 				<BrowserRouter>
 					<Navbar />
 					{
@@ -200,7 +202,7 @@ const App = () => {
 						<Route path="/game" element={<GameMain/>}/>
 					</Routes>
 				</BrowserRouter >
-				</div>
+				</div> */}
 				</currentUser.Provider > :
 			 <>
 			 	<Signup  />
@@ -215,3 +217,61 @@ const App = () => {
 
 export default App;
 
+const UploadTest = () => {
+	const [file, setFile] = useState<File | null>(null);
+  
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const types = ["image/png", "image/jpg","image/jpeg"]
+	  if (e.target.files) {
+		// if (!types.includes(e.target.files[0].type))
+		// {
+		// 	toast.error("Error: png,jpg or jpeg  are the accepted types")
+		// 	setFile(null)
+		// 	return
+		// }
+		if (e.target.files[0].size > 1000000)
+		{
+			toast.error("Error: image size exedes 1Mb")
+			setFile(null)
+			return ;
+		}
+		setFile(e.target.files[0]);
+	  }
+	};
+	
+	const handleUpload =  () => {
+		if (!file)
+		{
+			toast.error("please chose  an image")
+			return
+		}
+		console.log(file)
+		var formdata = new FormData()
+		formdata.append('IMAGE', file)
+		console.log(formdata.get(""))
+		fetch("http://" + ip + "3001/repository", { body:formdata, method:"POST", credentials: 'include'})
+	};
+  
+	return (
+	  <>
+		<div>
+		  <label htmlFor="file" className="sr-only">
+			Choose a file
+		  </label>
+		  <input id="file"  type="file" onChange={handleFileChange} />
+		</div>
+		{file && (
+		  <section>
+			File details:
+			<ul>
+			  <li>Name: {file.name}</li>
+			  <li>Type: {file.type}</li>
+			  <li>Size: {file.size} bytes</li>
+			</ul>
+		  </section>
+		)}
+  
+		{file && <button onClick={handleUpload}>Upload a file</button>}
+	  </>
+	);
+  };
