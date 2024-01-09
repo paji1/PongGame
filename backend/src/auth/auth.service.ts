@@ -159,7 +159,6 @@ export class AuthService {
 	}
 
 	async logout(user42: string, @Res() res: Response): Promise<boolean> {
-		console.log("user42", user42);
 		res.cookie("atToken", "", { expires: new Date(Date.now()) });
 		res.cookie("rtToken", "", { expires: new Date(Date.now()) });
 		res.cookie("userData", "", { expires: new Date(Date.now()) });
@@ -246,7 +245,7 @@ export class AuthService {
 		res.cookie("atToken", tokens.access_token, {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === "production",
-			maxAge: 15 * minute,
+			maxAge: 300 * minute,
 			path: "/",
 		});
 

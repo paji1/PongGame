@@ -7,7 +7,6 @@ import { SocketContext } from "./components/Context/SocketContext";
 import { Socket, io } from "socket.io-client";
 import { ip } from "./network/ipaddr";
 
-
 const socket: Socket = io(`ws://${ip}3001`, { autoConnect: false, transports: ["websocket"] });
 
 

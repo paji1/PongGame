@@ -24,6 +24,7 @@ import { JwtModule } from "@nestjs/jwt";
 	],
 
 	providers: [
+		
 		{
 			provide: APP_GUARD,
 			useClass: AtGuard,
