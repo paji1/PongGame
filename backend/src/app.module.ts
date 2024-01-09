@@ -10,6 +10,7 @@ import { InviteModule } from "./invite/invite.module";
 import { AppGateway } from "./app.gateway";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { JwtModule } from "@nestjs/jwt";
+import { ProfileModule } from "./profile/profile.module";
 
 @Module({
 	imports: [
@@ -21,6 +22,7 @@ import { JwtModule } from "@nestjs/jwt";
 		AuthModule,
 		UsersModule,
 		InviteModule,
+		ProfileModule
 	],
 
 	providers: [

@@ -32,7 +32,15 @@ export class AppGateway {
 		client.emit("HANDSHAKE", "chkon m3aya")
 	}
 	
-	
+	async handleConnect(client)
+	{
+		console.log(client.request.headers)
+		client.di
+		client.request
+
+
+
+	}
 	async handleDisconnect(client) {
 		const identifier = client.request.headers["user"]
 		// console.log(identifier , "slm cv" , (await this.server.to(identifier).fetchSockets()).length)

@@ -11,6 +11,7 @@ export class ProfileController {
 
 	@Get("user/:id")
 	async findOne(@Param("id") id: string) {
+
 		return await this.profileService.findOne(id);
 	}
 

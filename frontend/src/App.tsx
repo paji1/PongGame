@@ -23,6 +23,7 @@ import { use } from "matter-js";
 import axios, { Axios } from "axios";
 import Loading from "./components/loading/loading";
 import Refreshinterval from "./components/refreshInterval/refreshInterval";
+import HomePage from "./components/HomePage/HomePage";
 
 // TODO: this is a temporary trqi3a
 
@@ -52,7 +53,7 @@ const App = () => {
 		isLoggedIn();
 		const items = Cookies.get("userData");
 		if (items && islogin ) {
-			setuser(JSON.parse(items));
+			setuser(JSON.parse(items).user);
 		}
 	}, [islogin]);
 
@@ -60,10 +61,13 @@ const App = () => {
 		socket.connect();
 	}
 
+	console.log("useer1 ", user);
 	socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."));
 	return (
 		
 		<div>
+
+
 			<Refreshinterval />
 			<ToastContainer />
 			{
@@ -87,10 +91,15 @@ const App = () => {
 							)}
 							<Routes>
 								<Route path="/search" element={<SearchWindow />} />
-								<Route path="/" element={<Dashboard />} />
-								<Route path="/game" element={islogin ? <GameMain /> : <Dashboard />} />
+								{(user) ? (<Route path="/" element={<Dashboard/>} >
+									<Route path='/profile' element={<Dashboard/>} />
+									<Route path='/profile/:nickname' element={<Dashboard/>} />
+                        		</Route>) :
+								(<Route path="/" element={<HomePage/>} />)}
+								<Route path="/game" element={islogin ? <GameMain /> : <HomePage />} />
+								<Route path="/homepage" element={ <HomePage />} />
 								<Route path="/loading" element={<Loading />} />
-								<Route path="/*" element={<Dashboard />} />
+								{/* <Route path="/*" element={<Dashboard />} /> */}
 							</Routes>
 						</BrowserRouter>
 					</div>

@@ -2,6 +2,7 @@ import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus, }
 import { Reflector } from "@nestjs/core";
 import { user_permission, roomtype } from "@prisma/client";
 import { Console } from "console";
+import { Request } from "express";
 import { JwtPayloadWithRt } from "src/auth/types";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Roomstattypes } from "src/types.ts/statustype";
@@ -28,7 +29,8 @@ export class RoomGuard implements CanActivate {
 			context.getClass(),
 		]);
         const key : keyof JwtPayloadWithRt | undefined = "sub";
-        var request = context.switchToHttp().getRequest();
+        var request : Request = context.switchToHttp().getRequest();
+        
 
         const UserId = request.user[key];
         const key2 : keyof JwtPayloadWithRt | undefined = "user42";
@@ -42,7 +44,7 @@ export class RoomGuard implements CanActivate {
         }
         else
             roomid = +request.query["room"]
-        // console.log("room guard debug: <<", request.user, reqType, roomid ,">>")
+        console.log("room guard debug: <<", request.user, reqType, roomid ,">>")
 
 
         if (typeof types !== "undefined")

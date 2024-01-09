@@ -63,7 +63,7 @@ export default function Carousel({ achivments }: { achivments: number[] | null }
 			</div>
 			<div className="overflow-hidden snap-mandatory snap-x inner whitespace-nowrap border-4 border-solid boder-black m-9 shadow-[2px_4px_0px_0px_#000301]">
 				{items.map((item: achived, index: number) => {
-					const exist = achivments ? achivments.includes(index + 1) : false;
+					const exist = (achivments && achivments.length )? achivments.includes(index + 1) : false;
 
 					return (
 						<div

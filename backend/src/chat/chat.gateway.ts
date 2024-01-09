@@ -21,7 +21,7 @@ import { WsValidationExeption } from 'src/common/filters/ws.exeption.filter';
 @UsePipes(new ValidationPipe())
 @UseGuards(RoomGuard)
 @UseGuards(AtGuard)
-@UseFilters(WsValidationExeption)
+// @UseFilters(WsValidationExeption)
 export class ChatGateway {
   constructor(
 		private readonly prisma: PrismaService,
@@ -52,7 +52,7 @@ export class ChatGateway {
 
 	@SubscribeMessage("CREATE")
 	async createroom(@GetCurrentUser("user42") identifier:string,@GetCurrentUserId() id:number, @ConnectedSocket() client, @MessageBody() room: RoomDto) {
-		console.log(room)
+		console.log("room")
 		try
 		{
 			const newroom = await this.service.rooms.create_room(id, room);

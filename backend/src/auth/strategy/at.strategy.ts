@@ -3,7 +3,8 @@ import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { JwtPayload } from "../types";
-import { Request as RequestType } from "express";
+import { Request, Request as RequestType } from "express";
+import * as cookieParser from "cookie-parser";
 
 @Injectable()
 export class AtStrategy extends PassportStrategy(Strategy, "jwt") {
@@ -27,8 +28,13 @@ export class AtStrategy extends PassportStrategy(Strategy, "jwt") {
 			req.request.headers.cookie.search("atToken") != -1 &&
 			req.request.headers.cookie.length > 0
 		) {
-			const on = req.request.headers.cookie.split("; ")[0].replace("=", ":");
-			return on.split(":")[1];
+			 
+			// const on = JSON.parse(req.request.headers.cookie);
+			const cook : string = req.request.headers.cookie;
+			const atToken =  cook.match(/(?<=atToken=)(.*?)(?=;|$)/)[0];
+			if (!atToken ||  atToken.length < 2)
+				return null;
+			return atToken;
 		}
 
 		return null;
