@@ -10,13 +10,7 @@ import { SocketContext } from "./components/Context/SocketContext";
 import GameMain from "./components/game";
 import Cookies from "js-cookie";
 
-import {
-	BrowserRouter,
-	Route,
-	RouterProvider,
-	Routes,
-
-} from "react-router-dom";
+import { BrowserRouter, Route, RouterProvider, Routes } from "react-router-dom";
 import Dashboard from "./components/Dashboard/Dashboard";
 import { SearchWindow } from "./Search/Search";
 import { use } from "matter-js";
@@ -24,12 +18,13 @@ import axios, { Axios } from "axios";
 import Loading from "./components/loading/loading";
 import Refreshinterval from "./components/refreshInterval/refreshInterval";
 import HomePage from "./components/HomePage/HomePage";
+import SettingBar from "./components/settingBar/settingBar";
 
 // TODO: this is a temporary trqi3a
 
-
 const App = () => {
-	const [user, setuser] = useState<CurrentUser | null>(null);
+	const userin = useRef<CurrentUser | null>(null);
+	const [user, setuser ]= useState<CurrentUser | null>(null);
 	const [islogin, setIsLogin] = useState<boolean>(false);
 	const socket = useContext(SocketContext);
 	const [togglebar, settoglebar] = useState(0);
@@ -39,51 +34,56 @@ const App = () => {
 			const res = await fetch(`http://${ip}3001/users/isLogin`, { credentials: "include", method: "GET" })
 				.then((res) => {
 					if (!res.ok) {
-
-						setIsLogin(false);
+						
 						throw new Error(`Error! status ${res.status}`);
+					}
+					const items = Cookies.get("userData");
+					if (items && islogin) {
+						userin.current = JSON.parse(items).user;
 					}
 					setIsLogin(true);
 				})
 				.catch((e) => console.log("hiiiii"));
-
-			console.log("finish");
-		};
-
+				
+				console.log("finish");
+			};
+			
 		isLoggedIn();
-		const items = Cookies.get("userData");
-		if (items && islogin ) {
-			setuser(JSON.parse(items).user);
-		}
 	}, [islogin]);
 
-	if (user) {
+
+	if (userin.current && !user)
+	{
+		setuser(userin.current)
+	}
+	if (userin.current) {
 		socket.connect();
 	}
 
-	console.log("useer1 ", user);
 	socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."));
 	return (
-		
 		<div>
-
-
 			<Refreshinterval />
 			<ToastContainer />
 			{
-				<currentUser.Provider value={user}>
+				<currentUser.Provider value={userin.current}>
 					<div>
 						<BrowserRouter>
 							{window.location.pathname !== "/loading" && (
 								<>
 									<Navbar />
-									{(togglebar === 0 || togglebar === 1) && user ? (
+									{(togglebar === 0 || togglebar === 1) && userin.current ? (
 										<SideBar toogle={togglebar} settogle={settoglebar} />
 									) : (
 										<></>
 									)}
-									{(togglebar === 0 || togglebar === 2) && user ? (
+									{(togglebar === 0 || togglebar === 2) && userin.current ? (
 										<NotificationBar toogle={togglebar} settogle={settoglebar} />
+									) : (
+										<></>
+									)}
+									{(togglebar === 0 || togglebar === 3) && userin.current ? (
+										<SettingBar toogle={togglebar} settogle={settoglebar} />
 									) : (
 										<></>
 									)}
@@ -91,13 +91,16 @@ const App = () => {
 							)}
 							<Routes>
 								<Route path="/search" element={<SearchWindow />} />
-								{(user) ? (<Route path="/" element={<Dashboard/>} >
-									<Route path='/profile' element={<Dashboard/>} />
-									<Route path='/profile/:nickname' element={<Dashboard/>} />
-                        		</Route>) :
-								(<Route path="/" element={<HomePage/>} />)}
+								{userin.current ? (
+									<Route path="/" element={<Dashboard />}>
+										<Route path="/profile" element={<Dashboard />} />
+										<Route path="/profile/:nickname" element={<Dashboard />} />
+									</Route>
+								) : (
+									<Route path="/" element={<HomePage />} />
+								)}
 								<Route path="/game" element={islogin ? <GameMain /> : <HomePage />} />
-								<Route path="/homepage" element={ <HomePage />} />
+								<Route path="/homepage" element={<HomePage />} />
 								<Route path="/loading" element={<Loading />} />
 								<Route path="/*" element={<HomePage />} />
 							</Routes>
@@ -106,7 +109,6 @@ const App = () => {
 				</currentUser.Provider>
 			}
 		</div>
-
 	);
 };
 

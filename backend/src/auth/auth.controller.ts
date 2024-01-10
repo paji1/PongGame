@@ -1,5 +1,17 @@
 import { AuthIntraDto, AuthSignUp, UpdatePassDto, userDto } from "./dto";
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards, Get, Res, Req, Redirect, UnauthorizedException } from "@nestjs/common";
+import {
+	Body,
+	Controller,
+	HttpCode,
+	HttpStatus,
+	Post,
+	UseGuards,
+	Get,
+	Res,
+	Req,
+	Redirect,
+	UnauthorizedException,
+} from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 
 import { Public, GetCurrentUserId, GetCurrentUser, GetUser } from "../common/decorators";
@@ -53,7 +65,6 @@ export class AuthController {
 			res.cookie("userData", JSON.stringify({ user }), { httpOnly: false }),
 			this.authService.syncTokensHttpOnly(res, tokens),
 			res.cookie("itToken", "", { expires: new Date(Date.now()) }),
-
 		]);
 		res.end();
 	}
@@ -77,21 +88,24 @@ export class AuthController {
 	@UseGuards(ItGuard)
 	@Post("local/signin")
 	@HttpCode(HttpStatus.OK)
-	async signinLocal(@Body() dto: AuthDto, @Res() res: Response, @GetCurrentUser("user42") user42 : string): Promise<any> {
+	async signinLocal(
+		@Body() dto: AuthDto,
+		@Res() res: Response,
+		@GetCurrentUser("user42") user42: string,
+	): Promise<any> {
 		// console.log("hello");
-		// try { 
-			console.log(dto.user42, user42);
-			if (dto.user42 !== user42)
-				throw new UnauthorizedException();
-			const tokens = await this.authService.signinLocal(dto);
-			const userData = { ...(await this.usersService.getUser42(dto.user42)), signUpstate: true };
-			await Promise.all([
-				res.cookie("userData", JSON.stringify({ userData }), { httpOnly: false }),
-				this.authService.syncTokensHttpOnly(res, tokens),
-				res.cookie("itToken", "", { expires: new Date(Date.now()) }),
-			]);
+		// try {
+		console.log(dto.user42, user42);
+		if (dto.user42 !== user42) throw new UnauthorizedException();
+		const tokens = await this.authService.signinLocal(dto);
+		const userData = { ...(await this.usersService.getUser42(dto.user42)), signUpstate: true };
+		await Promise.all([
+			res.cookie("userData", JSON.stringify({ userData }), { httpOnly: false }),
+			this.authService.syncTokensHttpOnly(res, tokens),
+			res.cookie("itToken", "", { expires: new Date(Date.now()) }),
+		]);
 
-			res.end();
+		res.end();
 	}
 
 	@Public()
@@ -111,10 +125,10 @@ export class AuthController {
 	async handleCallback(@GetUser() userdto: AuthIntraDto, @Res() res: Response): Promise<void> {
 		try {
 			const [token, signUpstate] = await this.authService.handle_intra(userdto);
-			const userData = { signUpstate , user: userdto.user42 };
+			const userData = { signUpstate, user: userdto.user42 };
 
 			await Promise.all([
-				res.cookie("userData", JSON.stringify({ userData } ), { httpOnly: false }),
+				res.cookie("userData", JSON.stringify({ userData }), { httpOnly: false }),
 				this.authService.syncTokensHttpOnlyIntra(res, token),
 			]);
 			// const windowRef = window;
@@ -139,18 +153,26 @@ export class AuthController {
 		return { hello: "hello" };
 	}
 
-	@Public()
 	@UseGuards(RtGuard)
 	@UseGuards(ItGuard)
 	@Post("refresh")
+	@Public()
 	@HttpCode(HttpStatus.OK)
 	async refreshTokens(
 		@GetCurrentUserId() userId: number,
 		@GetCurrentUser("refreshToken") refreshToken: string,
+		@GetCurrentUser("user42") user42: string,
 		@Res() res: Response,
 	): Promise<void> {
 		console.log("refresh    ", refreshToken);
-		const tokens = await this.authService.refreshTokens(userId, refreshToken, res);
-		(await this.authService.syncTokensHttpOnly(res, tokens)).end();
+		const [tokens, signUpstate] = await this.authService.refreshTokens(userId, refreshToken, res);
+
+		const userData = await { ...(await this.usersService.getUser42(user42)), signUpstate };
+		await Promise.all([
+			res.cookie("userData", JSON.stringify({ userData }), { httpOnly: false }),
+			this.authService.syncTokensHttpOnly(res, tokens),
+		]);	
+
+		res.end();
 	}
 }

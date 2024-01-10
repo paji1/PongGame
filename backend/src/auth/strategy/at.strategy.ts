@@ -28,12 +28,10 @@ export class AtStrategy extends PassportStrategy(Strategy, "jwt") {
 			req.request.headers.cookie.search("atToken") != -1 &&
 			req.request.headers.cookie.length > 0
 		) {
-			 
 			// const on = JSON.parse(req.request.headers.cookie);
-			const cook : string = req.request.headers.cookie;
-			const atToken =  cook.match(/(?<=atToken=)(.*?)(?=;|$)/)[0];
-			if (!atToken ||  atToken.length < 2)
-				return null;
+			const cook: string = req.request.headers.cookie;
+			const atToken = cook.match(/(?<=atToken=)(.*?)(?=;|$)/)[0];
+			if (!atToken || atToken.length < 2) return null;
 			return atToken;
 		}
 
@@ -41,7 +39,6 @@ export class AtStrategy extends PassportStrategy(Strategy, "jwt") {
 	}
 
 	validate(payload: JwtPayload) {
-
 		return payload;
 	}
 }

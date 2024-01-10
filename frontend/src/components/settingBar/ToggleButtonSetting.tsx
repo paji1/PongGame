@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react"
 
-export const ToggleButton = ({isOpen, setIsOpen, isNewAlert}:{isOpen: Boolean, setIsOpen: any, isNewAlert:boolean}) => {
+export const ToggleButtonSetting = ({isOpen, setIsOpen, isNewAlert}:{isOpen: Boolean, setIsOpen: any, isNewAlert:boolean}) => {
 
 	return (
 		<button
 			onClick={() => setIsOpen()}
-			className={`p-2 bg-errorColor text-textColor border-textColor border-solid transition-all ease-in-out duration-300
-				border-b-2 border-t-2 border-l-2 focus:outline-none rounded-l-full z-50 fixed top-40 w-[40px] ${!isOpen ? "hover:w-[72px]" : ""}
+			className={`p-2 bg-slate-500 text-textColor border-textColor border-solid transition-all ease-in-out duration-300
+				border-b-2 border-t-2 border-l-2 focus:outline-none rounded-l-full z-50 fixed top-64 w-[40px] ${!isOpen ? "hover:w-[72px]" : ""}
 				${isOpen ? "sm:right-[85%] md:right-1/2 lg:right-1/2 xl:right-[35%] 2xl:right-[30%] right-[90%]" : "right-0"}
 				${isNewAlert ? "animate-bounce" : ""}
 			`}

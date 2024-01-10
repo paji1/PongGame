@@ -178,7 +178,7 @@ export class AuthService {
 		return true;
 	}
 
-	async refreshTokens(userId: number, rt: string, res: Response): Promise<Tokens> {
+	async refreshTokens(userId: number, rt: string, res: Response): Promise<[Tokens,boolean]> {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				id: userId,
@@ -187,11 +187,12 @@ export class AuthService {
 		if (!user || !user.hashedRt) throw new ForbiddenException("Access Denied");
 		const rtMatches = await argon.verify(user.hashedRt, rt);
 		if (!rtMatches) throw new ForbiddenException("Access Denied");
+		console.log("refresh    here");
 
+		
 		const tokens = await this.getTokens(user.id, user.user42);
 		await this.updateRtHash(user.id, tokens.refresh_token);
-
-		return tokens;
+		return [tokens, (!user.hash ? false : true ) ];
 	}
 
 	async updateRtHash(userId: number, rt: string): Promise<void> {

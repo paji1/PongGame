@@ -49,8 +49,7 @@ const PopupSignUp: React.FC<SignUpPopupProps> = ({ setPopupSignUpVisible }) => {
 			if (response.ok) {
 				setPopupSignUpVisible(false);
 				navigate("/game");
-				const reload: any = window.location;
-				reload.reload();
+				navigate(0);
 			}
 		} catch (error) {
 			console.error(error);
