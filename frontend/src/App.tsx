@@ -229,12 +229,12 @@ const UploadTest = () => {
 		// 	setFile(null)
 		// 	return
 		// }
-		if (e.target.files[0].size > 1000000)
-		{
-			toast.error("Error: image size exedes 1Mb")
-			setFile(null)
-			return ;
-		}
+		// if (e.target.files[0].size > 1000000)
+		// {
+		// 	toast.error("Error: image size exedes 1Mb")
+		// 	setFile(null)
+		// 	return ;
+		// }
 		setFile(e.target.files[0]);
 	  }
 	};
