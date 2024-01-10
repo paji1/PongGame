@@ -181,7 +181,7 @@ const App = () => {
 			{user ?
 			<currentUser.Provider value={user}>
 				<UploadTest/>
-				{/* <div className="h-full">
+				<div className="h-full">
 				<BrowserRouter>
 					<Navbar />
 					{
@@ -202,7 +202,7 @@ const App = () => {
 						<Route path="/game" element={<GameMain/>}/>
 					</Routes>
 				</BrowserRouter >
-				</div> */}
+				</div>
 				</currentUser.Provider > :
 			 <>
 			 	<Signup  />
@@ -221,20 +221,20 @@ const UploadTest = () => {
 	const [file, setFile] = useState<File | null>(null);
   
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-	const types = ["image/png", "image/jpg","image/jpeg"]
+	const types = ["image/png", "image/jpg" ,"image/jpeg"]
 	  if (e.target.files) {
-		// if (!types.includes(e.target.files[0].type))
-		// {
-		// 	toast.error("Error: png,jpg or jpeg  are the accepted types")
-		// 	setFile(null)
-		// 	return
-		// }
-		// if (e.target.files[0].size > 1000000)
-		// {
-		// 	toast.error("Error: image size exedes 1Mb")
-		// 	setFile(null)
-		// 	return ;
-		// }
+		if (!types.includes(e.target.files[0].type))
+		{
+			toast.error("Error: png,jpg or jpeg  are the accepted types")
+			setFile(null)
+			return
+		}
+		if (e.target.files[0].size > 1000000)
+		{
+			toast.error("Error: image size exeedes 1Mb")
+			setFile(null)
+			return ;
+		}
 		setFile(e.target.files[0]);
 	  }
 	};
@@ -249,7 +249,15 @@ const UploadTest = () => {
 		var formdata = new FormData()
 		formdata.append('IMAGE', file)
 		console.log(formdata.get(""))
-		fetch("http://" + ip + "3001/repository", { body:formdata, method:"POST", credentials: 'include'})
+		fetch("http://" + ip + "3001/repository", { body:formdata, method:"POST", credentials: 'include'}).then(async res => {
+			if (res.status < 400)
+				{
+					toast("image uploaded succesfully");
+					return 
+				}
+			const ret = await res.json()
+			toast.error(ret.message)
+		})
 	};
   
 	return (
