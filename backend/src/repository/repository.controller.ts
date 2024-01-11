@@ -18,7 +18,6 @@ export class RepositoryController {
   @UseInterceptors(FileInterceptor("IMAGE") )
   async updateImage(@GetCurrentUser('user42') user: string , @UploadedFile() file: Express.Multer.File)
   {
-    console.log("hi nigga")
     if (!file)
       throw new HttpException("No file", HttpStatus.BAD_GATEWAY);
     await this.repositoryService.uploadfile(file, user)

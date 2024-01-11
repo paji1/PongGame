@@ -1,17 +1,21 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma/prisma.service';
+import {  Prisma } from '@prisma/client'
 import * as fs from 'fs';
-
-
 const typechecker = require("fix-esm").require("file-type");
+
+
 const allowed  = [
   "png",
   "gif",
   "jpg",
 ]
-const conf: ConfigService = new ConfigService()
 
+
+
+
+const conf: ConfigService = new ConfigService()
 const url = `http://${conf.get<string>("ip")}:3001/repository/`
 
 
@@ -26,8 +30,8 @@ export class RepositoryService {
 
     async uploadfile(file : Express.Multer.File , user : string)
     {
-        if (file.size > 1000000)
-            throw new HttpException("file exeeds 1mb in size", HttpStatus.BAD_REQUEST);
+        if (file.size > 5000000)
+            throw new HttpException("file bigger than 5Mb in size", HttpStatus.BAD_REQUEST);
 
         const type = await typechecker.fileTypeFromBuffer(file.buffer)
 
@@ -43,15 +47,7 @@ export class RepositoryService {
         try
         {
           fs.mkdirSync(`./FileRepository/${user}/`,{ recursive: true });
-          fs.writeFileSync(name, file.buffer);
-          const files = fs.readdirSync(`./${location}/${user}`)
-          files.map((file, index) =>  {
-            console.log(`./${location}/${user}/${filename}`, file, index)
-            if (file !== filename)
-                fs.unlinkSync(`./${location}/${user}/${file}`)
-            return "dd"
-        })
-          console.log(files)
+          fs.writeFileSync(name, file.buffer);        
           await this.prisma.user.update({
             where:{
                 user42: user,
@@ -61,10 +57,22 @@ export class RepositoryService {
                 avatar: url + sublocation + "/" + filename,
             }
           })
+
         }
         catch (err){
-         throw new HttpException("Server: Error writing file", HttpStatus.BAD_GATEWAY)
+            if (err instanceof Prisma.PrismaClientKnownRequestError)
+            {
+                fs.unlinkSync(`./${location}/${user}/${filename}`)
+            }
+
+         throw new HttpException("Server: Error writing file", 500)
         }
+        const files = fs.readdirSync(`./${location}/${user}`)
+        files.map((file, index) =>  {
+            console.log(`./${location}/${user}/${filename}`, file, index)
+            if (file !== filename)
+                fs.unlinkSync(`./${location}/${user}/${file}`)
+        })
         throw new HttpException(url + sublocation + "/" + filename, HttpStatus.ACCEPTED);
     }
 }
