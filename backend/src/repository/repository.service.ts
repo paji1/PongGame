@@ -27,7 +27,6 @@ export class RepositoryService {
     
     }
 
-
     async uploadfile(file : Express.Multer.File , user : string)
     {
         if (file.size > 5000000)
@@ -57,6 +56,7 @@ export class RepositoryService {
                 avatar: url + sublocation + "/" + filename,
             }
           })
+
 
         }
         catch (err){

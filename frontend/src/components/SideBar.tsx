@@ -29,6 +29,8 @@ const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 	const [subscriberooms, setsubscriptrooms] = useState(false);
 	const [newAlert, setNewAlert] = useState(false);
 
+	socket.off("connect_error").on("connect_error" , () =>console.log("connect_error"))
+	socket.off("connect_failed").on("connect_failed" , () =>console.log("connect_failed"))
 
 // this section to be moved out of this component
 	const [status, setstatus] = useState<Map<string, string>>(new Map())
