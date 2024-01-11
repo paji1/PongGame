@@ -7,11 +7,12 @@ import { currentUser, CurrentUser } from "./components/Context/AuthContext";
 import { log } from "console";
 import { ip } from "./network/ipaddr";
 import { SocketContext } from "./components/Context/SocketContext";
-import { BrowserRouter, Link, Route, RouterProvider, Routes, createBrowserRouter } from "react-router-dom";
+import { BrowserRouter, Link, Route, RouterProvider, Routes, createBrowserRouter, useNavigate } from "react-router-dom";
 import Dashboard from "./components/Dashboard/Dashboard";
 import { SearchWindow } from "./Search/Search";
 import { use } from "matter-js";
 import GameUI from "./components/game";
+import { IGameContext, GameContext } from "./components/Context/GameContext";
 
 const getuser = (setuser:any)=>
 	{
@@ -151,6 +152,8 @@ const App = () => {
 	const [user, setuser] = useState<CurrentUser | null >(null)
 	const socket = useContext(SocketContext)
 	const [togglebar, settoglebar] = useState(0);
+	const [gameContext, setGameContext] = useState<IGameContext | null>(null)
+	const navigate = useNavigate()
 	if (!user)
 	getuser(setuser)
 	if (user)
@@ -159,20 +162,19 @@ const App = () => {
 	}
 
 	useEffect(() => {
-		socket.on('start_game', (data) => {
-			window.location.replace(`${window.location.origin}/game/${data.game_id}`)
+		socket.on('start_game', (data: any) => {
+			setGameContext({game_id: data.game_id, issuer_id: data.user1_id, receiver_id: data.user2_id})
+			navigate(`/game/${data.game_id}`)
 		})
-
+	
 		socket.on('FEEDBACK_ERROR', (data) => {
 			toast.error(data)
 		})
 
-		return (
-			() => {
-				socket.off('start_game')
-				socket.off('FEEDBACK_ERROR')
-			}
-		)
+		return () => {
+			socket.off('start_game')
+			socket.off('FEEDBACK_ERROR')
+		}
 	}, [])
 
 	socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."))
@@ -183,7 +185,6 @@ const App = () => {
 			{user ?
 			<currentUser.Provider value={user}>
 				<div>
-				<BrowserRouter>
 					<Navbar />
 					{
 						(togglebar === 0 || togglebar === 1) ? 
@@ -197,17 +198,19 @@ const App = () => {
 						<></>
 
 					}
-					<Routes>
-						<Route path="/search"  element={<SearchWindow/>} />
-						<Route path="/" element={<Dashboard/>} >
-							<Route path='/profile' element={<Dashboard/>} />
-							<Route path='/profile/:nickname' element={<Dashboard/>} />
-						</Route>
-						<Route path="/game" element={<GameUI/>} >
-							<Route path=':gameID' element={<GameUI/>} />
-						</Route>
-					</Routes>
-				</BrowserRouter >
+					<GameContext.Provider value={[gameContext, setGameContext]}>
+						<Routes>
+							<Route path="/search"  element={<SearchWindow/>} />
+							<Route path="/" element={<Dashboard/>} >
+								<Route path='/profile' element={<Dashboard/>} />
+								<Route path='/profile/:nickname' element={<Dashboard/>} />
+							</Route>
+							<Route path="/game" element={<GameUI/>} >
+									<Route path=':gameID' element={<GameUI/>} />
+							</Route>
+						</Routes>
+					</GameContext.Provider>
+
 				</div>
 				</currentUser.Provider > :
 			 <>
