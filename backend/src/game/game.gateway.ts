@@ -187,8 +187,6 @@ export class GameGateway {
 	@SubscribeMessage('game_info_req')
 	async run_game(@ConnectedSocket() client: Socket, @MessageBody() payload: any)
 	{
-		// console.log(await this.server.)
-		console.log('-------->', {payload}, '----->', client.id, 'length ---------->', (await this.server.to(payload.game_id).fetchSockets()).length)
 		this.server.to(payload.game_id).emit('game_info_res', {zbi:'zbi'})
 	}
 }
