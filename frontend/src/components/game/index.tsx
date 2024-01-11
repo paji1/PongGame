@@ -1,5 +1,4 @@
 import { useContext, useEffect, useRef, useState } from "react";
-// import GameField from "./Game";
 import GameSetup from "./GameSetup";
 import { EGamePreparationState } from "../Context/QueueingContext";
 import QueueLoader from "./QueueLoader";
@@ -45,11 +44,40 @@ const GameFooter = () => (
     </div>
 )
 
-const GameBody = ({isReady}: {isReady: boolean}) => {
+const GameNotAvailable = () => (
+	<div>
+		this game is not available...
+	</div>
+)
+
+const GameBody = () => {
 
 	const gameBodyRef = useRef(null)
 	const [preparation, setPreparation] = useState(EGamePreparationState.CONFIG_STATE)
 	const socket = useContext(SocketContext)
+
+	const params = useParams()
+	const [isSet, setIsSet] = useState(false)
+
+	useEffect(() => {
+		if (params.gameID)
+		{
+			(async () => {
+				const res = await fetch(`http://${ip}3001/game/${params.gameID}`, {
+					credentials: 'include',
+					method: 'GET'
+				})
+				if (res.status !== 200)
+				{
+					toast.error("You are not allowed to enter this game")
+					return
+				}
+				setIsSet(true)
+			})()
+		}
+		else
+			setIsSet(false)
+	}, [params])
 
 	useEffect(() => {
 		socket.on('enter_queue', () => {
@@ -79,10 +107,10 @@ const GameBody = ({isReady}: {isReady: boolean}) => {
 		sm:w-[576px] md:w-[691px] lg:w-[921px] xl:w-[1152px] 2xl:w-[1346px] w-[281px]
 		sm:h-[324px] md:h-[389px] lg:h-[518px] xl:h-[648px] 2xl:h-[757px] h-[500px]`}>
 		{
-			isReady ? <PlayGround /> : 
+			isSet ? <PlayGround /> : 
 				preparation === EGamePreparationState.CONFIG_STATE ? <GameSetup /> :
 				preparation === EGamePreparationState.QUEUING_STATE ? <QueueLoader /> :
-				preparation === EGamePreparationState.READY_STATE ? <PlayGround /> : null
+				preparation === EGamePreparationState.READY_STATE ? <PlayGround /> : <GameNotAvailable />
 		}
 		</div>
 	)
@@ -98,37 +126,12 @@ const GameFrame = () => {
 }
 
 const GameUI = () => {
-	
-	const params = useParams()
-	const [isSet, setIsSet] = useState(false)
-
-	useEffect(() => {
-		if (params.gameID)
-		{
-			(async () => {
-				const res = await fetch(`http://${ip}3001/game/${params.gameID}`, {
-					credentials: 'include',
-					method: 'GET'
-				})
-				if (res.status !== 200)
-				{
-					toast.error("You are not allowed to enter this game")
-					return
-				}
-				setIsSet(true)
-			})()
-		}
-		else
-		{
-			setIsSet(false)
-		}
-	}, [])
 
 	return (
 		<div id="game-ui" className={`flex flex-col items-center h-auto inset-0`}>
 			<div className={`flex flex-col items-center p-1 sm:p-5 mt-6
 				`}>
-				<GameBody isReady={isSet} />
+				<GameBody />
 				<GameFooter />
 			</div>
 		</div>
