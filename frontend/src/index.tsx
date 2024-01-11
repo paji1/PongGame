@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./index.css";
 import App from "./App";
 import * as ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { BrowserRouter, createBrowserRouter, RouterProvider } from "react-router-dom";
 import profileplaceholder from "./assets/profileplaceholder.png";
 import "react-toastify/dist/ReactToastify.css";
 import { SocketContext } from "./components/Context/SocketContext";
@@ -19,6 +19,8 @@ const socket: Socket = io(`ws://${ip}3001`, { autoConnect: false, transports: ["
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(
 	<SocketContext.Provider value={socket}>
+		<BrowserRouter>
 			<App />
+		</BrowserRouter >
 	</SocketContext.Provider>
 );
