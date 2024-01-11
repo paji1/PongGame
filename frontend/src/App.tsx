@@ -19,6 +19,7 @@ import Loading from "./components/loading/loading";
 import Refreshinterval from "./components/refreshInterval/refreshInterval";
 import HomePage from "./components/HomePage/HomePage";
 import SettingBar from "./components/settingBar/settingBar";
+import QueueLoader from "./components/game/QueueLoader";
 
 // TODO: this is a temporary trqi3a
 
@@ -28,6 +29,13 @@ const App = () => {
 	const [islogin, setIsLogin] = useState<boolean>(false);
 	const socket = useContext(SocketContext);
 	const [togglebar, settoglebar] = useState(0);
+	const [isLoading, setLoading] = useState(true);
+	useEffect(() => {
+		setTimeout(() => {
+			setLoading(false);
+		}, 2500)
+	});
+
 	useEffect(() => {
 		console.log("start");
 		const isLoggedIn = async () => {
@@ -48,18 +56,20 @@ const App = () => {
 				console.log("finish");
 			};
 			
-		isLoggedIn();
-	}, [islogin]);
-
-
-	if (userin.current && !user)
-	{
-		setuser(userin.current)
-	}
-	if (userin.current) {
-		socket.connect();
-	}
-
+			isLoggedIn();
+		}, [islogin]);
+		
+		
+		if (userin.current && !user)
+		{
+			setuser(userin.current)
+		}
+		if (userin.current) {
+			socket.connect();
+		}
+		
+	if (isLoading && window.location.pathname !== "/loading")
+		return <div className="flex justify-center items-center max-w-[1536px] h-[50rem] m-auto"><QueueLoader /></div>;
 	socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."));
 	return (
 		<div>

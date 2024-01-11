@@ -5,6 +5,7 @@ import profileplaceholder from "../assets/profileplaceholder.png";
 import { useContext } from "react";
 import { currentUser, CurrentUser } from "./Context/AuthContext";
 import { toast } from "react-toastify";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const listItems = ["home", "about", "our-team", "button"].map((item: String, key: Number) =>
 	item === "button" ? (
@@ -63,6 +64,7 @@ const LoggedNavBar: React.FC<isOpen> = (props) => (
 
 const Navbar = () => {
 	const [isOpen, setIsOpen] = useState<Boolean>(false);
+	const navigate = useNavigate();
 
 	const toggleNavBar = () => {
 		setIsOpen(!isOpen);
@@ -75,14 +77,14 @@ const Navbar = () => {
 		container relative m-auto p-3 top-5 flex justify-between items-center border-b-2 border-solid
 		`}
 		>
-			<a
-				href="/"
+			<button
+				onClick={() => navigate('/')}
 				className={`
 				font-xl font-bold text-primary uppercase font-pixelify md:text-2xl text-xl
 				`}
 			>
 				Transcendence
-			</a>
+			</button>
 
 			{user ? <LoggedNavBar isOpen={isOpen} /> : <UnloggedNavBar isOpen={isOpen} />}
 

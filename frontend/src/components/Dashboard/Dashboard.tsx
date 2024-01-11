@@ -106,7 +106,7 @@ export default function Dashboard() {
 		useGetTrophiesData(settrdata, nickname);
 
 		
-	if (dashstate === null || user == undefined || setfladder === null) return <>404</>;
+	if (dashstate === null || user == undefined || setfladder === null) return <></>;
 	return (
 		<div className="flex flex-col gap-y-16 mt-16">
 			<ProfileDiv who={who} usr={dashstate} func={setdashstate} />
