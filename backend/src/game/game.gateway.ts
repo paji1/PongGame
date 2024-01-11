@@ -13,6 +13,7 @@ import { AcceptGameInviteDto } from './dto/accept-game-invite.dto';
 import { InviteService } from 'src/invite/invite.service';
 import { actionstatus, game_modes } from '@prisma/client';
 import { RejectGameInviteDto } from './dto/reject-game-invite.dto';
+import Game from './pong-game/Game';
 
 
 @WebSocketGateway({transports: ['websocket']})
@@ -178,5 +179,16 @@ export class GameGateway {
 		if (!new_game)
 			throw new Error('Failed to create new game')
 		this.server.to(game_id).emit('start_game', {game_id, user1_id, user2_id, difficulty})
+		const game = new Game(game_id, difficulty, user1_id, user2_id)
+		game.setup()
+	
+	}
+
+	@SubscribeMessage('game_info_req')
+	async run_game(@ConnectedSocket() client: Socket, @MessageBody() payload: any)
+	{
+		// console.log(await this.server.)
+		console.log('-------->', {payload}, '----->', client.id, 'length ---------->', (await this.server.to(payload.game_id).fetchSockets()).length)
+		this.server.to(payload.game_id).emit('game_info_res', {zbi:'zbi'})
 	}
 }
