@@ -37,7 +37,7 @@ export class RepositoryService {
         if (type === undefined || type.ext === undefined)
           throw new HttpException("file magic number not recognized", HttpStatus.BAD_REQUEST);
 
-        if (type === undefined || !allowed.includes(type.ext))
+        if ( !allowed.includes(type.ext))
               throw new HttpException("file type not allowed", HttpStatus.BAD_REQUEST);
         const location = "FileRepository"
         const sublocation = user
@@ -67,6 +67,7 @@ export class RepositoryService {
 
          throw new HttpException("Server: Error writing file", 500)
         }
+        
         const files = fs.readdirSync(`./${location}/${user}`)
         files.map((file, index) =>  {
             console.log(`./${location}/${user}/${filename}`, file, index)
