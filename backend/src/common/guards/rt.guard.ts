@@ -17,10 +17,7 @@ export class RtGuard extends AuthGuard("jwt-refresh") {
 		if (err || !user) {
 			res.cookie("atToken", "", { expires: new Date(Date.now()) });
 			res.cookie("rtToken", "", { expires: new Date(Date.now()) });
-			if (request.isIntra !== true)
-				res.cookie("userData", "", { expires: new Date(Date.now()) });
-			if (request.isTwoFa !== true)
-				res.cookie("userData", "", { expires: new Date(Date.now()) });
+
 			throw err || new UnauthorizedException();
 		}
 
@@ -28,6 +25,7 @@ export class RtGuard extends AuthGuard("jwt-refresh") {
 	}
 
 	canActivate(context: ExecutionContext) {
+		console.log("taha");
 		return super.canActivate(context);
 	}
 }

@@ -17,11 +17,15 @@ export class UsersService {
 	) {}
 
 	async findOne(username: string): Promise<user | null> {
-		return this.prisma.user.findUnique({
+
+		const user =  this.prisma.user.findUnique({
 			where: {
 				user42: username,
 			},
 		});
+		if (!user)
+			return null;
+		return user;
 	}
 	async getuser(user: number) {
 		const data = await this.prisma.user.findUnique({

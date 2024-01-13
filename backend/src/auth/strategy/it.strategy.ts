@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
@@ -30,7 +30,7 @@ export class ItStrategy extends PassportStrategy(Strategy, "jwt-intra") {
 			const on = req.request.headers.cookie.split("; ")[0].replace("=", ":");
 			return on.split(":")[1];
 		}
-
+		throw new UnauthorizedException();
 		return null;
 	}
 

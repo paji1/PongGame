@@ -118,6 +118,9 @@ export class AuthService {
 	async handle2fa(user42 : string , res : Response): Promise<any> {
 		const token : string = await this.getTokenTwofa(user42);
 
+		await this.syncTokensHttpOnly2fa(res, token);
+		res.json({is2fa : true});
+		return res;
 	}
 
 
@@ -169,7 +172,7 @@ export class AuthService {
 				user42: dto.user42,
 			},
 		});
-		console.log(user);
+		
 
 		if (!user) throw new UnauthorizedException("Access Denied");
 		

@@ -19,7 +19,7 @@ export class TwoFactorAuthService {
 		private jwtService: JwtService,
 		private config: ConfigService,
 	) {}
-	async genereteSecret(user42: string): Promise<{secret : string , otpAuthUrl: string} | null> {
+	async genereteSecret(user42: string): Promise<{ secret: string; otpAuthUrl: string } | null> {
 		const user: user = await this.prisma.user.findUnique({
 			where: {
 				user42: user42,
@@ -41,34 +41,28 @@ export class TwoFactorAuthService {
 				secret2FA: secret,
 			},
 		});
-		
-		return {secret, otpAuthUrl};
+
+		return { secret, otpAuthUrl };
 	}
 
-	async verify2facode(code: string, userSecret : string) : Promise<boolean>
-	{
-		return await  authenticator.verify({token : code, secret : userSecret}); 
+	async verify2facode(code: string, userSecret: string): Promise<boolean> {
+		return await authenticator.verify({ token: code, secret: userSecret });
 	}
 
-	async qrCodeStreamPipe(stream : Response, otpAuthUrl : string)
-	{
+	async qrCodeStreamPipe(stream: Response, otpAuthUrl: string) {
 		return await toFileStream(stream, otpAuthUrl);
 	}
 
-
-	async checkIfValidCode(dto : TwoFaAuthDto,  user42 : string) : Promise<any>
-	{
-		const user : user = await this.usersService.findOne(user42);
-		const valid =  await this.verify2facode(dto.code, user.secret2FA);
-		if (!valid)
-		{
-			throw new UnauthorizedException("code is not valid");  
+	async checkIfValidCode(dto: TwoFaAuthDto, user42: string): Promise<any> {
+		const user: user = await this.usersService.findOne(user42);
+		const valid = await this.verify2facode(dto.code, user.secret2FA);
+		if (!valid) {
+			throw new UnauthorizedException("code is not valid");
 		}
 		return this.activeTwoFactorAuth(user42, true);
 	}
 
-	async activeTwoFactorAuth(user42: string, status : boolean):  Promise<user>
-	{
+	async activeTwoFactorAuth(user42: string, status: boolean): Promise<user> {
 		return await this.prisma.user.update({
 			where: {
 				user42: user42,
@@ -76,41 +70,31 @@ export class TwoFactorAuthService {
 			data: {
 				is2FA: status,
 			},
-		});		
+		});
 	}
-	async isTwoFacActiveh(user42: string, ):  Promise<{is2FA:  boolean}>
-	{
+	async isTwoFacActiveh(user42: string): Promise<{ is2FA: boolean }> {
 		return await this.prisma.user.findUnique({
 			where: {
 				user42: user42,
 			},
 			select: {
-				is2FA : true,
+				is2FA: true,
 			},
-		});		
+		});
 	}
 
-	async signin2fA(user42 : string , res: Response, dto : TwoFaAuthDto )
-	{
-		try {
+	async signin2fA(user42: string, res: Response, dto: TwoFaAuthDto) {
+		const user: user = await this.checkIfValidCode(dto, user42);
+		if (!user) throw new UnauthorizedException("prisma error");
+		const token = await this.authService.getTokens(user.id, user42);
+		const userData = { signUpstate: true, user: user42 };
 
-			const user : user = await this.checkIfValidCode(dto, user42); 
-			if (!user)
-				throw new UnauthorizedException("prisma error");
-			const token =  await this.authService.getTokens(user.id, user42);
-			const userData = { signUpstate: true, user: user42 };
-
-			await Promise.all([
-				res.cookie("userData", JSON.stringify({ userData }), { httpOnly: false }),
-				this.authService.syncTokensHttpOnly(res, token),
-			]);
-			// const windowRef = window;
-			return res;
-
-		} catch (error) {
-			console.error("Error in handleCallback:", error);
-			res.status(500).send("Internal Server Error");
-		}
-		return res;
+		await Promise.all([
+			res.cookie("userData", JSON.stringify({ userData }), { httpOnly: false }),
+			this.authService.syncTokensHttpOnly(res, token),
+			res.cookie("itToken", "", { expires: new Date(Date.now()) }),
+			res.cookie("ftToken", "", { expires: new Date(Date.now()) }),
+		]);
+		return res.json();
 	}
 }

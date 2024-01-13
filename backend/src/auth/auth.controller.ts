@@ -19,7 +19,7 @@ import { ItGuard, RtGuard } from "../common/guards";
 import { AuthService } from "./auth.service";
 import { AuthDto } from "./dto";
 import { Tokens } from "./types";
-import { Response } from "express";
+import { Response, Request } from "express";
 import { retry } from "rxjs";
 import * as path from "path";
 import { UsersService } from "src/users/users.service";
@@ -100,32 +100,30 @@ export class AuthController {
 	): Promise<any> {
 		// console.log("hello");
 		// try {
-		console.log(dto.user42, user42);
-		
+
 		if (dto.user42 !== user42) throw new UnauthorizedException();
 		const tokens = await this.authService.signinLocal(dto);
-		if (this.twoFactorAuthService.isTwoFacActiveh(user42))
-			return this.authService.handle2fa(user42,res);
+		if ((await this.twoFactorAuthService.isTwoFacActiveh(user42)).is2FA)
+			return this.authService.handle2fa(user42, res);
 		const userData = { ...(await this.usersService.getUser42(dto.user42)), signUpstate: true };
 		await Promise.all([
 			res.cookie("userData", JSON.stringify({ userData }), { httpOnly: false }),
 			this.authService.syncTokensHttpOnly(res, tokens),
-			res.cookie("itToken", "", { expires: new Date(Date.now()) }),
+			// res.cookie("itToken", "", { expires: new Date(Date.now()) }),
 		]);
 
 		res.end();
 	}
-	@Public()
 	@UseGuards(FtGuard)
+	@Public()
 	@Post("local/signinTwofa")
 	@HttpCode(HttpStatus.OK)
 	async signin2fA(
-		@Body() dto : TwoFaAuthDto,
+		@Body() dto: TwoFaAuthDto,
 		@Res() res: Response,
 		@GetCurrentUser("user42") user42: string,
 	): Promise<any> {
-		// console.log("hello");
-		return this.twoFactorAuthService.signin2fA(user42, res , dto );
+		return await this.twoFactorAuthService.signin2fA(user42, res, dto);
 	}
 
 	@Public()
@@ -136,7 +134,7 @@ export class AuthController {
 	intraLogin(@Body() user: any) {
 		return {};
 	}
-	
+
 	// taha to do re refactor
 	@HttpCode(HttpStatus.OK)
 	@Get("callback_42")
@@ -160,7 +158,6 @@ export class AuthController {
 	}
 
 	@UseGuards(RtGuard)
-	@UseGuards(ItGuard)
 	@Post("refresh")
 	@Public()
 	@HttpCode(HttpStatus.OK)
@@ -192,5 +189,13 @@ export class AuthController {
 	@Post("checkValidcode")
 	async checkIfvalid(@Body() dto: TwoFaAuthDto, @GetCurrentUser("user42") user42: string) {
 		await this.twoFactorAuthService.checkIfValidCode(dto, user42);
+	}
+	@Post("disable2fa")
+	async disable2fa(@Body() dto: any, @GetCurrentUser("user42") user42: string) {
+		await this.twoFactorAuthService.activeTwoFactorAuth(user42, false);
+	}
+	@Get("is2fa")
+	async is2fa(@GetCurrentUser("user42") user42: string) : Promise<{is2FA: Boolean}>{
+		return await this.twoFactorAuthService.isTwoFacActiveh(user42);
 	}
 }

@@ -8,6 +8,7 @@ interface PopupProps {
 	setloginuser: React.Dispatch<React.SetStateAction<string>>;
 }
 
+
 const Popup: React.FC<PopupProps> = ({ onClose, setPopupSignUpVisible, setPopupSignInVisible, setloginuser }) => {
 	const popupWindowRef = useRef<any>(null);
 	const [hasHandledMessage, setHasHandledMessage] = useState(false);

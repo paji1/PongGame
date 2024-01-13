@@ -1,7 +1,7 @@
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { Request } from "express";
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtPayload, JwtPayloadWithRt } from "../types";
 import { Request as RequestType } from "express";
@@ -27,6 +27,7 @@ export class RtStrategy extends PassportStrategy(Strategy, "jwt-refresh") {
 		) {
 		  return req.cookies.rtToken;
 		}
+		throw new UnauthorizedException();
 		return null;
 	}
 
