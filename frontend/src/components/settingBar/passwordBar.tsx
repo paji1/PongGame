@@ -24,7 +24,7 @@ const ChangePassword = ({toogle,  setToggle} : {toogle : any,  setToggle: any} )
 		<div className="relative">
 			<button
 				className="bg-transparent text-textColor w-full py-2 px-8
-				rounded-full shadow-buttonShadow border-solid border-textColor border-2
+				rounded-md shadow-buttonShadow border-solid border-textColor border-2
 				 w-[100%] duration-1000 delay-1000 "
 				onClick={handleDropdownToggle}
 			>

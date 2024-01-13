@@ -184,7 +184,7 @@ const TwoFaBar = ({ toogle, setToggle }: { toogle: any; setToggle: any }) => {
 		>
 			<div
 				className="relative transition-all duration-200 ease-in-out    bg-transparent text-textColor w-full py-2 px-8
-			rounded-full shadow-buttonShadow border-solid border-textColor border-2
+			rounded-md shadow-buttonShadow border-solid border-textColor border-2
 			 w-[100%]  "
 			>
 				<h1 className="flex justify-center">Two factor authtontication</h1>
