@@ -32,21 +32,18 @@ const ChangeNickname = ({toogle,  setToggle} : {toogle : any,  setToggle: any}) 
 			</button>
 			{isDropdownOpen && toogle === 2 && (
 				<div
-					className="absolute z-10 bg-transparent text-textColor w-full py-2 px-8
-				rounded-sm shadow-buttonShadow border-spacing-1 border-textColor border-2 w-[100%] flex justify-center flex-col items-center text-center  "
+					className=" duration-1000 delay-1000 absolute z-10 bg-transparent text-textColor w-full py-2 px-8 border-2 w-[100%] flex justify-center flex-col items-center text-center "
 				>
-					<div className="mb-4">
-						<label htmlFor="currentnickname" className="block  text-gray-700 font-bold mb-2">
-							Current nickname
-						</label>
+					<div>
 						<input
 							type="nickname"
-							id="currentnickname"
-							value={currentnickname}
-							onChange={(e) => setCurrentnickname(e.target.value)}
-							className="appearance-none bg-white text-textColor w-full py-2 px-8
+							id="nickname"
+							value={newnickname}
+							onChange={(e) => setNewnickname(e.target.value)}
+							className=" appearance-none bg-white text-textColor w-full py-2 px-8
 							rounded-full shadow-buttonShadow border-solid border-textColor border-2
-							 w-[100%]  mt-4 leading-tight focus:outline-none focus:shadow-outline"
+							 w-[100%]   leading-tight focus:outline-none focus:shadow-outline"
+							 placeholder="new nickname"
 						/>
 					</div>
 					<button

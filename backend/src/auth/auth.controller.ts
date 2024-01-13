@@ -23,12 +23,17 @@ import { Response } from "express";
 import { retry } from "rxjs";
 import * as path from "path";
 import { UsersService } from "src/users/users.service";
+import { get } from "http";
+import { TwoFactorAuthService } from "./two-factor-auth/two-factor-auth.service";
+import { TwoFaAuthDto } from "./dto/twoFa.dto";
+import { FtGuard } from "src/common/guards/ft.guard";
 
 @Controller("auth")
 export class AuthController {
 	constructor(
 		private authService: AuthService,
 		private readonly usersService: UsersService,
+		private readonly twoFactorAuthService: TwoFactorAuthService,
 	) {}
 
 	// @Get("create")
@@ -96,8 +101,11 @@ export class AuthController {
 		// console.log("hello");
 		// try {
 		console.log(dto.user42, user42);
+		
 		if (dto.user42 !== user42) throw new UnauthorizedException();
 		const tokens = await this.authService.signinLocal(dto);
+		if (this.twoFactorAuthService.isTwoFacActiveh(user42))
+			return this.authService.handle2fa(user42,res);
 		const userData = { ...(await this.usersService.getUser42(dto.user42)), signUpstate: true };
 		await Promise.all([
 			res.cookie("userData", JSON.stringify({ userData }), { httpOnly: false }),
@@ -107,6 +115,18 @@ export class AuthController {
 
 		res.end();
 	}
+	@Public()
+	@UseGuards(FtGuard)
+	@Post("local/signinTwofa")
+	@HttpCode(HttpStatus.OK)
+	async signin2fA(
+		@Body() dto : TwoFaAuthDto,
+		@Res() res: Response,
+		@GetCurrentUser("user42") user42: string,
+	): Promise<any> {
+		// console.log("hello");
+		return this.twoFactorAuthService.signin2fA(user42, res , dto );
+	}
 
 	@Public()
 	@Get("intra/login")
@@ -114,30 +134,16 @@ export class AuthController {
 	@UseGuards(AuthGuard("intra"))
 	@Redirect("http://localhost:3001/")
 	intraLogin(@Body() user: any) {
-		console.log("first");
-		return { helllo: "hello" };
+		return {};
 	}
-
+	
 	// taha to do re refactor
+	@HttpCode(HttpStatus.OK)
 	@Get("callback_42")
 	@Public()
 	@UseGuards(AuthGuard("intra"))
 	async handleCallback(@GetUser() userdto: AuthIntraDto, @Res() res: Response): Promise<void> {
-		try {
-			const [token, signUpstate] = await this.authService.handle_intra(userdto);
-			const userData = { signUpstate, user: userdto.user42 };
-
-			await Promise.all([
-				res.cookie("userData", JSON.stringify({ userData }), { httpOnly: false }),
-				this.authService.syncTokensHttpOnlyIntra(res, token),
-			]);
-			// const windowRef = window;
-
-			res.redirect("http://localhost:3000/loading");
-		} catch (error) {
-			console.error("Error in handleCallback:", error);
-			res.status(500).send("Internal Server Error");
-		}
+		return await this.authService.handle__callback(userdto, res);
 	}
 
 	@Post("logout")
@@ -171,8 +177,20 @@ export class AuthController {
 		await Promise.all([
 			res.cookie("userData", JSON.stringify({ userData }), { httpOnly: false }),
 			this.authService.syncTokensHttpOnly(res, tokens),
-		]);	
+		]);
 
 		res.end();
+	}
+
+	@Post("generateQrCode")
+	async generateQrCode(@Res() response: Response, @GetCurrentUser("user42") user42: string) {
+		response.setHeader("content-type", "image/png");
+		const { otpAuthUrl } = await this.twoFactorAuthService.genereteSecret(user42);
+		return await this.twoFactorAuthService.qrCodeStreamPipe(response, otpAuthUrl);
+	}
+
+	@Post("checkValidcode")
+	async checkIfvalid(@Body() dto: TwoFaAuthDto, @GetCurrentUser("user42") user42: string) {
+		await this.twoFactorAuthService.checkIfValidCode(dto, user42);
 	}
 }

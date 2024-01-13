@@ -6,7 +6,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { Prisma, user } from "@prisma/client";
 
 import { AuthDto, AuthIntraDto, AuthSignUp, UpdatePassDto, userDatadto } from "./dto";
-import { JwtPayload, Tokens } from "./types";
+import { JwtPayload, JwtPayloadTwoFa, Tokens } from "./types";
 import { Response } from "express";
 import { find } from "rxjs";
 import { use } from "passport";
@@ -17,6 +17,7 @@ export class AuthService {
 		private prisma: PrismaService,
 		private jwtService: JwtService,
 		private config: ConfigService,
+
 	) {}
 
 	async updatepassword(dto: UpdatePassDto, user42: string): Promise<Tokens> {
@@ -98,13 +99,13 @@ export class AuthService {
 		return [tokens, user];
 	}
 
-	async handle_intra(dto: AuthIntraDto): Promise<[Tokens, boolean]> {
+	async handle_intra(dto: AuthIntraDto): Promise<[Tokens, boolean, boolean]> {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				user42: dto.user42,
 			},
 		});
-		if (!user) return [await this.signUpIntra(dto), false];
+		if (!user) return [await this.signUpIntra(dto), false, false];
 		console.log("here");
 
 		// const tokens = await this.getTokens(user.id, user.user42);
@@ -112,9 +113,33 @@ export class AuthService {
 		const intra_token = await this.getTokensIntra(user.id, user.user42);
 		const tokens: Tokens = { access_token: "null", refresh_token: "null", intra_token: intra_token };
 
-		return [tokens, !user.hash ? false : true];
+		return [tokens, !user.hash ? false : true, user.is2FA];
+	}
+	async handle2fa(user42 : string , res : Response): Promise<any> {
+		const token : string = await this.getTokenTwofa(user42);
+
 	}
 
+
+	async handle__callback(userdto: AuthIntraDto, res: Response) : Promise<void>
+	{
+		try {
+			const [token, signUpstate, is2FA] = await this.handle_intra(userdto);
+			const userData = { signUpstate, user: userdto.user42 };
+
+			await Promise.all([
+				res.cookie("userData", JSON.stringify({ userData }), { httpOnly: false }),
+				this.syncTokensHttpOnlyIntra(res, token),
+			]);
+			// const windowRef = window;
+
+			res.redirect("http://localhost:3000/loading");
+		} catch (error) {
+			console.error("Error in handleCallback:", error);
+			res.status(500).send("Internal Server Error");
+		}
+	}
+	
 	async signUpIntra(dto: AuthIntraDto): Promise<Tokens> {
 		const user = await this.prisma.user
 			.create({
@@ -150,13 +175,13 @@ export class AuthService {
 		
 		const passwordMatches = await argon.verify(user.hash, dto.password);
 		if (!passwordMatches) throw new UnauthorizedException("Access Denied");
-		console.log("hnaaaaaaaya", dto.user42);
 
 		const tokens = await this.getTokens(user.id, user.user42);
 		await this.updateRtHash(user.id, tokens.refresh_token);
 
 		return tokens;
 	}
+	
 
 	async logout(user42: string, @Res() res: Response): Promise<boolean> {
 		res.cookie("atToken", "", { expires: new Date(Date.now()) });
@@ -241,6 +266,18 @@ export class AuthService {
 		});
 		return it;
 	}
+	async getTokenTwofa( user42: string): Promise<string> {
+		const jwtPayload: JwtPayloadTwoFa = {
+			user42: user42,
+		};
+
+		const it = await this.jwtService.signAsync(jwtPayload, {
+			secret: this.config.get<string>("FT_SECRET"),
+			expiresIn: "15m",
+		});
+		return it;
+	}
+
 	async syncTokensHttpOnly(res: Response, tokens: Tokens): Promise<Response> {
 		const minute: number = 60 * 1000;
 		res.cookie("atToken", tokens.access_token, {
@@ -269,6 +306,21 @@ export class AuthService {
 		});
 		return res;
 	}
+	async syncTokensHttpOnly2fa(res: Response, token:string): Promise<Response> {
+		const minute: number = 60 * 1000;
+		res.cookie("ftToken", token, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			maxAge: 15 * minute,
+			path: "/",
+		});
+		return res;
+	}
+
+
+
+
+
 	async findunique(dto: AuthDto): Promise<boolean> {
 		const user = await this.prisma.user.findUnique({
 			where: {

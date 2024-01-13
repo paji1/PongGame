@@ -19,6 +19,8 @@ export class RtGuard extends AuthGuard("jwt-refresh") {
 			res.cookie("rtToken", "", { expires: new Date(Date.now()) });
 			if (request.isIntra !== true)
 				res.cookie("userData", "", { expires: new Date(Date.now()) });
+			if (request.isTwoFa !== true)
+				res.cookie("userData", "", { expires: new Date(Date.now()) });
 			throw err || new UnauthorizedException();
 		}
 
