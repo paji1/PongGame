@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, Res, UnauthorizedException } from "@nestjs/common";
+import { ForbiddenException, HttpException, HttpStatus, Injectable, Res, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import * as argon from "argon2";
@@ -10,6 +10,7 @@ import { JwtPayload, JwtPayloadTwoFa, Tokens } from "./types";
 import { Response } from "express";
 import { find } from "rxjs";
 import { use } from "passport";
+import { UpdateNicknameDto } from "./dto/updateNickname.dto";
 
 @Injectable()
 export class AuthService {
@@ -63,6 +64,28 @@ export class AuthService {
 		const tokens = await this.getTokens(user.id, user42);
 		await this.updateRtHash(user.id, tokens.refresh_token);
 		return tokens;
+	}
+
+
+	async updateNickname(dto : UpdateNicknameDto , user42:string, res :  Response) : Promise<string>
+	{
+		try {
+			const user  = await this.prisma.user.update({
+				where: {
+					user42 : user42,
+				},
+				data : {
+					nickname : dto.newNickname,
+				}
+			})
+			if (!user)
+				throw new HttpException("error : prisma updateNickname ", HttpStatus.EXPECTATION_FAILED);
+			res.cookie("userData", "", { expires: new Date(Date.now()) });
+			res.end()
+			return dto.newNickname;
+		} catch (error) {
+			throw new HttpException("error : prisma updateNickname ", HttpStatus.EXPECTATION_FAILED);
+		}
 	}
 
 	async updateLocal(dto: AuthSignUp, user42: string): Promise<[Tokens, userDatadto]> {
@@ -215,7 +238,7 @@ export class AuthService {
 		if (!user || !user.hashedRt) throw new ForbiddenException("Access Denied");
 		const rtMatches = await argon.verify(user.hashedRt, rt);
 		if (!rtMatches) throw new ForbiddenException("Access Denied");
-		console.log("refresh    here");
+
 
 		
 		const tokens = await this.getTokens(user.id, user.user42);

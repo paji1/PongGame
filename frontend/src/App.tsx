@@ -20,12 +20,40 @@ import Refreshinterval from "./components/refreshInterval/refreshInterval";
 import HomePage from "./components/HomePage/HomePage";
 import SettingBar from "./components/settingBar/settingBar";
 import QueueLoader from "./components/game/QueueLoader";
+import useRefreshinterval from "./components/refreshInterval/refreshInterval";
 
 // TODO: this is a temporary trqi3a
 
+
+interface AsyncRefreshtoken  {
+	setitems: React.Dispatch<any>;
+	item: any;
+	setIsLogin: React.Dispatch<React.SetStateAction<boolean>>;
+	userin : React.MutableRefObject<CurrentUser | null>;
+	islogin: boolean;
+
+}
+const asyncRefreshtoken = async ( prop : AsyncRefreshtoken)  => {
+
+	await axios
+							.post("http://localhost:3001/auth/refresh", {}, { withCredentials: true })
+							.then((res) => {
+								prop.setitems(Cookies.get("userData"));
+								if (prop.item && prop.islogin) {
+									prop.userin.current = JSON.parse(prop.item).user;
+									// setuser(userin.current);
+								}
+								prop.setIsLogin(true);
+							})
+							.catch((err): any => {
+								// console.error("axios get refresh error:", err);
+								toast.error("error : refresh token not found");
+							});
+} 
 const App = () => {
 	const userin = useRef<CurrentUser | null>(null);
-	const [user, setuser ]= useState<CurrentUser | null>(null);
+	const [user, setuser] = useState<CurrentUser | null>(null);
+	const [item, setitems] = useState<any>(null);
 	const [islogin, setIsLogin] = useState<boolean>(false);
 	const socket = useContext(SocketContext);
 	const [togglebar, settoglebar] = useState(0);
@@ -33,47 +61,52 @@ const App = () => {
 	useEffect(() => {
 		setTimeout(() => {
 			setLoading(false);
-		}, 2500)
+		}, 2500);
 	});
 
 	useEffect(() => {
 		console.log("start");
 		const isLoggedIn = async () => {
 			const res = await fetch(`http://${ip}3001/users/isLogin`, { credentials: "include", method: "GET" })
-				.then((res) => {
-					if (!res.ok) {
-						
+			.then(async (res) => {
+				if (!res.ok) {
+					
+						asyncRefreshtoken({setitems,item, setIsLogin,userin ,islogin})
 						throw new Error(`Error! status ${res.status}`);
 					}
-					const items = Cookies.get("userData");
-					if (items && islogin) {
-						userin.current = JSON.parse(items).user;
+
+					setitems(Cookies.get("userData"));
+					if (item && islogin) {
+						userin.current = JSON.parse(item).user;
+						setuser(userin.current);
 					}
 					setIsLogin(true);
 				})
 				.catch((e) => console.log("hiiiii"));
-				
-				console.log("finish");
-			};
-			
-			isLoggedIn();
-		}, [islogin]);
-		
-		
-		if (userin.current && !user)
-		{
-			setuser(userin.current)
-		}
-		if (userin.current) {
-			socket.connect();
-		}
-		
+
+			console.log("finish");
+		};
+
+		isLoggedIn();
+	}, [islogin, item]);
+
+	useRefreshinterval();
+	if (userin.current && !user) {
+		setuser(userin.current);
+	}
+	if (userin.current) {
+		socket.connect();
+	}
+
 	if (isLoading && window.location.pathname !== "/loading")
-		return <div className="flex justify-center items-center max-w-[1536px] h-[50rem] m-auto"><QueueLoader /></div>;
+		return (
+			<div className="flex justify-center items-center max-w-[1536px] h-[50rem] m-auto">
+				<QueueLoader />
+			</div>
+		);
 	socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."));
 	return (
 		<div>
-			<Refreshinterval />
 			<ToastContainer />
 			{
 				<currentUser.Provider value={userin.current}>
