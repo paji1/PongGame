@@ -7,7 +7,24 @@ import { useNavigate } from "react-router-dom";
 import ChangePassword from "./passwordBar";
 import ChangeNickname from "./nicknameBar";
 import TwoFaBar from "./twoFaBar";
+import { toast } from "react-toastify";
 
+const logout = async (navigate: any) => {
+	const res = await fetch("http://localhost:3001/auth/logout", {
+		method: "POST",
+		credentials: "include",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	}).then(async (res) => {
+		if (!res.ok) {
+			toast.error("error to logout nickname");
+			return;
+		}
+		navigate("/");
+		navigate(0);
+	});
+};
 interface SettingBarProps {
 	toogle: number;
 	settogle: any;
@@ -18,7 +35,12 @@ const SettingBar: FC<SettingBarProps> = ({ toogle, settogle }) => {
 	const [state, setState] = useState(1);
 	const [newAlert, setNewAlert] = useState(false);
 	const [toggle, setToggle] = useState(-1);
+	const navigate = useNavigate();
 
+	const logouthandler = (e: any) => {
+		e.preventDefault();
+		logout(navigate);
+	};
 	const toggleChatBar = () => {
 		seIsOpen(!isOpen);
 		if (!isOpen) settogle(3);
@@ -29,14 +51,12 @@ const SettingBar: FC<SettingBarProps> = ({ toogle, settogle }) => {
 
 	let nickname: string;
 	if (user?.nickname) nickname = user?.nickname;
-	const navigate = useNavigate();
 
 	return (
-		<div >
+		<div>
 			{isOpen && <HoverDiv toggleChatBar={toggleChatBar} />}
 			<ToggleButtonSetting isOpen={isOpen} isNewAlert={newAlert} setIsOpen={toggleChatBar} />
 			<section
-			
 				className={`fixed inset-y-0 right-0 bg-background border-l-2 border-solid 
 			sm:w-[85%] md:w-1/2 lg:w-1/2 xl:w-[35%] 2xl:w-[30%] w-[90%] transition-all duration-300
 			font-pixelify z-50
@@ -70,18 +90,8 @@ const SettingBar: FC<SettingBarProps> = ({ toogle, settogle }) => {
 							</p>
 						</div>
 
-						<div className="col-span-2 flex items-center justify-center h-full">
-							<button>level</button>
-						</div>
-						<div className="col-span-2 flex items-center justify-center h-full">
-							<button
-								onClick={(): undefined | any => {
-									navigate(`/profile/${nickname}`);
-									navigate(0);
-								}}
-							>
-								view profile
-							</button>
+						<div className="  col-span-2  justify-center  bg-red-800 text-slate-50 shadow-lg rounded-sm h-11 my-auto flex    ">
+							<button onClick={logouthandler}>log out</button>
 						</div>
 					</div>
 					<hr className="my-1 h-0.5 border-t-0 bg-textColor opacity-100" />
@@ -90,7 +100,6 @@ const SettingBar: FC<SettingBarProps> = ({ toogle, settogle }) => {
 						<ChangePassword toogle={toggle} setToggle={setToggle} />
 						<ChangeNickname toogle={toggle} setToggle={setToggle} />
 						<TwoFaBar toogle={toggle} setToggle={setToggle} />
-						
 					</div>
 				</div>
 			</section>

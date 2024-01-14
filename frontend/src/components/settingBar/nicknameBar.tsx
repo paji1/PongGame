@@ -16,7 +16,7 @@ const changeName = async (nickname: string, navigate : any) => {
 			toast.error("error to update nickname")
 			return ;
 		}
-		toast.success(`page well refrech in  in 3 secend`)
+		toast.success(`page well refrech in  in 1 secend`)
 		setTimeout(() => {
 			navigate(0);
 
