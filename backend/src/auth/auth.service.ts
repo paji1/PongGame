@@ -123,20 +123,25 @@ export class AuthService {
 	}
 
 	async handle_intra(dto: AuthIntraDto): Promise<[Tokens, boolean, boolean]> {
-		const user = await this.prisma.user.findUnique({
-			where: {
-				user42: dto.user42,
-			},
-		});
-		if (!user) return [await this.signUpIntra(dto), false, false];
-		console.log("here");
-
-		// const tokens = await this.getTokens(user.id, user.user42);
-		// await this.updateRtHash(user.id, tokens.refresh_token);
-		const intra_token = await this.getTokensIntra(user.id, user.user42);
-		const tokens: Tokens = { access_token: "null", refresh_token: "null", intra_token: intra_token };
-
-		return [tokens, !user.hash ? false : true, user.is2FA];
+		try {
+			const user = await this.prisma.user.findUnique({
+				where: {
+					user42: dto.user42,
+				},
+			});
+			
+			if (!user) return [await this.signUpIntra(dto), false, false];
+			console.log("here");
+			
+			// const tokens = await this.getTokens(user.id, user.user42);
+			// await this.updateRtHash(user.id, tokens.refresh_token);
+			const intra_token = await this.getTokensIntra(user.id, user.user42);
+			const tokens: Tokens = { access_token: "null", refresh_token: "null", intra_token: intra_token };
+			
+			return [tokens, !user.hash ? false : true, user.is2FA];
+		} catch (error) {
+			throw new HttpException("error signup", 402)
+		}
 	}
 	async handle2fa(user42 : string , res : Response): Promise<any> {
 		const token : string = await this.getTokenTwofa(user42);
@@ -184,8 +189,8 @@ export class AuthService {
 				throw error;
 			});
 
-		const tokens = await this.getTokens(user.id, user.user42);
-		await this.updateRtHash(user.id, tokens.refresh_token);
+		const intra_token = await this.getTokensIntra(user.id, user.user42);
+		const tokens: Tokens = { access_token: "null", refresh_token: "null", intra_token: intra_token };
 		return tokens;
 	}
 
