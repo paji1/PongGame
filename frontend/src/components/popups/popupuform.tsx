@@ -42,7 +42,7 @@ const PopupForm: React.FC<PopupFormProps> = ({ user, setPopupSignInVisible,setpo
 				} catch (error) {
 					
 					console.log("ana hna ")
-					navigate("/game");
+					navigate("/");
 					navigate(0);
 					setPopupSignInVisible(false);
 				}

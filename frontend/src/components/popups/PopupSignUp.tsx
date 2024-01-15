@@ -48,7 +48,7 @@ const PopupSignUp: React.FC<SignUpPopupProps> = ({ setPopupSignUpVisible }) => {
 			console.log(response);
 			if (response.ok) {
 				setPopupSignUpVisible(false);
-				navigate("/game");
+				navigate("/");
 				navigate(0);
 			}
 		} catch (error) {

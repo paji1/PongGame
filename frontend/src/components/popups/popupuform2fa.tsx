@@ -37,7 +37,7 @@ const PopupForm2fa: React.FC<PopupForm2faProps> = ({ user, setPopupSignInVisible
 			});
 			if (response.ok) {
 				setPopupSignInVisible(false);
-				navigate("/game");
+				navigate("/");
 				navigate(0);
 			}
 		} catch (error) {
