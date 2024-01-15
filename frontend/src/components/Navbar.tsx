@@ -33,7 +33,7 @@ const UnloggedNavBar: React.FC<isOpen> = (props) => (
 	<nav className={props.isOpen ? "flex" : "hidden md:flex"}>
 		<ul
 			className={`
-			flex  absolute md:relative flex-col
+			flex  absolute max-md:bg-DefaultColor max-md:z-10  md:relative max-md:flex-col
 			lg:flex-row w-full text-center items-center justify-content-center
 			top-9 left-0 lg:top-0 lg:flex gap-2
 		`}
