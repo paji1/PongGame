@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { CarouselItem } from "./CarouselItem";
 import { achivments_images } from "../../../assets/dinamicachievments/achived";
 import { achived } from "../../../types/yearlyres";
@@ -42,7 +42,7 @@ export const items: achived[] = [
 	},
 ];
 
-export default function Carousel({ achivments }: { achivments: number[] | null }) {
+export default function Carousel({ achivments }: { achivments: any | null }) {
 	const [activeIndex, setActiveIndex] = useState(0);
 	const newimages = new achivments_images();
 	const updateIndex = (newIndex: any) => {
@@ -53,6 +53,7 @@ export default function Carousel({ achivments }: { achivments: number[] | null }
 		}
 		setActiveIndex(newIndex);
 	};
+	const l = achivments?.achieved?.length;
 	return (
 		<div className="carousel min-[0px]:mx-5 2xl:m-auto flex flex-col justify-center border-solid border-4 border-black max-w-[1536px] shadow-[2px_4px_0px_0px_#000301]">
 			<div>
@@ -63,14 +64,14 @@ export default function Carousel({ achivments }: { achivments: number[] | null }
 			</div>
 			<div className="overflow-hidden snap-mandatory snap-x inner whitespace-nowrap border-4 border-solid boder-black m-9 shadow-[2px_4px_0px_0px_#000301]">
 				{items.map((item: achived, index: number) => {
-					const exist = (achivments && achivments.length )? achivments.includes(index + 1) : false;
-
+					const exist = (index < l || index == 0) ? true : false;
 					return (
 						<div
+						key={index}
 							className="inline-flex w-full transition-transform delay-150 duration-1000 ease-in-out snap-center"
 							style={{ transform: `translate(-${activeIndex * 100}%)` }}
 						>
-							<CarouselItem hasit={exist} item={item} image={newimages.images[index]} />
+							<CarouselItem  hasit={exist} item={item} image={newimages.images[index]} />
 						</div>
 					);
 				})}

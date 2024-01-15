@@ -21,8 +21,7 @@ const useGetTrophiesData = async (settrdata: any, nickname: string | undefined) 
 			.then((data) => data.json())
 			.then((data) => {
 				settrdata(data);
-				console.log(data, "dasdasdas");
-			});
+			}).catch((err => {toast.error("Error getting achievements")}));
 	}, []);
 };
 
@@ -35,7 +34,7 @@ const useGetGamingData = async (setgdata: any, nickname: string | undefined) => 
 			.then((data) => data.json())
 			.then((data) => {
 				setgdata(data);
-			});
+			}).catch((err => {toast.error("Error getting GamingHistory")}));
 	}, []);
 };
 
@@ -48,7 +47,7 @@ const useGetFLadderData = async (setfladder: any, nickname: string | undefined) 
 			.then((data) => data.json())
 			.then((data) => {
 				setfladder(data);
-			});
+			}).catch((err => {toast.error("Error getting Friends Ladder")}));
 	}, []);
 };
 
@@ -61,31 +60,27 @@ const useGetLadderData = async (setgladder: any, nickname: string | undefined) =
 			.then((data) => data.json())
 			.then((data) => {
 				setgladder(data);
-			});
+			}).catch((err => {toast.error("Error getting Global Ladder")}));
 	}, []);
 };
 
 const useGetUserdata = async (setdashstate: any, nickname: string | undefined) => {
-	
 	useEffect(() => {
-		
 		fetch(`http://${ip}3001/profile/user/${nickname}`, {
 			method: "GET",
 			credentials: "include",
 		})
 			.then((Response) => Response.json())
 			.then((Response) => {
-
 				if (Response.statusCode >= 400) {
 					toast(`HTTP error! Status: ${Response.status}`);
 					setdashstate(null);
-				}
-				 else setdashstate(Response);
+				} else setdashstate(Response);
 			});
 	}, [nickname]);
 };
 
-export default function Dashboard( {status}: {status : Map <string, string>} ) {
+export default function Dashboard({status} : {status: Map<string, string>}) {
 	const user = useContext(currentUser);
 	const [dashstate, setdashstate] = useState<IUser | null>(null);
 	const [gladder, setgladder] = useState<IUser[] | null>(null);
@@ -96,20 +91,16 @@ export default function Dashboard( {status}: {status : Map <string, string>} ) {
 
 	const nickname = params.nickname ? params.nickname : user?.nickname;
 	const who = user?.nickname === nickname;
-	console.log("userrr ", user);
-	console.log("param.nickame ", who);
-	console.log("nickname.nickame ", nickname);
-		useGetUserdata(setdashstate, nickname);
-		useGetLadderData(setgladder, nickname);
-		useGetFLadderData(setfladder, nickname);
-		useGetGamingData(setgdata, nickname);
-		useGetTrophiesData(settrdata, nickname);
+	useGetUserdata(setdashstate, nickname);
+	useGetLadderData(setgladder, nickname);
+	useGetFLadderData(setfladder, nickname);
+	useGetGamingData(setgdata, nickname);
+	useGetTrophiesData(settrdata, nickname);
 
-		
-	if (dashstate === null || user == undefined || setfladder === null) return <></>;
+	if (dashstate === null || user == undefined || setfladder === null) return <>404</>;
 	return (
 		<div className="flex flex-col gap-y-16 mt-16">
-			<ProfileDiv  status={status} who={who} usr={dashstate} func={setdashstate} />
+			<ProfileDiv status={status} who={who} usr={dashstate} func={setdashstate} />
 			<Carousel achivments={trophydata} />
 			<Stats History={gamesdata} />
 			{who ? <Ladder GLadder={gladder} FLadder={fladder} /> : null}

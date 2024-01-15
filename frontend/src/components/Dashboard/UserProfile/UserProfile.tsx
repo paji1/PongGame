@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { ip } from "../../../network/ipaddr";
 import IUser from "../../../types/User";
+import { UploadTest } from "../../UploadComponent";
 
 const useGetFrienshipsStatus = async (setisFriend: any, dashstate: IUser) => {
 	try {
@@ -13,17 +14,21 @@ const useGetFrienshipsStatus = async (setisFriend: any, dashstate: IUser) => {
 				method: "GET",
 				credentials: "include",
 			})
-				.then((Response) => Response.json())
 				.then((Response) => {
 					if (!Response.ok) {
 						setisFriend(false);
-					} else setisFriend(true);
-				});
+					} else {
+						setisFriend(true);
+					}
+				})
+				.then((Response) => Response);
 		}, [dashstate]);
 	} catch (error) {
 		console.error("Error fetching data:", error);
 	}
 };
+
+
 export default function ProfileDiv({ status, who, usr, func }: { status: Map<string, string> , who: Boolean; usr: IUser; func: any }) {
 	const [postContent, setPostContent] = useState("");
 	const [isFriend, setisFriend] = useState<boolean>(false);
@@ -47,14 +52,42 @@ export default function ProfileDiv({ status, who, usr, func }: { status: Map<str
 			toast("Updated Succefully!");
 		}
 	};
+	const RmFR = () => {
+        fetch(`http://${ip}3001/invite/friend?friend=${usr.id}`, {
+            method: "DELETE",
+            credentials: "include",
+        })
+            .then((data) =>
+			{
+				if (data.status == 200)
+					toast("Deleted Friend uccesfully")
+				else
+					toast.error("failed to delete friend")
 
+			} )
+          
+            .catch(() => toast.error(`search: network error`));
+    };
+const addFR = () => {
+        fetch(`http://${ip}3001/invite/friend?friend=${usr.id}`, {
+            method: "POST",
+            credentials: "include",
+        })
+		.then((data) =>
+		{
+			if (data.status == 200)
+				toast("added Friend uccesfully")
+			else
+				toast.error("failed to add friend")
+
+		} )
+           
+            .catch(() => toast.error(`search: network error`));
+    };
 	useGetFrienshipsStatus(setisFriend, usr);
-	console.log("nicknameeee", usr.nickname) 
-	console.log("9alwaaa",status.get(usr.nickname) )
-
 	return (
 		<div className="ProfileDiv Ft min-[0px]:mx-5 2xl:m-auto flex min-[0px]:flex-col-reverse lg:flex-row border-solid border-4 border-black shadow-[2px_4px_0px_0px_#000301] p-10 2xl:w-full max-w-[1536px]">
-			<div className="LeftDiv flex flex-col lg:w-[75%] justify-between my-2">
+			<div className="LeftDiv flex flex-col lg:w-[75%] justify-between ">
 				<h1 className="ModUserName min-[0px]:text-xl md:text-3xl font-bold font-Nova uppercase">
 					{usr.user42}
 				</h1>
@@ -71,28 +104,30 @@ export default function ProfileDiv({ status, who, usr, func }: { status: Map<str
 									src={BlockPerson}
 									className="mt-2 mr-4 h-[32px] w-[32px]"
 									alt="Blocking a user"
+									onClick={RmFR}
 								></img>
 							) : (
 								<img
 									src={AddPerson}
 									className="mt-2 mr-4 lg:h-[2rem] lg:w-[2rem]"
 									alt="Adding a user"
+									onClick={addFR}
 								></img>
 							)}
 						</div>
 					) : null}
 				</div>
-				<div className="flex flex-col mt-2 box-border">
+				<div className="flex flex-col mt-2">
 					{status.get(usr.nickname) == "ONLINE" ? (
 						<p className="UserStatus text-sm sm:text-base lg:text-xl mt-2 mr-4 text-sucessColor font-extrabold font-Nova">
-							{usr.connection_state}
+							{status.get(usr.nickname)}
 						</p>
 					) : status.get(usr.nickname) == "OFFLINE" ? (
-						<p className="UserStatus text-xl mt-2 mr-4 text-ImperialRed font-extrabold font-Nova">
+						<p className="UserStatus text-xl mt-2 mr-4 text-PersianRed font-extrabold font-Nova">
 							{status.get(usr.nickname)}
 						</p>
 					) : (
-						<p className="UserStatus text-xl mt-2 mr-4 text-inGame font-extrabold font-Nova animate-pulse">
+						<p className="UserStatus text-xl mt-2 mr-4 text-InGame font-extrabold font-Nova animate-pulse">
 							{status.get(usr.nickname)}
 						</p>
 					)}
@@ -111,19 +146,26 @@ export default function ProfileDiv({ status, who, usr, func }: { status: Map<str
 								submit
 							</button>
 						</div>
-					) : (
-						<p className="min-[0px]:text-base md:text-xl text-[#959490] font-extrabold font-Nova my-8 italic capitalize">
+					) : usr.status ? (
+						<p className="truncate w-[30%] min-[0px]:text-base md:text-[21px] text-[#959490] font-extrabold font-Nova my-8 p-5 italic capitalize border-black border-solid border-2 shadow-[2px_4px_0px_0px_#000301]">
 							{usr.status}
+						</p>
+					) : (
+						<p className="w-[30%] min-[0px]:text-base md:text-[20px] text-[#959490] font-extrabold font-Nova my-8 p-4 italic capitalize border-black border-solid border-2 shadow-[2px_4px_0px_0px_#000301]">
+							No Status set
 						</p>
 					)}
 				</div>
 			</div>
 			<div className="RightDiv flex place-content-start lg:place-content-center w-[90%] lg:w-[40%] lg:m-auto py-6 lg:py-0">
-				<img
-					src={!usr || !usr.avatar ? Profil : usr.avatar}
-					className="border-4 min-[0px]:h-[12rem] lg:h-[14rem] min-[0px]:w-[12rem] lg:w-[14rem] xl:w-[16rem] xl:h-[16rem] border-black border-solid shadow-[2px_4px_0px_0px_#000301]"
-					alt="User profile picture"
-				></img>
+				<div>
+					{who ? <UploadTest /> : null}
+					<img
+						src={!usr || !usr.avatar ? Profil : usr.avatar}
+						className="border-4 min-[0px]:h-[12rem] lg:h-[14rem] min-[0px]:w-[12rem] lg:w-[14rem] xl:w-[16rem] xl:h-[16rem] border-black border-solid shadow-[2px_4px_0px_0px_#000301]"
+						alt="User profile picture"
+					></img>
+				</div>
 			</div>
 		</div>
 	);
