@@ -1,15 +1,17 @@
 
 
+PAUSE=pause unpause
+DETACH=d detach
+.DEFAULT_GOAL := all
 
-ifeq ($(filter kill pause exec start restart,$(firstword $(MAKECMDGOALS))),$(firstword $(MAKECMDGOALS)))
+ifeq ($(filter kill ${PAUSE} test exec start restart,$(firstword $(MAKECMDGOALS))),$(firstword $(MAKECMDGOALS)))
   NAME := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   $(eval $(NAME):;@:)
 endif
 
 
-DETACH=d detach
 
-all: build
+all: 
 	docker-compose up --build
 
 ${DETACH}:
@@ -20,14 +22,20 @@ kill:
 		docker kill ${NAME}
     endif
 	docker-compose down ${NAME}
-pause:
+
+${PAUSE}:
     ifneq ($(NAME),)
-		docker pause ${NAME}
+		docker $@ ${NAME}
     endif
-	docker-compose pause ${NAME}
+	docker-compose $@ ${NAME}
+
 
 backend: build
 	docker-compose  up backend --build
+	docker-compose  up pgadmin 
+
+front: build
+	docker-compose  up frontend --build
 	# docker-compose  up pgadmin -d 
 
 start: 
@@ -37,6 +45,12 @@ restart:
 
 build:
 	docker-compose build
+
+prisma:
+	docker-compose exec backend npx --yes prisma generate
+	-docker-compose exec  backend bash /code/prisma/seed/seed.sh
+	docker-compose exec  -d backend npx --yes prisma studio --port 5555 
+
 
 nocache:
 	docker-compose build --no-cache
@@ -51,6 +65,10 @@ exec:
 rebuild: 
 	docker-compose up --build
 
+clean:
+	-docker container prune -f
+	-docker volume rm -f  $(shell docker volume ls -q)
+
 ps:
 	echo  "\tcontainrs "
 	echo  "**************************************"
@@ -60,5 +78,5 @@ ps:
 	docker ps -q | wc -l
 
 
-.PHONY: backend kill exec
+.PHONY: backend kill exec prisma
 .SILENT: ps kill exec

@@ -2,219 +2,171 @@ import { ToastContainer, toast } from "react-toastify";
 import Navbar from "./components/Navbar";
 import SideBar from "./components/SideBar";
 import NotificationBar from "./components/notifbar/NotificationBar";
-import { useContext, useEffect, useState } from "react";
+import { ErrorInfo, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { currentUser, CurrentUser } from "./components/Context/AuthContext";
 import { log } from "console";
 import { ip } from "./network/ipaddr";
 import { SocketContext } from "./components/Context/SocketContext";
 import GameMain from "./components/game";
-import { BrowserRouter, Link, Route, RouterProvider, Routes, createBrowserRouter } from "react-router-dom";
+import Cookies from "js-cookie";
+
+import { BrowserRouter, Route, RouterProvider, Routes } from "react-router-dom";
 import Dashboard from "./components/Dashboard/Dashboard";
 import { SearchWindow } from "./Search/Search";
 import { use } from "matter-js";
-import { URL } from "url";
-import { UploadTest } from "./components/UploadComponent";
+import axios, { Axios } from "axios";
+import Loading from "./components/loading/loading";
+import Refreshinterval from "./components/refreshInterval/refreshInterval";
+import HomePage from "./components/HomePage/HomePage";
+import SettingBar from "./components/settingBar/settingBar";
+import QueueLoader from "./components/game/QueueLoader";
+import useRefreshinterval from "./components/refreshInterval/refreshInterval";
+import IUser from "./types/User";
 
-const getuser = (setuser:any)=>
-	{
-		fetch("http://" + ip + "3001/users",{ credentials: 'include'} ).then((data) => data.json()).then((data)=>{
-			let res = data.statusCode
-			if (res === undefined)
-			{
-				setuser(data)
-			}
-			else
-				toast.error(data.message)
-		}).catch((e)=> toast.error("user network error"))
-;
+// TODO: this is a temporary trqi3a
+
+
+interface AsyncRefreshtoken  {
+	setitems: React.Dispatch<any>;
+	item: any;
+	setIsLogin: React.Dispatch<React.SetStateAction<boolean>>;
+	userin : React.MutableRefObject<CurrentUser | null>;
+	islogin: boolean;
+
 }
+const asyncRefreshtoken = async ( prop : AsyncRefreshtoken)  => {
 
-const Signup = () => 
-{
-	const [username, setuser] = useState<string>("");
-	const [password, setPassword] = useState<string>("");
-
-	const setusername = (e: any) => setuser(e.target.value);
-	const setpass = (e: any) => setPassword(e.target.value);
-	const signup = async () => {
-	
-		const res = await fetch("http://" + ip + "3001/auth/local/signup", {
-			method: "POST"
-			, headers: { "Content-Type": "application/json" }
-			,  credentials: 'include'
-			, body: JSON.stringify({
-				user42: username,
-				password: password
-			})
-		}
-		).catch((e) => toast.error(e.message))
-	}
-
-
-	const submitQuery = async (e: any) => {
-		e.preventDefault();
-		await signup()
-	};
-	return (
-		<form>
-			sign up
-			<div className={`flex items-start h-fill`}>
-				<input
-					type="search"
-					id="search-dropdown"
-					onChange={setusername}
-					value={username}
-					placeholder="enter username."
-					required
-				></input>
-					<input
-					type="search"
-					id="search-dropdown"
-					onChange={setpass}
-					value={password}
-					
-					placeholder="enter password"
-					required
-				></input>
-				<button
-					onClick={submitQuery}
-				>
-					signin
-				</button>
-			</div>
-		</form>
-	);
-}
-
-const Signin = ({setUser} : {setUser: any}) => 
-{
-	const [username, setuser] = useState<string>("");
-	const [password, setPassword] = useState<string>("");
-
-	const setusername = (e: any) => setuser(e.target.value);
-	const setpass = (e: any) => setPassword(e.target.value);
-
-	const login = async () => {
-		const res = fetch("http://" + ip + "3001/auth/local/signin", {
-			method: "POST"
-			, headers: { "Content-Type": "application/json" }
-			,  credentials: 'include'
-			, body: JSON.stringify({
-				user42: username,
-				password: password
-			})
-		}
-		)
-		.catch((e) => toast.error(e.message))
-	}
-
-
-	const submitQuery = async (e: any) => {
-		e.preventDefault();
-		login()
-		getuser(setuser)
-	};
-	return (
-		<>
-		<button onClick={() => window.location.replace(`http://${ip}3001/auth/intra/login`)} className="btn btn-primary">intra</button>
-		<form>
-
-			signin
-			<div className={`flex items-start h-fill`}>
-				<input
-					type="search"
-					id="search-dropdown"
-					onChange={setusername}
-					value={username}
-					placeholder="enter username."
-					required
-					></input>
-					<input
-					type="search"
-					id="search-dropdown"
-					onChange={setpass}
-					value={password}
-					
-					placeholder="enter password"
-					required
-					></input>
-				<button
-					onClick={submitQuery}
-					>
-					login
-				</button>
-			</div>
-		</form>
-</>
-	);
-}
-
-// TODO: this is a temporary trqi3a 
-
-const router = createBrowserRouter([
-	{
-		path: '/',
-		element: <Dashboard />
-	},
-	{
-		path: "/game",
-		element: <GameMain />
-	}
-])
-
-
+	await axios
+							.post("http://wladnas.ddns.net:3001/auth/refresh", {}, { withCredentials: true })
+							.then((res) => {
+								prop.setitems(Cookies.get("userData"));
+								if (prop.item && prop.islogin) {
+									prop.userin.current = JSON.parse(prop.item).user;
+									// setuser(userin.current);
+								}
+								prop.setIsLogin(true);
+							})
+							.catch((err): any => {
+								// console.error("axios get refresh error:", err);
+								// toast.error("error : refresh token not found");
+							});
+} 
 const App = () => {
-	const [user, setuser] = useState<CurrentUser | null >(null)
-	const socket = useContext(SocketContext)
+	const userin = useRef<CurrentUser | null>(null);
+	const [user, setuser] = useState<CurrentUser | null>(null);
+	const [item, setitems] = useState<any>(null);
+	const [islogin, setIsLogin] = useState<boolean>(false);
+	const socket = useContext(SocketContext);
 	const [togglebar, settoglebar] = useState(0);
-	if (!user)
-	getuser(setuser)
-	if (user)
+	const [isLoading, setLoading] = useState(true);
+	const [status, setstatus] = useState<Map<string, string>>(new Map())
+	useEffect(() => {
+		setTimeout(() => {
+			setLoading(false);
+		}, 2500);
+	});
+	// this section to be moved out of this component
+	useEffect(()=> {socket.emit("ONNSTATUS", {"room": -1})},
+	[user])
+	socket.off("ON_STATUS").on("ON_STATUS", (usersstatus: IUser[]) => 
 	{
-		socket.connect()
+		
+		usersstatus.map((user:IUser)=> status.set(user.nickname, user.connection_state))
+		setstatus(new Map(status));
+		console.log("updateted status", status)
+	})
+// this section to be moved out of this component
+
+	useEffect(() => {
+		console.log("start");
+		const isLoggedIn = async () => {
+			const res = await fetch(`http://${ip}3001/users/isLogin`, { credentials: "include", method: "GET" })
+			.then(async (res) => {
+				if (!res.ok) {
+					
+						asyncRefreshtoken({setitems,item, setIsLogin,userin ,islogin})
+						throw new Error(`Error! status ${res.status}`);
+					}
+
+					setitems(Cookies.get("userData"));
+					if (item && islogin) {
+						userin.current = JSON.parse(item).user;
+						setuser(userin.current);
+					}
+					setIsLogin(true);
+				})
+				.catch((e) => console.log("hiiiii"));
+
+			console.log("finish");
+		};
+
+		isLoggedIn();
+	}, [islogin, item]);
+
+	useRefreshinterval();
+	if (userin.current && !user) {
+		setuser(userin.current);
+	}
+	if (userin.current) {
+		socket.connect();
+		socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."));
 	}
 
-	socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."))
+	console.log("status", status);
+	if (isLoading && window.location.pathname !== "/loading")
+		return (
+			<div className="flex justify-center items-center max-w-[1536px] h-[50rem] m-auto">
+				<QueueLoader />
+			</div>
+		);
 	return (
-		
-		<div className="h-screen">
+		<div>
 			<ToastContainer />
-			{user ?
-			<currentUser.Provider value={user}>
-				<UploadTest/>
-				<div className="h-full">
-				<BrowserRouter>
-					<Navbar />
-					{
-						(togglebar === 0 || togglebar === 1) ? 
-						<SideBar toogle={togglebar} settogle={settoglebar}/> :
-						<></>
-
-					}
-					{
-						(togglebar === 0 || togglebar === 2)?
-						<NotificationBar  toogle={togglebar} settogle={settoglebar}/>:
-						<></>
-
-					}
-					<Routes>
-						<Route path="/search"  element={<SearchWindow/>} />
-						<Route path="/" element={<Dashboard/>}/>
-						<Route path="/game" element={<GameMain/>}/>
-					</Routes>
-				</BrowserRouter >
-				</div>
-				</currentUser.Provider > :
-			 <>
-			 	<Signup  />
-			 	<Signin setUser={setuser} />
-			 </> 
+			{
+				<currentUser.Provider value={userin.current}>
+					<div>
+						<BrowserRouter>
+							{window.location.pathname !== "/loading" && (
+								<>
+									<Navbar />
+									{(togglebar === 0 || togglebar === 1) && userin.current ? (
+										<SideBar activity={status} toogle={togglebar} settogle={settoglebar} />
+									) : (
+										<></>
+									)}
+									{(togglebar === 0 || togglebar === 2) && userin.current ? (
+										<NotificationBar toogle={togglebar} settogle={settoglebar} />
+									) : (
+										<></>
+									)}
+									{(togglebar === 0 || togglebar === 3) && userin.current ? (
+										<SettingBar toogle={togglebar} settogle={settoglebar} />
+									) : (
+										<></>
+									)}
+								</>
+							)}
+							<Routes>
+								<Route path="/search" element={<SearchWindow />} />
+								{userin.current ? (
+									<Route path="/" element={<Dashboard  status={status}/>}>
+										<Route path="/profile" element={<Dashboard status={status}/>} />
+										<Route path="/profile/:nickname" element={<Dashboard status={status}/>} />
+									</Route>
+								) : (
+									<Route path="/" element={<HomePage />} />
+								)}
+								<Route path="/game" element={islogin ? <GameMain /> : <HomePage />} />
+								<Route path="/homepage" element={<HomePage />} />
+								<Route path="/loading" element={<Loading />} />
+								<Route path="/*" element={<HomePage />} />
+							</Routes>
+						</BrowserRouter>
+					</div>
+				</currentUser.Provider>
 			}
-			
 		</div>
-
 	);
 };
 
 export default App;
-

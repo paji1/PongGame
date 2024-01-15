@@ -10,20 +10,20 @@ type member_filler = {
 	nickname: string;
 	id: number;
 };
-export type member = {
-	id: number;
-	roomid: number;
-	permission: string;
-	isblocked: boolean;
-	ismuted: boolean;
-	isBanned: boolean;
-	created_at: Date;
+ export type member = {
+	id: number,
+	roomid:number,
+	permission:string,
+	isblocked:boolean,
+	ismuted:boolean,
+	isBanned:boolean,
+	created_at:Date,
 	user_id: member_filler;
 };
 
 export type room = {
-	messages: messages[];
-	preview: string;
+	messages: messages[],
+	preview: string,
 	id: number;
 	name: string;
 	roomtypeof: string;

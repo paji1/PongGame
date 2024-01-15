@@ -1,16 +1,30 @@
 import { Module } from "@nestjs/common";
 import { AuthController } from "./auth.controller";
-import { intraStrategy } from "./strategy";
+import { GoogleAuthenticatorStrategy, intraStrategy } from "./strategy";
 import { PassportModule } from "@nestjs/passport";
 import { AuthService } from "./auth.service";
 import { JwtModule, JwtService } from "@nestjs/jwt";
 
 import { AtStrategy, RtStrategy } from "./strategy";
 import { PrismaModule } from "src/prisma/prisma.module";
+import { UsersService } from "src/users/users.service";
+import { ItStrategy } from "./strategy/it.strategy";
+import { TwoFactorAuthService } from './two-factor-auth/two-factor-auth.service';
+import { FtStrategy } from "./strategy/tf.strategy";
 
 @Module({
 	imports: [PrismaModule, PassportModule, JwtModule.register({})],
 	controllers: [AuthController],
-	providers: [AuthService, AtStrategy, RtStrategy, intraStrategy],
+	providers: [
+		AuthService,
+		AtStrategy,
+		RtStrategy,
+		ItStrategy,
+		FtStrategy,
+		intraStrategy,
+		GoogleAuthenticatorStrategy,
+		UsersService,
+		TwoFactorAuthService,
+	],
 })
 export class AuthModule {}

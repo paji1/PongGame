@@ -5,11 +5,12 @@ import profileplaceholder from "../assets/profileplaceholder.png";
 import { useContext } from "react";
 import { currentUser, CurrentUser } from "./Context/AuthContext";
 import { toast } from "react-toastify";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const listItems = ["home", "about", "our-team", "button"].map((item: String, key: Number) =>
 	item === "button" ? (
 		<li className={`uppercase font-pixelify cursor-pointer py-2 h-auto`}>
-			<MainButton name={`Join us`} url={`test.com`} />
+			<MainButton name={`signin`} url={`test.com`} />
 		</li>
 	) : (
 		<li
@@ -21,7 +22,7 @@ const listItems = ["home", "about", "our-team", "button"].map((item: String, key
 				{item.replace("-", " ")}
 			</a>
 		</li>
-	),
+	)
 );
 
 interface isOpen {
@@ -32,9 +33,9 @@ const UnloggedNavBar: React.FC<isOpen> = (props) => (
 	<nav className={props.isOpen ? "flex" : "hidden md:flex"}>
 		<ul
 			className={`
-			flex bg-background absolute md:relative flex-col
-			md:flex-row w-full text-center items-center justify-content-center
-			top-9 left-0 md:top-0 md:flex
+			flex  absolute max-md:bg-DefaultColor max-md:z-10  md:relative max-md:flex-col
+			lg:flex-row w-full text-center items-center justify-content-center
+			top-9 left-0 lg:top-0 lg:flex gap-2
 		`}
 		>
 			{listItems}
@@ -63,6 +64,7 @@ const LoggedNavBar: React.FC<isOpen> = (props) => (
 
 const Navbar = () => {
 	const [isOpen, setIsOpen] = useState<Boolean>(false);
+	const navigate = useNavigate();
 
 	const toggleNavBar = () => {
 		setIsOpen(!isOpen);
@@ -75,14 +77,14 @@ const Navbar = () => {
 		container relative m-auto p-3 top-5 flex justify-between items-center border-b-2 border-solid
 		`}
 		>
-			<a
-				href="/"
+			<button
+				onClick={() => navigate('/')}
 				className={`
 				font-xl font-bold text-primary uppercase font-pixelify md:text-2xl text-xl
 				`}
 			>
 				Transcendence
-			</a>
+			</button>
 
 			{user ? <LoggedNavBar isOpen={isOpen} /> : <UnloggedNavBar isOpen={isOpen} />}
 

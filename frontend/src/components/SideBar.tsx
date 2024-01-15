@@ -17,7 +17,7 @@ import IUser from "../types/User";
 import { CreateRoom } from "./sidebar/CreateRoom";
 
 
-const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
+const SideBar = ({ activity , toogle, settogle }: {activity: Map<string, string> ,  toogle: number; settogle: any }) => {
 	const socket = useContext(SocketContext);
 	const user = useContext(currentUser);
 	const [isOpen, seIsOpen] = useState(false);
@@ -29,20 +29,7 @@ const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 	const [subscriberooms, setsubscriptrooms] = useState(false);
 	const [newAlert, setNewAlert] = useState(false);
 
-	socket.off("connect_error").on("connect_error" , () =>console.log("connect_error"))
-	socket.off("connect_failed").on("connect_failed" , () =>console.log("connect_failed"))
-
-// this section to be moved out of this component
-	const [status, setstatus] = useState<Map<string, string>>(new Map())
-	useEffect(()=> {socket.emit("ONNSTATUS", {"room": -1})},[subscriberooms])
-	socket.off("ON_STATUS").on("ON_STATUS", (usersstatus: IUser[]) => 
-	{
-		
-		usersstatus.map((user:IUser)=> status.set(user.nickname, user.connection_state))
-		setstatus(new Map(status));
-		console.log("updateted status", status)
-	})
-// this section to be moved out of this component
+	console.log("socket is here", socket)
 
 
 
@@ -104,12 +91,12 @@ const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 			);
 		switch (searchSelection) {
 			case 0:
-				return <SideBarItemFilter status={status} rooms={roomsState} query={searchText} roomselector={setChatSelector} />;
+				return <SideBarItemFilter status={activity} rooms={roomsState} query={searchText} roomselector={setChatSelector} />;
 			case 1:
-				return <SideBarItemFilter status={status} rooms={friendroom} query="" roomselector={setChatSelector} />;
+				return <SideBarItemFilter status={activity} rooms={friendroom} query="" roomselector={setChatSelector} />;
 			case 2:
 				return (
-						<SideBarItemFilter status={status} rooms={grouproom} query="" roomselector={setChatSelector} />);
+						<SideBarItemFilter status={activity} rooms={grouproom} query="" roomselector={setChatSelector} />);
 		}
 	};
 	return (

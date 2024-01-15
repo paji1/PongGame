@@ -25,6 +25,7 @@ export class GameController {
 	}
 
 	@Get(':id')
+
 	async findOne(@Param('id') id: string) {
 		const game = await this.gameService.findOne(id);
 		return game
@@ -43,6 +44,7 @@ export class GameController {
 	}
 
 	@Delete(':id')
+
 	remove(@Param('id') id: string) {
 		return this.gameService.remove(id);
 	}

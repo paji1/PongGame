@@ -28,6 +28,7 @@ export class AppGateway {
 	server :Server;
  	async handleConnection(client) {
 		client.emit("HANDSHAKE", "chkon m3aya")
+		console.log("dhsbhdbhabscdhjalsbjcbdsjvbchjdfsvjfnjvcklc")
 	}
 	
 	

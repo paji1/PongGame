@@ -1,5 +1,2 @@
-const add = "10.12.8.1";
-
-
-
-export const ip = `${add}:`;
+const add ="wladnas.ddns.net"
+export const ip= `${add}:`
