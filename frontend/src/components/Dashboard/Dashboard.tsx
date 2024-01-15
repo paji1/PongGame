@@ -85,7 +85,7 @@ const useGetUserdata = async (setdashstate: any, nickname: string | undefined) =
 	}, [nickname]);
 };
 
-export default function Dashboard() {
+export default function Dashboard( {status}: {status : Map <string, string>} ) {
 	const user = useContext(currentUser);
 	const [dashstate, setdashstate] = useState<IUser | null>(null);
 	const [gladder, setgladder] = useState<IUser[] | null>(null);
@@ -109,7 +109,7 @@ export default function Dashboard() {
 	if (dashstate === null || user == undefined || setfladder === null) return <></>;
 	return (
 		<div className="flex flex-col gap-y-16 mt-16">
-			<ProfileDiv who={who} usr={dashstate} func={setdashstate} />
+			<ProfileDiv  status={status} who={who} usr={dashstate} func={setdashstate} />
 			<Carousel achivments={trophydata} />
 			<Stats History={gamesdata} />
 			{who ? <Ladder GLadder={gladder} FLadder={fladder} /> : null}

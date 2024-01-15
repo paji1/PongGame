@@ -13,7 +13,6 @@ export const update = (
 	setchatState: any,
 	user: CurrentUser | null,
 ) => {
-	console.log("updater", data)
 	if (!user) return;
 	if (data.region === "CHAT" && chatState && roomsState) {
 		var newchatState = chatState.slice();

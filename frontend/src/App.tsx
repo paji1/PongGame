@@ -21,6 +21,7 @@ import HomePage from "./components/HomePage/HomePage";
 import SettingBar from "./components/settingBar/settingBar";
 import QueueLoader from "./components/game/QueueLoader";
 import useRefreshinterval from "./components/refreshInterval/refreshInterval";
+import IUser from "./types/User";
 
 // TODO: this is a temporary trqi3a
 
@@ -58,11 +59,23 @@ const App = () => {
 	const socket = useContext(SocketContext);
 	const [togglebar, settoglebar] = useState(0);
 	const [isLoading, setLoading] = useState(true);
+	const [status, setstatus] = useState<Map<string, string>>(new Map())
 	useEffect(() => {
 		setTimeout(() => {
 			setLoading(false);
 		}, 2500);
 	});
+	// this section to be moved out of this component
+	useEffect(()=> {socket.emit("ONNSTATUS", {"room": -1})},
+	[user])
+	socket.off("ON_STATUS").on("ON_STATUS", (usersstatus: IUser[]) => 
+	{
+		
+		usersstatus.map((user:IUser)=> status.set(user.nickname, user.connection_state))
+		setstatus(new Map(status));
+		console.log("updateted status", status)
+	})
+// this section to be moved out of this component
 
 	useEffect(() => {
 		console.log("start");
@@ -99,6 +112,7 @@ const App = () => {
 		socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."));
 	}
 
+	console.log("status", status);
 	if (isLoading && window.location.pathname !== "/loading")
 		return (
 			<div className="flex justify-center items-center max-w-[1536px] h-[50rem] m-auto">
@@ -116,7 +130,7 @@ const App = () => {
 								<>
 									<Navbar />
 									{(togglebar === 0 || togglebar === 1) && userin.current ? (
-										<SideBar toogle={togglebar} settogle={settoglebar} />
+										<SideBar activity={status} toogle={togglebar} settogle={settoglebar} />
 									) : (
 										<></>
 									)}
@@ -135,9 +149,9 @@ const App = () => {
 							<Routes>
 								<Route path="/search" element={<SearchWindow />} />
 								{userin.current ? (
-									<Route path="/" element={<Dashboard />}>
-										<Route path="/profile" element={<Dashboard />} />
-										<Route path="/profile/:nickname" element={<Dashboard />} />
+									<Route path="/" element={<Dashboard  status={status}/>}>
+										<Route path="/profile" element={<Dashboard status={status}/>} />
+										<Route path="/profile/:nickname" element={<Dashboard status={status}/>} />
 									</Route>
 								) : (
 									<Route path="/" element={<HomePage />} />

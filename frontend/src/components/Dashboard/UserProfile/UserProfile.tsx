@@ -24,7 +24,7 @@ const useGetFrienshipsStatus = async (setisFriend: any, dashstate: IUser) => {
 		console.error("Error fetching data:", error);
 	}
 };
-export default function ProfileDiv({ who, usr, func }: { who: Boolean; usr: IUser; func: any }) {
+export default function ProfileDiv({ status, who, usr, func }: { status: Map<string, string> , who: Boolean; usr: IUser; func: any }) {
 	const [postContent, setPostContent] = useState("");
 	const [isFriend, setisFriend] = useState<boolean>(false);
 	const updateStatus = async () => {
@@ -49,6 +49,8 @@ export default function ProfileDiv({ who, usr, func }: { who: Boolean; usr: IUse
 	};
 
 	useGetFrienshipsStatus(setisFriend, usr);
+	console.log("nicknameeee", usr.nickname) 
+	console.log("9alwaaa",status.get(usr.nickname) )
 
 	return (
 		<div className="ProfileDiv Ft min-[0px]:mx-5 2xl:m-auto flex min-[0px]:flex-col-reverse lg:flex-row border-solid border-4 border-black shadow-[2px_4px_0px_0px_#000301] p-10 2xl:w-full max-w-[1536px]">
@@ -81,17 +83,17 @@ export default function ProfileDiv({ who, usr, func }: { who: Boolean; usr: IUse
 					) : null}
 				</div>
 				<div className="flex flex-col mt-2 box-border">
-					{usr.connection_state == "ONLINE" ? (
+					{status.get(usr.nickname) == "ONLINE" ? (
 						<p className="UserStatus text-sm sm:text-base lg:text-xl mt-2 mr-4 text-sucessColor font-extrabold font-Nova">
 							{usr.connection_state}
 						</p>
-					) : usr.connection_state == "OFFLINE" ? (
+					) : status.get(usr.nickname) == "OFFLINE" ? (
 						<p className="UserStatus text-xl mt-2 mr-4 text-ImperialRed font-extrabold font-Nova">
-							{usr.connection_state}
+							{status.get(usr.nickname)}
 						</p>
 					) : (
 						<p className="UserStatus text-xl mt-2 mr-4 text-inGame font-extrabold font-Nova animate-pulse">
-							{usr.connection_state}
+							{status.get(usr.nickname)}
 						</p>
 					)}
 					{who ? (
