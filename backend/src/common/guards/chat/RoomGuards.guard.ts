@@ -1,8 +1,8 @@
 import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus, } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { user_permission, roomtype } from "@prisma/client";
 import { Console } from "console";
-import { Request } from "express";
 import { JwtPayloadWithRt } from "src/auth/types";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Roomstattypes } from "src/types.ts/statustype";
@@ -12,6 +12,7 @@ export class RoomGuard implements CanActivate {
 	constructor(
 		private reflect: Reflector,
 		private readonly prisma: PrismaService,
+        private readonly events: EventEmitter2
 	) {}
 	async canActivate(context: ExecutionContext) {
 		
@@ -29,8 +30,7 @@ export class RoomGuard implements CanActivate {
 			context.getClass(),
 		]);
         const key : keyof JwtPayloadWithRt | undefined = "sub";
-        var request : Request = context.switchToHttp().getRequest();
-        
+        var request = context.switchToHttp().getRequest();
 
         const UserId = request.user[key];
         const key2 : keyof JwtPayloadWithRt | undefined = "user42";
@@ -40,20 +40,19 @@ export class RoomGuard implements CanActivate {
         {
             context.switchToWs().getClient().request.headers["user"] = request.user[key2];
             roomid = context.switchToWs().getData().room;
-            // console.log(context.switchToWs().getData())
+            console.log("hona",context.switchToWs().getData(), userState)
         }
         else
             roomid = +request.query["room"]
-        console.log("room guard debug: <<", request.user, reqType, roomid ,">>")
 
-
+        const now = new Date()
+        console.log("from room guard date is ", now.getTime(), "room id is", roomid )
         if (typeof types !== "undefined")
         {
             
                 if (Number.isNaN(roomid))
                     return false;
                 const frdbroom = await this.prisma.rooms.findUnique({where: { id: roomid },});
-                // console.log(roomid)
                 if (!frdbroom)
                 {
                     if(reqType==="ws")
@@ -93,14 +92,48 @@ export class RoomGuard implements CanActivate {
                         throw new HttpException("room doesnt exist3", HttpStatus.BAD_REQUEST)
                     return false;
                 }
+            
                 if (typeof userState !== "undefined" )
                 {
                     if (membership.isblocked && userState.includes(Roomstattypes.NOTBLOCK))
+                    {
                         return false
-                    if (membership.isBanned && userState.includes(Roomstattypes.NOTBAN))
+                    }
+                    if (membership.isBanned && userState.includes(Roomstattypes.NOTBAN) && Object.keys(context.switchToWs().getData()).length > 1)
+                    {
+                        if(reqType==="ws")
+                            context.switchToWs().getClient().emit("ChatError", "your banned from thi room")
                         return false
+                    }
                     if (membership.ismuted && userState.includes(Roomstattypes.NOTMUTE))
+                    {
+                        console.log((new Date()).getTime() - membership.mutetime.getTime() - 60000)
+                        if (((new Date()).getTime() - membership.mutetime.getTime() - 60000) > 0)
+                        {
+                            console.log("unmuted")
+                            const newres = await this.prisma.rooms_members.update({where:{id: membership.id},data: {ismuted:false, mutetime:null}, select: {
+                                id: true,
+                                roomid: true,
+                                permission: true,
+                                isblocked: true,
+                                isBanned: true,
+                                ismuted: true,
+                                created_at: true,
+                                user_id: {
+                                    select: {
+                                        id: true,
+                                        nickname: true,
+                                        avatar: true,
+                                    },
+                                },
+                            },})
+                            this.events.emit("AUTOUNMUTE", membership.roomid, newres);
+                            return true;
+                        }
+                        if(reqType==="ws")
+                            context.switchToWs().getClient().emit("ChatError", "you are muted")
                         return false
+                    }
                 }
             }
             return true ;

@@ -2,58 +2,62 @@ import React, { useContext } from "react";
 import { room } from "../../types/room";
 import FriendItem from "./FriendsItem";
 import GroupItem from "./GroupItem";
-import { toast } from "react-toastify";
 import { currentUser } from "../Context/AuthContext";
 
 const SideBarItemFilter = ({
+	status,
 	rooms,
 	query,
 	roomselector,
-	
 }: {
+	status: Map<string, string>
 	rooms: room[] | null;
 	query: string;
 	roomselector: any;
 }) => {
 	const user = useContext(currentUser);
-	let i = 0;
-	if (!Array.isArray(rooms)) return <>empty</>;
+	if (!Array.isArray(rooms))
+		return null;
 	var list;
 	if (rooms) {
+		console.log(rooms)
 		if (query.length) {
 			list = rooms.map((ob: room, index: number) => {
 				let group = ob.name.toLowerCase();
-
-				let name =
-					ob.rooms_members[0].user_id.id === user?.id
+				console.log("mappin" ,index,  ob);
+				if (ob.roomtypeof === "chat" )
+					{
+						let name =
+					 ob.rooms_members[0]?.user_id.id === user?.id
 						? ob.rooms_members[1].user_id.nickname.toLowerCase()
 						: ob.rooms_members[0].user_id.nickname.toLowerCase();
-
-				if (ob.roomtypeof === "chat" && name.includes(query.toLowerCase()))
-					return (
-						<FriendItem key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />
-					);
+						if ( name.includes(query.toLowerCase()))
+							return (
+							<FriendItem status={status} key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />);
+				}
 				else if (ob.roomtypeof !== "chat" && group.includes(query.toLowerCase())) {
 					return (
 						<GroupItem key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />
 					);
-				} else i++;
+				}
+				return <></>;
 			});
 		} else {
 			list = rooms.map((ob: room, index: number) => {
 				if (ob.roomtypeof === "chat")
 					return (
-						<FriendItem key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />
+						<FriendItem status={status} key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />
 					);
 				return <GroupItem key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />;
 			});
 		}
 	}
 	return (
-		<div className="border-solid border-white border-2 flex h-full flex-col flex-auto gap-2 overflow-y-scroll">
+		<div className=" mt-2 flex h-full  flex-col flex-auto gap-4 overflow-y-scroll">
 			{list}
 		</div>
 	);
 };
+
 
 export default SideBarItemFilter;

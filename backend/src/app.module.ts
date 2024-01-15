@@ -11,6 +11,7 @@ import { AppGateway } from "./app.gateway";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { JwtModule } from "@nestjs/jwt";
 import { ProfileModule } from "./profile/profile.module";
+import { RepositoryModule } from "./repository/repository.module";
 
 @Module({
 	imports: [
@@ -22,7 +23,8 @@ import { ProfileModule } from "./profile/profile.module";
 		AuthModule,
 		UsersModule,
 		InviteModule,
-		ProfileModule
+		ProfileModule,
+		RepositoryModule
 	],
 
 	providers: [

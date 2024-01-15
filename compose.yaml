@@ -29,6 +29,7 @@
         - 5555:5555
       volumes:
         - ./backend/src:/code/src:rw
+        - ./backend/FileRepository:/code/FileRepository:rw
         - ./backend/prisma:/code/prisma:rw
         - ./backend/prisma/migrations:/code/prisma/migrations:rw
         - back-notused:/opt/app/node_modules

@@ -3,23 +3,23 @@ import { ToggleSidBar } from "./sidebar/ToggleSidBar";
 import { HoverDiv } from "./Common";
 import ChatSearchBar from "./sidebar/ChatSearchBar";
 import SideBarItemFilter from "./sidebar/SideBarItemFilter";
-import { member, room } from "../types/room";
+import {  room } from "../types/room";
 import useRooms from "../hooks/useRooms";
 import ChatBar from "./sidebar/ChatBar";
-import { messages, roommessages } from "../types/messages";
+import { roommessages } from "../types/messages";
 import useMessages from "../hooks/useMessages";
 import { SocketContext } from "./Context/SocketContext";
 import { toast } from "react-toastify";
-import { backendretun } from "../types/backendreturn";
-import { ip } from "../network/ipaddr";
 import { update } from "./sidebar/updater";
 import { currentUser } from "./Context/AuthContext";
-import {  Socket} from 'socket.io-client';
+import { Socket } from "socket.io-client";
+import IUser from "../types/User";
+import { CreateRoom } from "./sidebar/CreateRoom";
 
 
-const SideBar = ({toogle, settogle} : {toogle:number, settogle:any}) => {
+const SideBar = ({ toogle, settogle }: { toogle: number; settogle: any }) => {
 	const socket = useContext(SocketContext);
-	const user = useContext(currentUser)
+	const user = useContext(currentUser);
 	const [isOpen, seIsOpen] = useState(false);
 	const [searchSelection, setSearchSelection] = useState(1);
 	const [searchText, setSearchText] = useState("");
@@ -27,55 +27,69 @@ const SideBar = ({toogle, settogle} : {toogle:number, settogle:any}) => {
 	const [roomsState, setRoomsState] = useState<room[] | null>(null);
 	const [chatState, setChatState] = useState<roommessages[] | null>(null);
 	const [subscriberooms, setsubscriptrooms] = useState(false);
-	const [newAlert, setNewAlert] = useState(false)
+	const [newAlert, setNewAlert] = useState(false);
 
-	
-	socket.off("connect").on("connect",() => setsubscriptrooms(!subscriberooms))
+	console.log("socket is here", socket)
+
+// this section to be moved out of this component
+	const [status, setstatus] = useState<Map<string, string>>(new Map())
+	useEffect(()=> {socket.emit("ONNSTATUS", {"room": -1})},[subscriberooms])
+	socket.off("ON_STATUS").on("ON_STATUS", (usersstatus: IUser[]) => 
+	{
+		
+		usersstatus.map((user:IUser)=> status.set(user.nickname, user.connection_state))
+		setstatus(new Map(status));
+		console.log("updateted status", status)
+	})
+// this section to be moved out of this component
+
+
+
+	console.log("roomstate", roomsState,  "chatstate", chatState)
 	const friendroom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof === "chat") : null;
 	const grouproom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof !== "chat") : null;
 	useMessages(false, setChatState);
 	useRooms(false, setRoomsState);
-	useEffect(()=> {	
-		roomsState?.map((ob:room) => socket.emit("ROOMSUBSCRIBE", {room:ob.id}))
-	}, [roomsState, subscriberooms])
+	
+	useEffect(() => {
+		if ( Array.isArray(roomsState))
+			roomsState?.map((ob: room) => socket.emit("ROOMSUBSCRIBE", { room: ob.id }));
+	}, [roomsState,  subscriberooms, socket]);
+
 	const currentchat = Array.isArray(chatState) ? chatState.find((ob: roommessages) => ob.id === chatSelector) : null;
 	const currentroom = Array.isArray(roomsState) ? roomsState.find((ob: room) => ob.id === chatSelector) : null;
-	socket.off("ACTION").on("ACTION", (data) => 
-	{
-		update(data, roomsState, setRoomsState, chatState, setChatState, user) ;
-		if (data.region == "CHAT" && data.action ==  "NEW")
-			setNewAlert(true)
-	})
-	socket.off("ChatError").on("ChatError", (data) => toast.error(data));
-	socket.off("NOTIFY").on("NOTIFY", (data) => {toast(data)});
-	
-	const pajination = (message: roommessages) =>
-	{
-		if (chatState === null)
-			return ;
-		const newstate = chatState.slice();
-		
-		const roomessg = newstate.find((on:roommessages) => on.id === message.id);
-		const index = newstate.findIndex((on:roommessages) => on.id === message.id);
+	socket.off("connect").on("connect", () => setsubscriptrooms(!subscriberooms));
+	socket.off("ACTION").on("ACTION", (data) => {
+		console.log("incomin sokcet data" , data)
 
-		if (roomessg === undefined)
-			{
-				return;
-			}
+		update(data, roomsState, setRoomsState, chatState, setChatState, user);
+		if (data.region === "CHAT" && data.action === "NEW") setNewAlert(true);
+	});
+	socket.off("ChatError").on("ChatError", (data) => toast.error(data));
+	socket.off("NOTIFY").on("NOTIFY", (data) => {
+		toast(data);
+	});
+
+	const pajination = (message: roommessages) => {
+		if (chatState === null) return;
+		const newstate = chatState.slice();
+
+		const roomessg = newstate.find((on: roommessages) => on.id === message.id);
+		const index = newstate.findIndex((on: roommessages) => on.id === message.id);
+
+		if (roomessg === undefined) {
+			return;
+		}
 		roomessg.messages = roomessg.messages.concat(message.messages);
 		newstate[index] = roomessg;
 		setChatState(newstate);
-	} 
+	};
 	const toggleChatBar = () => {
-		
-			seIsOpen(!isOpen)
-			if (!isOpen)
-			settogle(1);
-			else
-			settogle(0);
-			newAlert ? setNewAlert(!newAlert) : setNewAlert(newAlert)
-
-	}
+		seIsOpen(!isOpen);
+		if (!isOpen) settogle(1);
+		else settogle(0);
+		newAlert ? setNewAlert(!newAlert) : setNewAlert(newAlert);
+	};
 	const RenderOption = () => {
 		if (chatSelector !== -1)
 			return (
@@ -89,22 +103,18 @@ const SideBar = ({toogle, settogle} : {toogle:number, settogle:any}) => {
 			);
 		switch (searchSelection) {
 			case 0:
-				return <SideBarItemFilter rooms={roomsState} query={searchText} roomselector={setChatSelector} />;
+				return <SideBarItemFilter status={status} rooms={roomsState} query={searchText} roomselector={setChatSelector} />;
 			case 1:
-				return <SideBarItemFilter rooms={friendroom} query="" roomselector={setChatSelector} />;
+				return <SideBarItemFilter status={status} rooms={friendroom} query="" roomselector={setChatSelector} />;
 			case 2:
 				return (
-					<>
-						<CreateRoom socket={socket}/>
-						<SideBarItemFilter rooms={grouproom} query="" roomselector={setChatSelector} />
-					</>
-				);
+						<SideBarItemFilter status={status} rooms={grouproom} query="" roomselector={setChatSelector} />);
 		}
 	};
 	return (
 		<>
 			{isOpen && <HoverDiv toggleChatBar={toggleChatBar} />}
-			
+
 			<ToggleSidBar isOpen={isOpen} isNewAlert={newAlert} setIsOpen={toggleChatBar} />
 
 			<section
@@ -150,61 +160,13 @@ const SideBar = ({toogle, settogle} : {toogle:number, settogle:any}) => {
 							<h3 className="flex items-center justify-center h-full">Chat rooms</h3>
 						</div>
 					</div>
-
-					<div className={`flex-1 min-h-[100px] border-solid border-blue-500 border-2`}>{RenderOption()}</div>
+						{searchSelection === 2  && chatSelector === -1?<CreateRoom socket={socket} /> : null}
+					<div className={`flex-1 min-h-[100px]  justify-center `}>
+						{RenderOption()}
+						</div>
 				</div>
 			</section>
 		</>
-	);
-};
-
-const CreateRoom = ({socket}: {socket: Socket}) => {
-	const [clicked, click] = useState(false);
-	const [type, setType] = useState("public");
-	const [password, setPassword] = useState("");
-	const [name, setName] = useState("");
-	if (type !== "protected" && password.length) setPassword("");
-	if (!clicked) return <button onClick={() => click(true)}>Create new Room</button>;
-	const createRoom = (e: any) => {
-		e.preventDefault();
-		const roomform = {
-			room:-1,
-			password: password,
-			name: name,
-			type: type,
-		};
-		
-		socket.emit("CREATE", roomform)
-		setPassword("");
-		setName("");
-		setType("public");
-		click(false);
-	};
-	return (
-		<form className="flex flex-col">
-			<div className="flex flex-row">
-				<div className="flex flex-row">
-					<p>name</p>
-					<input onChange={(e) => setName(e.target.value)} placeholder="type a name" type="text"></input>
-				</div>
-				<p>RoomType</p>
-				<select onChange={(e) => setType(e.target.value)}>
-					<option value="public">public</option>
-					<option value="protected">protected</option>
-					<option value="private">private</option>
-				</select>
-			</div>
-			{type === "protected" ? (
-				<div className="flex flex-row">
-					<p>Password</p>
-					<input onChange={(e) => setPassword(e.target.value)} placeholder="***" type="password"></input>
-				</div>
-			) : (
-				<></>
-			)}
-			<button onClick={createRoom}> Create </button>
-			<button onClick={() => click(false)}>dismiss</button>
-		</form>
 	);
 };
 

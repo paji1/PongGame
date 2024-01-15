@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from "../prisma/prisma.service";
 import { RoomsService } from '../chat/rooms/rooms.service'
 import { actionstatus, invitetype } from '@prisma/client';
 import { REFUSED } from 'dns';
 import { use } from 'passport';
+import { http } from 'winston';
 
 @Injectable()
 export class InviteService {
@@ -67,26 +68,37 @@ export class InviteService {
     async InviteFriend(user:number, friend:number)
     {
         const res = await this.prisma.$transaction(async ( trx) => {
-            const control = await trx.friendship.findMany(
-                {
-                where:{
-                    
-                    OR:
-                    [
-                        {
-                            reciever: user,
-                            initiator: friend
-                        }
-                        ,
+            const friendship = await trx.friendship.findMany({
+                   where:{
+                        OR:[
+                            {
+                                initiator:user,
+                                reciever:friend
+                            },
+                            {
+                                initiator:friend,
+                                reciever:user,
+                            }
+                        ]
+                    }
+                })
+                const pending = await trx.invites.findMany({
+                    where:{
+                        OR:[
+                            {
+                                issuer:user,
+                                reciever:friend
+                            },
+                            {
+                                issuer:friend,
+                                reciever:user,
+                            }
+                        ],
+                        status: 'pending',
+                    }
+                })
 
-                        {
-                            reciever: friend,
-                            initiator: user
-                        },
-
-                    ]
-                }})
-                if (control.length)
+                if (friendship.length ||  pending.length)
                     return null
             return await trx.invites.create({data:{type: invitetype.Friend,status: actionstatus.pending,issuer:user,reciever:friend,}, 
                 select:
@@ -125,8 +137,28 @@ export class InviteService {
         })
         return res;
     }
-    async RemoveFriend()
+    async RemoveFriend(user: number, friend: number)
     {
+        const control = await this.prisma.friendship.deleteMany({
+            where:{
+                OR:
+                [
+                    {
+                        initiator:user,
+                        reciever:friend
+                    },
+                    {
+                        initiator:friend,
+                        reciever:user
+                    }
+                ],
+                status: 'DEFAULT'
+            }
+
+        })
+        if (!control)
+            throw new HttpException('if blocked resolve it first, else try  to be friends first', 400);
+        return control;
 
     }
 
@@ -156,9 +188,10 @@ export class InviteService {
                     select:
                     {
                         id:true,
-                        nickname:true,
                         user42:true,
-                        avatar:true
+                        nickname:true,
+                        avatar:true,
+                        connection_state:true
                     },
                 },
                 reciever_id:
@@ -168,6 +201,8 @@ export class InviteService {
                         id:true,
                         user42:true,
                         nickname:true,
+                        avatar:true,
+                        connection_state:true,
                     }
                 },
                 room_id: {

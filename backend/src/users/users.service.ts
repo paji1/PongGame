@@ -41,22 +41,8 @@ export class UsersService {
 		if (!data) throw new HttpException("failed to fetch user", HttpStatus.BAD_REQUEST);
 		return data;
 	}
-	async getUser42(user42: string) {
-		const data = await this.prisma.user.findUnique({
-			where: { user42: user42 },
-			select: {
-				id: true,
-				user42: true,
-				nickname: true,
-				avatar: true,
-				status: true,
-			},
-		});
-		if (!data) throw new HttpException("failed to fetch user", HttpStatus.BAD_REQUEST);
-		return data;
-	}
 	//   async validate_user()
-
+	
 	async getusersbyname(user: number, name: string) {
 		return await this.prisma.user.findMany({
 			where: {
@@ -71,7 +57,21 @@ export class UsersService {
 			},
 		});
 	}
-
+	
+	async getUser42(user42: string) {
+		const data = await this.prisma.user.findUnique({
+			where: { user42: user42 },
+			select: {
+				id: true,
+				user42: true,
+				nickname: true,
+				avatar: true,
+				status: true,
+			},
+		});
+		if (!data) throw new HttpException("failed to fetch user", HttpStatus.BAD_REQUEST);
+		return data;
+	}
 	async is_login(@Req() req: Request, @Res() res: Response): Promise<boolean> {
 		if (!req.cookies.atToken) throw new UnauthorizedException();
 

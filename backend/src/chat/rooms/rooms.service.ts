@@ -56,6 +56,7 @@ export class RoomsService {
 			throw new Error("please provide a better password");
 		if (Room.type !== roomtype.protected) Room.password = "";
 		if (Room.type === roomtype.protected) Room.password = createHash("sha256").update(Room.password).digest("hex");
+		console.log("nigga hi");
 		try {
 			const result = await this.prisma.$transaction(async (trx) => {
 				const newroom = await trx.rooms.create({
@@ -106,9 +107,10 @@ export class RoomsService {
 	 *
 	 */
 	async modify_room(Requester: number, room: number, Room: RoomDto) {
-		if (Room.type === roomtype.chat) throw new HttpException("Action Not Allowed", HttpStatus.BAD_GATEWAY);
+		console.log("wslat lhna");
+		if (Room.type === roomtype.chat) throw new Error("Action Not Allowed");
 		if (Room.type === roomtype.protected && Room.password.length < 9)
-			throw new HttpException("please provide a better password", HttpStatus.BAD_REQUEST);
+			throw new Error("please provide a better password");
 		if (Room.type !== roomtype.protected) Room.password = "";
 		if (Room.type === roomtype.protected) Room.password = createHash("sha256").update(Room.password).digest("hex");
 
@@ -127,6 +129,7 @@ export class RoomsService {
 					updated_at: true,
 				},
 			});
+
 			return result;
 		} catch (e) {
 			return null
@@ -161,11 +164,11 @@ export class RoomsService {
 			where: { id: room },
 		});
 		if (validate.roomtypeof !== Room.type)
-		throw new HttpException("Nigga  one migga two nigga three", HttpStatus.UNAUTHORIZED);
+			throw new Error("Nigga  one migga two nigga three");
 		if (Room.type === roomtype.protected && Room.password.length > 6)
 		Room.password = createHash("sha256").update(Room.password).digest("hex");
 		if (Room.type === roomtype.public) Room.password = "";
-		if (Room.password !== validate.roompassword) throw new HttpException("Wrong Password", HttpStatus.UNAUTHORIZED);
+		if (Room.password !== validate.roompassword) throw new Error("Wrong Password");
 		try {
 			const res = await this.prisma.rooms_members.create({
 				data: {
@@ -260,6 +263,11 @@ export class RoomsService {
 					isBanned: true,
 					ismuted: true,
 					created_at: true,
+					rooms:{
+						select:{
+							name:true,
+						}
+					},
 					user_id: {
 						select: {
 							id: true,
@@ -314,13 +322,10 @@ export class RoomsService {
 							isblocked:true,
 						}
 					})
-					return await  trx.rooms_members.findUnique({
+					return await  trx.rooms_members.findMany({
 						where: {
-							combination:
-							{
-								roomid:roomtarget,
-								userid:targeted,
-							}
+							roomid:roomtarget,
+							permission: "chat",
 						},
 						select: {
 							id: true,
@@ -334,6 +339,7 @@ export class RoomsService {
 								select: {
 									id: true,
 									nickname: true,
+									user42:true,
 									avatar: true,
 								},
 							},
@@ -382,13 +388,10 @@ export class RoomsService {
 							isblocked:false,
 						}
 					})
-					return await  trx.rooms_members.findUnique({
+					return await  trx.rooms_members.findMany({
 						where: {
-							combination:
-							{
-								roomid:roomtarget,
-								userid:targeted,
-							}
+							roomid:roomtarget,
+							permission: "chat",
 						},
 						select: {
 							id: true,
@@ -402,7 +405,9 @@ export class RoomsService {
 								select: {
 									id: true,
 									nickname: true,
+									user42:true,
 									avatar: true,
+									connection_state:true
 								},
 							},
 						},
@@ -444,6 +449,7 @@ export class RoomsService {
 							id: true,
 							nickname: true,
 							avatar: true,
+							user42:true,
 						},
 					},
 				},
@@ -473,6 +479,7 @@ export class RoomsService {
 				},
 				data: {
 					ismuted: true,
+					mutetime: new Date(),
 				},
 				select: {
 					id: true,
@@ -516,6 +523,7 @@ export class RoomsService {
 				},
 				data: {
 					ismuted: false,
+					mutetime: null,
 				},
 				select: {
 					id: true,
@@ -652,6 +660,10 @@ export class RoomsService {
 					isblocked: true,
 					isBanned: true,
 					ismuted: true,
+					rooms:
+					{
+						select:{name:true},
+					},
 					created_at: true,
 					user_id: {
 						select: {
@@ -693,6 +705,11 @@ export class RoomsService {
 					isBanned: true,
 					ismuted: true,
 					created_at: true,
+					rooms:{
+						select:{
+							name:true,
+						}
+					},
 					user_id: {
 						select: {
 							id: true,
@@ -909,6 +926,7 @@ export class RoomsService {
                 type:true,
                 created_at:true,
                 status:true,
+				
                 issuer_id:
                 {
                     select:

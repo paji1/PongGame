@@ -1,11 +1,10 @@
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { ChatService } from "./chat.service";
 import { user_permission, roomtype } from "@prisma/client";
-import { RoomDto, MessageDto } from "../Dto/rooms.dto";
+import { RoomDto } from "../Dto/rooms.dto";
 import { RoomPermitions } from "src/common/decorators/RoomPermitions.decorator";
 import { RoomType } from "src/common/decorators/RoomType.decorator";
-import { IsFriend } from "src/common/decorators/Friend.decorator";
-import { GetCurrentUser, GetCurrentUserId } from "src/common/decorators";
+import {  GetCurrentUserId } from "src/common/decorators";
 import { RoomGuard } from "src/common/guards/chat/RoomGuards.guard";
 
 @UseGuards(RoomGuard)
@@ -20,7 +19,6 @@ export class ChatController {
 
 	@Get("comunication")
 	async humanFetchMessage(@GetCurrentUserId() id:number) {
-		// console.log("hi");
 		return await this.service.messages.get_messages(id);
 	}
 	
@@ -48,10 +46,7 @@ export class ChatController {
 	@Get("/search/:user")
     async getQueryrooms(@Param("user") room : string)
     {
-		console.log(room);
 		const rooms = await this.service.rooms.getroomsbyname(room)
-		console.log(rooms)
 		return rooms;
-		// return await this.service.rooms.getroomsbyname(room);
     }
 }

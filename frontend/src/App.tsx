@@ -96,6 +96,7 @@ const App = () => {
 	}
 	if (userin.current) {
 		socket.connect();
+		socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."));
 	}
 
 	if (isLoading && window.location.pathname !== "/loading")
@@ -104,7 +105,6 @@ const App = () => {
 				<QueueLoader />
 			</div>
 		);
-	socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."));
 	return (
 		<div>
 			<ToastContainer />

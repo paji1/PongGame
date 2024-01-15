@@ -45,19 +45,39 @@ export class MessagesService {
 		}
 	}
 	async get_messages(Requester: number) {
+		const blocked = (await this.prisma.friendship.findMany({
+			where:
+				{
+					status:{
+						not: "DEFAULT"
+					},
+					OR:[
+						{
+							initiator: Requester,
+						},
+						{
+							reciever: Requester,
+						}
+					]
+				}
+		})).map((blockrel) => blockrel.initiator === Requester ? blockrel.reciever : blockrel.initiator)
+		console.log("blocked re ", blocked)
 		const conversation = await this.prisma.rooms.findMany({
 			where: {
-				rooms_members: {
-					some: {
-						userid: Requester,
-						NOT:
-							{
-								isBanned:true,
-							}
-					},
-				},
+					rooms_members: {
+						some: {
+							userid: Requester,
+							},
+						},
 			},
 			select: {
+				rooms_members:{
+					select:
+					{
+						userid: true,
+						isBanned:true,
+					}
+				},
 				id: true,
 				messages: {
 					select: {
@@ -81,10 +101,31 @@ export class MessagesService {
 				updated_at: "desc",
 			},
 		});
+		
+		conversation.map((conv) =>  {
+				conv.messages = (!conv.rooms_members.find((mem) => mem.userid === Requester).isBanned ) ?conv.messages.filter((message) => !blocked.includes(message.senderid.id)) : new Array(0)
+		})
+		
 		return conversation;
 	}
 
 	async get_rooms(id: number) {
+		const blocked = (await this.prisma.friendship.findMany({
+			where:
+				{
+					status:{
+						not: "DEFAULT"
+					},
+					OR:[
+						{
+							initiator: id,
+						},
+						{
+							reciever: id,
+						}
+					]
+				}
+		})).map((blockrel) => blockrel.initiator === id ? blockrel.reciever : blockrel.initiator)
 		try {
 			const data = await this.prisma.rooms.findMany({
 				where: {
@@ -118,6 +159,7 @@ export class MessagesService {
 						},
 						select:
 						{
+							sender_id:true,
 							messages:true
 						},
 						orderBy:{
@@ -149,14 +191,35 @@ export class MessagesService {
 					},
 				},
 			});
+			data.map((room) =>  {
+				if (room.messages[0]?.messages && blocked.includes(room.messages[0].sender_id))
+					room.messages[0].messages = "from a blocked user";
+			})
 			return data;
-		} catch {
+		} catch (e){
+			console.log(e.message)
 			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
 		}
 	}
 
 	async satisfy(Requester : number, room: number, ofsset:number)
 	{
+		const blocked = (await this.prisma.friendship.findMany({
+			where:
+				{
+					status:{
+						not: "DEFAULT"
+					},
+					OR:[
+						{
+							initiator: Requester,
+						},
+						{
+							reciever: Requester,
+						}
+					]
+				}
+		})).map((blockrel) => blockrel.initiator === Requester ? blockrel.reciever : blockrel.initiator)
 		const conversation = await this.prisma.rooms.findUnique({
 			where: {
 					id: room,		
@@ -182,9 +245,9 @@ export class MessagesService {
 					skip: ofsset
 				},
 			},
-					
-
 		});
+		conversation.messages = conversation.messages.filter((message) =>  !blocked.includes(message.senderid.id));
+
 		return conversation;
 	}
 }
