@@ -10,7 +10,7 @@ import TwoFaBar from "./twoFaBar";
 import { toast } from "react-toastify";
 
 const logout = async (navigate: any) => {
-	const res = await fetch("http://localhost:3001/auth/logout", {
+	const res = await fetch("http://wladnas.ddns.net:3001/auth/logout", {
 		method: "POST",
 		credentials: "include",
 		headers: {

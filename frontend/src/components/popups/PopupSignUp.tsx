@@ -37,7 +37,7 @@ const PopupSignUp: React.FC<SignUpPopupProps> = ({ setPopupSignUpVisible }) => {
 			return;
 		}
 		try {
-			const response = await fetch("http://localhost:3001/auth/local/signup", {
+			const response = await fetch("http://wladnas.ddns.net:3001/auth/local/signup", {
 				method: "POST",
 				credentials: "include",
 				headers: {

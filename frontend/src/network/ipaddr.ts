@@ -1,2 +1,2 @@
-const add ="localhost"
+const add ="wladnas.ddns.net"
 export const ip= `${add}:`

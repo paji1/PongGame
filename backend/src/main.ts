@@ -15,7 +15,7 @@ async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
 	app.use(cookieParser());
 	app.enableCors({
-		origin: [`http://${ip}:3000`, "http://localhost:3000"],
+		origin: [`http://${ip}:3000`, "http://wladnas.ddns.net:3000"],
 		methods: ["GET", "POST", "DELETE", "PATCH"],
 		credentials: true,
 	});

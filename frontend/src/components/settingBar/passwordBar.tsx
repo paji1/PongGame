@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const submitepame = async (currentPassword: string, newPassword: string, confirmPassword: string, navigate: any) => {
-	const res = await fetch("http://localhost:3001/auth/local/apdate/password", {
+	const res = await fetch("http://wladnas.ddns.net:3001/auth/local/apdate/password", {
 		method: "POST",
 		credentials: "include",
 		headers: {

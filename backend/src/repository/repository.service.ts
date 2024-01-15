@@ -16,7 +16,7 @@ const allowed  = [
 
 
 const conf: ConfigService = new ConfigService()
-const url = `http://${conf.get<string>("ip")}:3001/repository/`
+const url = `http://wladnas.ddns.net:3001/repository/`
 
 
 

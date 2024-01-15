@@ -140,7 +140,7 @@ export class AuthController {
 	@Get("intra/login")
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(AuthGuard("intra"))
-	@Redirect("http://localhost:3001/")
+	@Redirect("http://wladnas.ddns.net:3001/")
 	intraLogin(@Body() user: any) {
 		return {};
 	}

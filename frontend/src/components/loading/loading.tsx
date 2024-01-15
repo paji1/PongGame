@@ -21,7 +21,7 @@ const Loading: FC<LoadingProps> = () => {
 	      await window.opener.postMessage({
 	        success: (data) ? true : false,
 	        payload: data
-	      }, "http://localhost:3000/");
+	      }, "http://wladnas.ddns.net:3000/");
 	    }
 	  }
 	  makeRequest();

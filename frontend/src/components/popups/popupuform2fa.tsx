@@ -27,7 +27,7 @@ const PopupForm2fa: React.FC<PopupForm2faProps> = ({ user, setPopupSignInVisible
 		console.log("submitting ", JSON.stringify({ code: formData.code }));
 		e.preventDefault();
 		try {
-			const response = await fetch("http://localhost:3001/auth/local/signinTwofa", {
+			const response = await fetch("http://wladnas.ddns.net:3001/auth/local/signinTwofa", {
 				method: "POST",
 				credentials: "include",
 				headers: {

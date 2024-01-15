@@ -24,7 +24,7 @@ const PopupForm: React.FC<PopupFormProps> = ({ user, setPopupSignInVisible,setpo
 		console.log("submitting ", JSON.stringify({ user42: user, password: formData.password }));
 		e.preventDefault();
 		try {
-			const response = await fetch("http://localhost:3001/auth/local/signin", {
+			const response = await fetch("http://wladnas.ddns.net:3001/auth/local/signin", {
 				method: "POST",
 				credentials: "include",
 				headers: {
