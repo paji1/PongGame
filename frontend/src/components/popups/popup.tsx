@@ -54,8 +54,8 @@ const Popup: React.FC<PopupProps> = ({ onClose, setPopupSignUpVisible, setPopupS
 	}, []);
 	return (
 		<div className="fixed z-10 inset-0  flex items-center justify-center bg-black bg-opacity-50">
-			<div className="bg-white p-6 rounded-lg shadow-xl">
-				<div className="b-50 m-32 mx-auto max-w-[1199px] flex">
+			<div className="bg-DefaultColor p-6 rounded-lg shadow-xl m-[12%] max-sm:max-w-[90%]" >
+				<div className="b-50 m-[11%] mx-auto  max-sm:max-w-[90%] flex">
 					<div className="w-[45%]">
 						<img src={karontdo} className="w-[345px]"></img>
 					</div>
@@ -66,10 +66,10 @@ const Popup: React.FC<PopupProps> = ({ onClose, setPopupSignUpVisible, setPopupS
 							Ping-pong pal! It's been a minute, huh Recall the pixel paddle days? Get ready for a
 							nostalgia wave your fave ping-pong platform beckons!
 						</p>
-						<div className=" mt-32 flex justify-center align-center">
+						<div className=" md:mt-32 flex justify-center align-center">
 							<button
 								onClick={KarontdoIntra}
-								className="flex gap-x-5 bg-yellow-500 text-black py-2 px-40 rounded-full shadow-2xl"
+								className="flex gap-x-5 bg-yellow-500 text-black py-2 md:px-40 max-sm:px-20 rounded-full shadow-2xl"
 							>
 								<img src={karontdo} className="w-[30px]"></img>
 								NETWORK

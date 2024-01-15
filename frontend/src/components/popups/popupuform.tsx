@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FormDataSignIn } from "./PopupSignIn";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 interface PopupFormProps {
 	setPopupSignInVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -47,8 +48,9 @@ const PopupForm: React.FC<PopupFormProps> = ({ user, setPopupSignInVisible,setpo
 				}
 
 			}
+			toast.error("try with correct password");
 		} catch (error) {
-			console.error(error);
+			toast.error("no no");
 		}
 	};
 	return (

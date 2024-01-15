@@ -116,6 +116,7 @@ const TwoFaBar = ({ toogle, setToggle }: { toogle: any; setToggle: any }) => {
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
 		setFormData((prevData) => ({ ...prevData, [name]: value }));
+		seterror(undefined);
 	};
 	console.log("TWOFA", TwoFa)
 
@@ -129,16 +130,19 @@ const TwoFaBar = ({ toogle, setToggle }: { toogle: any; setToggle: any }) => {
 			console.log("tooogle",toogle)
 			if (!ref.current.checked && TwoFa)
 				setdisable(true)
+		seterror(undefined)
 		if (toogle !== 3) {
 			setIsDropdownOpen(true);
 			setToggle(3);
 			if (!ref.current.checked)
-				ref.current.checked = true
-		} else {
-			setIsDropdownOpen(false);
-			setToggle(-1);
-		}
-	};
+			ref.current.checked = true
+	} else {
+		setIsDropdownOpen(false);
+		setToggle(-1);
+	}
+};
+
+
 	const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
 		console.log("submitting ", JSON.stringify({ code : formData.code }));
 		e.preventDefault();
@@ -222,7 +226,7 @@ const TwoFaBar = ({ toogle, setToggle }: { toogle: any; setToggle: any }) => {
 								placeholder="number code"
 							/>
 						</div>
-						{(error) ? (<div className="font-extrabold text-red-500 mt-1"> dsad</div> ) : <></>}
+						{(error) ? (<div className="font-extrabold text-red-500 mt-1"> check code and try again!</div> ) : <></>}
 						<button
 							className="bg-buttonColor text-textColor w-full py-2 px-8
 						rounded-full shadow-buttonShadow border-solid border-textColor border-2

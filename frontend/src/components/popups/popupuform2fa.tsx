@@ -42,7 +42,6 @@ const PopupForm2fa: React.FC<PopupForm2faProps> = ({ user, setPopupSignInVisible
 			}
 		} catch (error) {
 			toast.error("retry other code")
-			console.error(error);
 		}
 	};
 	return (
