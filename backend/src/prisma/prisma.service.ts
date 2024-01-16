@@ -11,10 +11,17 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 	async onModuleInit() {
 		await this.$connect();
 		console.log("connect prisma");
-	await this.user.updateMany({
-		data:{
-			connection_state: "OFFLINE",
-		}
-	})
+	try
+	{
+		await this.user.updateMany({
+			data:{
+				connection_state: "OFFLINE",
+			}
+		})
+	}catch (e)
+	{
+		console.log("")
+	}
+
 	}
 }
