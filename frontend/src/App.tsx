@@ -163,7 +163,7 @@ const App = () => {
 
 	useEffect(() => {
 		socket.on('start_game', (data: any) => {
-			setGameContext({game_id: data.game_id, issuer_id: data.user1_id, receiver_id: data.user2_id})
+			setGameContext({game_id: data.game_id, issuer_id: data.user1_id, receiver_id: data.user2_id, difficulty: data.difficulty})
 			navigate(`/game/${data.game_id}`)
 		})
 	

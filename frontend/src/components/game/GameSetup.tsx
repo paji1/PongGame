@@ -135,7 +135,9 @@ const GameSetup = () => {
 		
 	return (
 		<DifficultyContext.Provider value={[difficulty, setDifficulty]}>
-			<div id="game-setup-frame" className={`h-full w-full justify-center items-center z-0 flex flex-row`}>
+			<div id="game-setup-frame" className={`justify-center items-center z-0 flex flex-row
+			sm:w-[533px] md:w-[640px] lg:w-[889px] xl:w-[1116px] 2xl:w-[1315px] w-[260px]
+			sm:h-[300px] md:h-[360px] lg:h-[500px] xl:h-[628px] 2xl:h-[740px] h-[462px]`}>
 				<div className={`flex w-1/2 h-full items-center justify-center`}>
 					<ConfigElems />
 				</div>

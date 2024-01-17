@@ -35,7 +35,7 @@ const QueueLoader = () => {
 	}, [])
 
 	return (
-		<div ref={loading_container} className={`container overflow-hidden w-full h-full`}></div>
+		<div ref={loading_container} className={`container overflow-hidden w-full h-full bg-background`}></div>
 	)
 }
 

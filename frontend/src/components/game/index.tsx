@@ -103,7 +103,7 @@ const GameBody = () => {
 	}, [])
 
 	return (
-		<div ref={gameBodyRef} className={`border-[.5rem] border-solid border-textColor
+		<div ref={gameBodyRef} className={`border-[.5rem] border-solid border-textColor bg-textColor flex items-center justify-center
 		sm:w-[576px] md:w-[691px] lg:w-[921px] xl:w-[1152px] 2xl:w-[1346px] w-[281px]
 		sm:h-[324px] md:h-[389px] lg:h-[518px] xl:h-[648px] 2xl:h-[757px] h-[500px]`}>
 		{

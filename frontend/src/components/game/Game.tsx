@@ -1,96 +1,104 @@
-import { useContext, useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useRef } from "react"
 import { DifficultyContext, EDifficulty } from "../Context/QueueingContext"
-import Matter from "matter-js"
 import { EASY_THEME, HARD_THEME, IDifficultyTheme, MEDIUM_THEME } from "./GameConfig"
 import { SocketContext } from "../Context/SocketContext"
 import { GameContext } from "../Context/GameContext"
-/**
- * - Server receives:
-  * socket id
-  * y-axis of the paddle
+import Game from "./GameLogic"
+import { Socket } from "socket.io-client"
+import Matter from "matter-js"
 
-- Client receives
-  * x, y-axis of the ball
-  * y-axis of the opponent paddle
-  * current match score
- */
-
-const render_canvas = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, difficulty: EDifficulty) => {
-	const THEME: IDifficultyTheme = difficulty === EDifficulty.EASY ? EASY_THEME : difficulty === EDifficulty.MEDIUM ? MEDIUM_THEME : HARD_THEME
-
+const render_canvas = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, theme: IDifficultyTheme) => {
 	canvas.width = canvas.parentElement?.clientWidth || 0
 	canvas.height = canvas.parentElement?.clientHeight || 0
-	context.fillStyle = THEME.background_color
+	context.fillStyle = theme.background_color
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
 }
 
-const run = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, difficulty: EDifficulty) => {
-
-	/**
-	 * Get qlawi dialk from background
-	 */
-	const BALL_RADIUS = 20
-	const CANVAS_WIDTH = canvas.width
-	const CANVAS_HEIGHT = canvas.height
-	const WALL_THICKNESS = 1
-	const MIN_THRESHOLD = .3
-
-	const wall_options ={
-		friction: 0,
-		frictionAir: 0,
-		isStatic: true
+let paddles = {
+	hostpaddle: {
+		x: 0,
+		y: 0,
+		width: 0,
+		height: 0
+	},
+	guestpaddle: {
+		x: 0,
+		y: 0,
+		width: 0,
+		height: 0
 	}
+}
 
-	const engine = Matter.Engine.create();
-	const world = engine.world;
-	engine.gravity.scale = 0
+const init_canvas = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, game: Game, data: any) => {
+	context.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+	render_canvas(canvas, context, game.theme)
+	if (canvas.clientWidth < canvas.clientHeight)
+	{
+		game.width_scale = canvas.clientWidth / data.scale_width
+		game.height_scale = canvas.clientHeight / data.scale_height
+	}
+	else
+	{
+		game.width_scale = canvas.clientHeight / data.scale_height
+		game.height_scale = canvas.clientWidth / data.scale_width
+	}
+	game.setBallVelocity(data.velocity.x, data.velocity.y);
+	game.setBallPosition(data.ballX, data.ballY);
+}
 
-	// Create walls
-	const ground = Matter.Bodies.rectangle(CANVAS_WIDTH / 2, CANVAS_HEIGHT, CANVAS_WIDTH, WALL_THICKNESS, wall_options);
-	const ceiling = Matter.Bodies.rectangle(CANVAS_WIDTH / 2, 0, CANVAS_WIDTH, WALL_THICKNESS, wall_options);
-	const leftWall = Matter.Bodies.rectangle(0, CANVAS_HEIGHT / 2, WALL_THICKNESS, CANVAS_HEIGHT, wall_options);
-	const rightWall = Matter.Bodies.rectangle(CANVAS_WIDTH, CANVAS_HEIGHT / 2, WALL_THICKNESS, CANVAS_HEIGHT, wall_options);
+let score = 0
+let opp_score = 0
 
-	// Create a ball
-	const ball = Matter.Bodies.circle(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, BALL_RADIUS, {
-		restitution: 1,
-		friction: 0,
-		frictionAir: 0,
-		mass: 0,
-		inertia: Infinity
-	});
-	Matter.World.add(world, ball);
-	const velX = [1, -1]
-	const X = velX[Math.floor(Math.random() * 2)]
-	var Y = (Math.random() - 0.5) * 2
-	while (!(Y > MIN_THRESHOLD) && !(Y < -MIN_THRESHOLD))
-		Y = Math.random()
-	Matter.Body.setVelocity(ball, {x: X, y: Y})
-	Matter.Body.setSpeed(ball, 15)
-
-	Matter.World.add(world, [ground, ceiling, leftWall, rightWall]);
-
-    // Run the engine
-    Matter.Runner.run(engine);
+const run = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, game: Game, socket: Socket) => {
 	
+	game.setup()
 	function render() {
 		
-		context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-		render_canvas(canvas, context, difficulty)
+		context.clearRect(0, 0, game.canvas_width, game.canvas_height);
+		render_canvas(canvas, context, game.theme)
+
+		// Score
+		context.font = '150px'
+		context.fillStyle = game.theme.element_color
+		context.textAlign = 'center'
+		context.textBaseline = 'middle';
+		const full_text = `${score} - ${opp_score}`
+		context.fillText(full_text, canvas.clientWidth / 2, canvas.clientHeight / 2)
+	
 		// Draw the ball
 		context.beginPath();
-		context.arc(ball.position.x, ball.position.y, BALL_RADIUS, 0, 2 * Math.PI);
-		context.fillStyle = '#3498db';
+		context.arc(game.ball.position.x, game.ball.position.y, Game.BALL_RADIUS, 0, 2 * Math.PI);
+		context.fillStyle = game.theme.element_color;
 		context.fill();
 		context.closePath();
-	
-		// Draw the walls
-		context.fillStyle = '#2c3e50';
-		context.fillRect(ground.position.x - CANVAS_WIDTH / 2, ground.position.y - WALL_THICKNESS / 2, CANVAS_WIDTH, WALL_THICKNESS);
-		context.fillRect(ceiling.position.x - CANVAS_WIDTH / 2, ceiling.position.y - WALL_THICKNESS / 2, CANVAS_WIDTH, WALL_THICKNESS);
-		context.fillRect(leftWall.position.x - WALL_THICKNESS / 2, leftWall.position.y - CANVAS_HEIGHT / 2, WALL_THICKNESS, CANVAS_HEIGHT);
-		context.fillRect(rightWall.position.x - WALL_THICKNESS / 2, rightWall.position.y - CANVAS_HEIGHT / 2, WALL_THICKNESS, CANVAS_HEIGHT);
+
+		// Draw paddles
+		// // Draw left paddle
+		let paddleWidth = game.getPaddleWidth()
+		let paddleHeight = game.getPaddleHeight()
+		// context.beginPath();
+		// context.rect(game.leftPaddle.position.x - paddleWidth / 2, game.leftPaddle.position.y - paddleHeight / 2, paddleWidth, paddleHeight);
+		// context.fillStyle = game.theme.element_color;
+		// context.fill();
+		// context.closePath();
+		// context.beginPath();
+		// context.rect(game.rightPaddle.position.x - paddleWidth / 2, game.rightPaddle.position.y - paddleHeight / 2, paddleWidth, paddleHeight);
+		// context.fillStyle = game.theme.element_color;
+		// context.fill();
+		// context.closePath();
+
+		context.beginPath();
+		context.rect(paddles.hostpaddle.x - paddleWidth / 2, paddles.hostpaddle.y - paddleHeight / 2, paddles.hostpaddle.width, paddles.hostpaddle.height);
+		context.fillStyle = 'red'
+		context.fill();
+		context.closePath();
+
+		context.beginPath();
+		context.rect(paddles.guestpaddle.x - paddleWidth / 2, paddles.guestpaddle.y - paddleHeight / 2, paddles.guestpaddle.width, paddles.guestpaddle.height);
+		context.fillStyle = 'red'
+		context.fill();
+		context.closePath();
 	
 		requestAnimationFrame(render);
 	}
@@ -101,49 +109,77 @@ const run = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, diffi
 
 const PlayGround = () => {
 
-	const [difficulty, _] = useContext(DifficultyContext)
 	const [gameContext, setGameContext] = useContext(GameContext)
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const socket = useContext(SocketContext)
 
 	useEffect(() => {
 
-		if (!gameContext)
-			return 
-		socket.emit('game_info_req', gameContext)
-		console.log('game_info_req', gameContext)
-		socket.on('game_info_res', (data: any) => {
-			socket.emit('game_info_req', gameContext)
-		})
-
-		return () => {
-			socket.off('game_info_res')
-		}
-	
-	}, [gameContext])
-
-	useEffect(() => {
-
 		const canvas = canvasRef.current
 		const context = canvas?.getContext("2d")
-		if (!canvas || !context)
+		if (!canvas || !context || !gameContext)
 			return
 
-		window.addEventListener('resize', () => render_canvas(canvas, context, difficulty))
-		render_canvas(canvas, context, difficulty)
-		run(canvas, context, difficulty)
+		canvas.width = canvas.parentElement?.clientWidth || 0
+		canvas.height = canvas.parentElement?.clientHeight || 0
 
+		const game = new Game(gameContext.difficulty, canvas.width, canvas.height)
+		render_canvas(canvas, context, game.theme)
+		
+		socket.on('INITIALIZE_GAME', (data: any) => {
+			init_canvas(canvas, context, game, data)
+		})
+		
+		socket.on('BALL_POSITION', (data: any) => {			
+			game.setBallPosition(data.position.x, data.position.y)
+			game.setBallVelocity(data.velocity.x, data.velocity.y)
+			paddles = data.paddles
+		})
+		
+		socket.on('PADDLE_POSITION', (data: any) => {
+			game.setPaddlePosition(data.y, 'RIGHT')
+		})
 
-		return (
+		socket.on('SCORE_UPDATE', (data) => {
+			score = data.self
+			opp_score = data.opp
+		})
+		
+		window.addEventListener('resize', () => render_canvas(canvas, context, game.theme))
+		canvas.addEventListener('mousemove', (event) => {
+			let new_position = event.offsetY
+			if (new_position < game.getPaddleHeight() / 2)
+				new_position = game.getPaddleHeight() / 2
+			if (new_position > game.canvas_height - game.getPaddleHeight() / 2)
+				new_position = game.canvas_height - game.getPaddleHeight() / 2
+			game.setPaddlePosition(new_position, 'LEFT')
+			socket.emit('PADDLE_POSITION', {
+					'paddleY': game.leftPaddle.position.y,
+					'game_id': gameContext.game_id
+				})
+			})
+			socket.emit('GAME_STARTED', {
+				game_id: gameContext.game_id,
+			})
+			run(canvas, context, game, socket)
+			
+			return (
 			() => {
-				window.removeEventListener('resize', () => render_canvas(canvas, context, difficulty))
-				socket.off('game_info')
+				window.removeEventListener('resize', () => render_canvas(canvas, context, game.theme))
+				socket.off('INITIALIZE_GAME')
+				socket.off('BALL_POSITION')
+				socket.off('PADDLE_POSITION')
+				socket.off('SCORE_UPDATE')
 			}
 		)
 	}, [])
 	
 	return (
-		<canvas ref={canvasRef}></canvas>
+		<div className={`sm:w-[533px] md:w-[640px] lg:w-[889px] xl:w-[1116px] 2xl:w-[1315px] w-[260px]
+			sm:h-[300px] md:h-[360px] lg:h-[500px] xl:h-[628px] 2xl:h-[740px] h-[462px]
+		`}>
+			<canvas ref={canvasRef}></canvas>
+		</div>
 	)
 
 }

@@ -15,6 +15,11 @@ import { actionstatus, game_modes } from '@prisma/client';
 import { RejectGameInviteDto } from './dto/reject-game-invite.dto';
 import Game from './pong-game/Game';
 
+interface IGame {
+	game: Game,
+	numberOfPlayers: number
+}
+
 
 @WebSocketGateway({transports: ['websocket']})
 @UsePipes(new ValidationPipe())
@@ -27,13 +32,16 @@ export class GameGateway {
 		private readonly gameService: GameService,
 		private readonly event: EventEmitter2,
 		private readonly inviteService: InviteService,
-	) { }
+	) {
+		this.games = new Map<string, IGame>()
+	}
 
 	@WebSocketServer()
 	server: Server
+	games: Map<string, IGame>
 
 	@SubscribeMessage('matching')
-	
+	// TODO: when session expires the client does not leave the queue
 	async routeMatching(@GetCurrentUserId() id: number, @MessageBody() payload: MatchingGameDto, @ConnectedSocket() client: Socket) {
 		if (payload.matchingType === EMatchingType.INVITE)
 			await this.inviteHandler(id, payload.invite, client, payload.difficulty)
@@ -178,15 +186,82 @@ export class GameGateway {
 		})
 		if (!new_game)
 			throw new Error('Failed to create new game')
-		this.server.to(game_id).emit('start_game', {game_id, user1_id, user2_id, difficulty})
-		const game = new Game(game_id, difficulty, user1_id, user2_id)
-		game.setup()
-	
+		const game: IGame = {
+			game: new Game(game_id, difficulty, this.server.to(game_id), user1.id,  user2.id),
+			numberOfPlayers: 1
+		}
+		this.games.set(game_id, game)
+		this.server.to(game_id).emit('start_game', {
+			game_id,
+			user1_id,
+			user2_id,
+			difficulty
+		})
 	}
 
-	@SubscribeMessage('game_info_req')
-	async run_game(@ConnectedSocket() client: Socket, @MessageBody() payload: any)
-	{
-		this.server.to(payload.game_id).emit('game_info_res', {zbi:'zbi'})
+	@SubscribeMessage('GAME_STARTED')
+	async run_game(@MessageBody() payload: any, @ConnectedSocket() client: Socket) {
+		const game_id = payload.game_id
+		const game = this.games.get(game_id)
+		if (game.numberOfPlayers === 2)
+		{
+			const velocity = await game.game.setup()
+			this.server.to(game_id).except(client.id).emit('INITIALIZE_GAME', { // This is the host
+				velocity,
+				ballX: game.game.ball.position.x,
+				ballY: game.game.ball.position.y,
+				scale_width: game.game.width,
+				scale_height: game.game.height,
+				score: {
+					host: game.game.host_score,
+					guest: game.game.guest_score
+				}
+			})
+			client.emit('INITIALIZE_GAME', { // This is the guest
+				velocity: {
+					x: -velocity.x,
+					y: velocity.y
+				},
+				ballX: game.game.width - game.game.ball.position.x,
+				ballY: game.game.ball.position.y,
+				scale_width: game.game.width,
+				scale_height: game.game.height,
+				score: {
+					host: game.game.host_score,
+					guest: game.game.guest_score
+				}
+			})
+		}
+		else if (game.numberOfPlayers < 2)
+			game.numberOfPlayers++
+	}
+
+	@SubscribeMessage('PADDLE_POSITION')
+	paddlesHandler (@ConnectedSocket() client: Socket, @MessageBody() payload: any) {
+
+		console.log('PADDLE_POSITION', payload)
+		const game_id = payload.game_id;
+		const y = payload.paddleY
+		const game = this.games.get(game_id)
+		console.log(game_id);
+		if (client.id === game.game.host_id)
+		{
+			game.game.setPaddlePosition(y, 'LEFT')
+			// console.log('left position --->', game.game.leftPaddle.position.y)
+			
+		}
+		else if (client.id === game.game.guest_id)
+		{
+			game.game.setPaddlePosition(y, 'RIGHT')
+			// console.log('right position --->', game.game.rightPaddle.position.y) 
+		}
+		else
+		{
+			// TODO: stop game here
+		}
+		this.server.to(game_id).except(client.id).emit('PADDLE_POSITION', {
+			y: y
+		})
+
 	}
 }
