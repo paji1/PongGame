@@ -3,7 +3,7 @@ import GameSetup from "./GameSetup";
 import { EGamePreparationState } from "../Context/QueueingContext";
 import QueueLoader from "./QueueLoader";
 import { SocketContext } from "../Context/SocketContext";
-import PlayGround from "./Game";
+import {PlayGround} from "./Game";
 import { useParams } from "react-router-dom";
 import { ip } from "../../network/ipaddr";
 import { toast } from "react-toastify";
@@ -107,6 +107,7 @@ const GameBody = () => {
 		sm:w-[576px] md:w-[691px] lg:w-[921px] xl:w-[1152px] 2xl:w-[1346px] w-[281px]
 		sm:h-[324px] md:h-[389px] lg:h-[518px] xl:h-[648px] 2xl:h-[757px] h-[500px]`}>
 		{
+			// <PlayGround />
 			isSet ? <PlayGround /> : 
 				preparation === EGamePreparationState.CONFIG_STATE ? <GameSetup /> :
 				preparation === EGamePreparationState.QUEUING_STATE ? <QueueLoader /> :

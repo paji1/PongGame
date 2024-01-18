@@ -1,240 +1,176 @@
 import { game_modes } from "@prisma/client"
-import { Socket } from "dgram"
 import * as Matter from "matter-js"
-import { BroadcastOperator } from "socket.io"
-import { DefaultEventsMap } from "socket.io/dist/typed-events"
+import { Socket } from "socket.io"
 
 export default class Game {
 
-	static readonly BALL_RADIUS = 20
-	static readonly MAX_SCORE = 10
-
-	static readonly WALL_THICKNESS = 1
-	static readonly PADDLE_HEIGHT_RATIO = .25
-	static readonly PADDLE_WIDTH_RATIO = .015
-
-	static readonly WALLS_OPTIONS = {
+	static readonly WIDTH: number = 320
+	static readonly HEIGHT: number = 180
+	
+	static readonly BORDER_THICKNESS: number = 5
+	static readonly BORDERS_OPTIONS = {
 		friction: 0,
 		frictionAir: 0,
 		isStatic: true,
-		sensors: true
 	}
 
+	static readonly PADDLE_HEIGHT_RATIO = .25
+	static readonly PADDLE_WIDTH_RATIO = .015
+
+	static readonly BALL_RADIUS: number = 10
 	static readonly BALL_OPTIONS = {
 		restitution: 1,
 		friction: 0,
 		frictionAir: 0,
 		mass: 0,
-		inertia: Infinity,
-		sensors: true
+		inertia: Infinity
 	}
-
-	game_id: string
-	host_id: string // Host is left paddle
-	guest_id: string // Guest is right paddle
-	room: BroadcastOperator<DefaultEventsMap, any>
-
-	host_score: number // Host is left paddle
-	guest_score: number // Guest is right paddle
-
-	width: number
-	height: number
-	speed: number
 
 	engine: Matter.Engine
-	world: Matter.World
 	runner: Matter.Runner
-	ground: any
-	ceiling: any
-	leftWall: any
-	rightWall: any
-	ball: any
+	world: Matter.World
+	ball: Matter.Body
+	leftBorder: Matter.Body
+	rightBorder: Matter.Body
+	topBorder: Matter.Body
+	bottomBorder: Matter.Body
 
-	leftPaddle: any
-	rightPaddle: any
+	host_paddle: Matter.Body
+	guest_paddle: Matter.Body
 
-	constructor(game_id: string, difficulty: game_modes, game_room: BroadcastOperator<DefaultEventsMap, any>, socket_id1: string, socket_id2: string) {
-		this.game_id = game_id
+	host_socket: Socket
+	guest_socket: Socket
+
+	difficulty: game_modes
+	number_of_players: number
+
+	speed: number
+
+	constructor(host_socket: Socket, guest_socket: Socket, difficulty: game_modes) {
 		
-		this.width = 889  // 889
-		this.height = 500 // 500
-		this.speed = difficulty === game_modes.EASY ? 8 : difficulty === game_modes.MEDIUM ? 11 : 15
+		this.host_socket = host_socket
+		this.guest_socket = guest_socket
 
-		this.room = game_room
-		this.host_id = socket_id1
-		this.guest_id = socket_id2
+		this.difficulty = difficulty
+		this.number_of_players = 0
 
-		this.host_score = 0
-		this.guest_score = 0
+		this.speed = this.difficulty === game_modes.EASY ? 5 : this.difficulty === game_modes.MEDIUM ? 9 : 13
+
 	}
 
-	async setup() {
+	setup () {
+		this.createEngine()
+		this.createRunner()
 		this.createWorld()
 		this.createWalls()
-		this.createBall()
 		this.createPaddles()
-		this.collision()
-		Matter.Runner.run(this.runner, this.engine);
-	
-		setInterval(() => {
-			const position = this.getBallPosition()
-			let velocity = this.ball.velocity
-			if (velocity.y >= -.1 && velocity.y <= .1)
-			{
-				if (velocity.y < 0)
-					Matter.Body.setVelocity(this.ball, {x: this.ball.velocity.x, y: -.2})
-				if (velocity.y >= 0)
-					Matter.Body.setVelocity(this.ball, {x: this.ball.velocity.x, y: .2})
-			}
-			velocity = this.ball.velocity
-			this.room.except(this.host_id).emit('BALL_POSITION', {
-				position: {
-					x: position.x, y: position.y
-				},
-				velocity: {
-					x: velocity.x, y: velocity.y
-				},
-				paddles: {
-					hostpaddle: {
-						x: this.leftPaddle.position.x,
-						y: this.leftPaddle.position.y,
-						width: this.width * Game.PADDLE_WIDTH_RATIO,
-						height: this.height *  Game.PADDLE_HEIGHT_RATIO
-					},
-					guestpaddle: {
-						x: this.rightPaddle.position.x,
-						y: this.rightPaddle.position.y,
-						width: this.width * Game.PADDLE_WIDTH_RATIO,
-						height: this.height *  Game.PADDLE_HEIGHT_RATIO
-					}
-				}
-			})
-			this.room.except(this.guest_id).emit('BALL_POSITION', {
-				position: {
-					x: this.width - position.x, y: position.y
-				},
-				velocity: {
-					x: -velocity.x, y: velocity.y
-				},
-				paddles: {
-					guestpaddle: {
-						x: this.leftPaddle.position.x,
-						y: this.leftPaddle.position.y,
-						width: this.width * Game.PADDLE_WIDTH_RATIO,
-						height: this.height *  Game.PADDLE_HEIGHT_RATIO
-					},
-					hostpaddle: {
-						x: this.rightPaddle.position.x,
-						y: this.rightPaddle.position.y,
-						width: this.width * Game.PADDLE_WIDTH_RATIO,
-						height: this.height *  Game.PADDLE_HEIGHT_RATIO
-					}
-				}
-			})
-			
-		}, 16)
-
-		return Matter.Body.getVelocity(this.ball)
+		this.createBall()
+		this.addToWorld()
 	}
 
-	createPaddle (x: number) {
-		const paddle = Matter.Bodies.rectangle(x, this.height / 2, this.width * Game.PADDLE_WIDTH_RATIO, this.height *  Game.PADDLE_HEIGHT_RATIO, Game.WALLS_OPTIONS)
-		return paddle
-	}
-
-	createPaddles () {
-		let x = this.width * Game.PADDLE_WIDTH_RATIO
-		this.leftPaddle = this.createPaddle(x)
-		x = this.width - this.width * Game.PADDLE_WIDTH_RATIO
-		this.rightPaddle = this.createPaddle(x)
-		Matter.World.add(this.world, [this.leftPaddle, this.rightPaddle])
-	}
-
-	collision () {
-		Matter.Events.on(this.engine, 'collisionStart', (event) => { // TODO: turn off this event listener in end game
-
-			const pairs = event.pairs
-
-			for (const pair of pairs) {
-
-				const wall = pair.bodyA === this.ball ? pair.bodyB : pair.bodyA
-
-				if (wall === this.leftWall) {
-					this.guest_score++;
-					if (this.guest_score >= Game.MAX_SCORE) {
-						// TODO: end game guest wins
-					}
-				} else if (wall === this.rightWall) {
-					this.host_score++
-					if (this.host_score >= Game.MAX_SCORE) {
-						// TODO: end game host wins
-					}
-					this.room.to(this.game_id).except(this.host_id).emit('SCORE_UPDATE', {
-						self: this.guest_score,
-						opp: this.host_score
-					})
-					this.room.to(this.game_id).except(this.guest_id).emit('SCORE_UPDATE', {
-						self: this.host_score,
-						opp: this.guest_score
-					})
-				} else continue ;
-			}
-
-			const velocity = this.getBallVelocity()
-			const position = this.getBallPosition();
-			this.room.except(this.host_id).emit('COLLISION_ACCURED', {velocity, position})
-			this.room.except(this.guest_id).emit('COLLISION_ACCURED', {
-				velocity: { 
-					x: -velocity.x,
-					y: velocity.y
-				}, 
-				position: {
-					x: this.width - position.x, 
-					y: position.y
-				}
-			})
-		}) 
-	}
-
-	createWorld () {
+	createEngine () {
 		this.engine = Matter.Engine.create({
 			gravity: {x: 0, y: 0, scale: 0}
 		})
-		this.world = this.engine.world
+	}
+	
+	createRunner () {
 		this.runner = Matter.Runner.create({
 			delta: 1000 / 60,
 			isFixed: true
 		})
 	}
 
-	createWalls () {
-		this.ceiling = Matter.Bodies.rectangle(this.width / 2, 0, this.width, Game.WALL_THICKNESS, Game.WALLS_OPTIONS)
-		this.ground = Matter.Bodies.rectangle(this.width / 2, this.height - Game.WALL_THICKNESS, this.width, Game.WALL_THICKNESS, Game.WALLS_OPTIONS)
-		this.leftWall = Matter.Bodies.rectangle(0, this.height / 2, Game.WALL_THICKNESS, this.height, Game.WALLS_OPTIONS)
-		this.rightWall = Matter.Bodies.rectangle(this.width - Game.WALL_THICKNESS, this.height / 2, Game.WALL_THICKNESS, this.height, Game.WALLS_OPTIONS)
-		const walls = [
-			this.ground,
-			this.ceiling,
-			this.leftWall,
-			this.rightWall,
-		]
-		Matter.World.add(this.world, walls)
+	createWorld () {
+		this.world = this.engine.world
 	}
 
 	createBall () {
-		const vel = this.generateVector(this.generateAngle())
-		this.ball = Matter.Bodies.circle(this.width / 2, this.height / 2, Game.BALL_RADIUS, Game.BALL_OPTIONS);
-		vel.x = vel.x * this.speed
-		vel.y = vel.y * this.speed
-		Matter.World.add(this.world, this.ball)
-		Matter.Body.setVelocity(this.ball, vel)
+		const velocity = this.generateVector(this.generateAngle())
+		this.ball = Matter.Bodies.circle(Game.WIDTH / 2, Game.HEIGHT / 2, Game.BALL_RADIUS, Game.BALL_OPTIONS)
+		Matter.Body.setVelocity(this.ball, velocity)
+	}
+
+	createWalls () {
+		this.leftBorder = Matter.Bodies.rectangle(2.5, Game.HEIGHT / 2, Game.BORDER_THICKNESS, Game.HEIGHT, Game.BORDERS_OPTIONS)
+		this.rightBorder = Matter.Bodies.rectangle(Game.WIDTH - (Game.BORDER_THICKNESS / 2), Game.HEIGHT / 2, Game.BORDER_THICKNESS, Game.HEIGHT, Game.BORDERS_OPTIONS)
+		this.topBorder = Matter.Bodies.rectangle(Game.WIDTH / 2, 2.5, Game.WIDTH, Game.BORDER_THICKNESS, Game.BORDERS_OPTIONS)
+		this.bottomBorder = Matter.Bodies.rectangle(Game.WIDTH / 2, Game.HEIGHT - (Game.BORDER_THICKNESS / 2), Game.WIDTH, Game.BORDER_THICKNESS, Game.BORDERS_OPTIONS)
+	}
+
+	createPaddles () {
+		let x = Game.WIDTH * Game.PADDLE_WIDTH_RATIO
+		console.log(x, "left")
+		this.host_paddle = Matter.Bodies.rectangle(x + 10, Game.HEIGHT / 2, Game.WIDTH * Game.PADDLE_WIDTH_RATIO, Game.HEIGHT *  Game.PADDLE_HEIGHT_RATIO, Game.BORDERS_OPTIONS)
+		x = Game.WIDTH - Game.WIDTH * Game.PADDLE_WIDTH_RATIO - x
+		console.log(x, "right")
+
+		this.guest_paddle = Matter.Bodies.rectangle(x - 10, Game.HEIGHT / 2, Game.WIDTH * Game.PADDLE_WIDTH_RATIO, Game.HEIGHT *  Game.PADDLE_HEIGHT_RATIO, Game.BORDERS_OPTIONS)
+	}
+
+	addToWorld () {
+		Matter.World.add(this.world, [this.ball, this.leftBorder, this.rightBorder, this.topBorder, this.bottomBorder, this.host_paddle, this.guest_paddle])
+	}
+
+	run () {
+		Matter.Runner.run(this.runner, this.engine);
+
+		const interval = setInterval(() => {
+			if (!this.host_socket.connected || !this.host_socket.connected )
+			{	
+				console.log("game ended")
+				clearInterval(interval)
+				// TODO: game ending
+				return ;
+			}
+
+			this.broadcast()
+		}, 1000/ 60)
+	}
+
+	broadcast () {
+
+			const ball_position = this.getBallPosition()
+			
+			console.log(this.bottomBorder.position);
+			console.log(this.bottomBorder.bounds.max.x, this.bottomBorder.bounds.max.y);
+			console.log(this.bottomBorder.bounds.min.x, this.bottomBorder.bounds.min.y);
+
+
+			this.host_socket.emit('FRAME', {
+				ball: {
+					position: {
+						x: ball_position.x,
+						y: ball_position.y,
+					}
+				},
+				MyPaddle: this.host_paddle.position,
+				EnemyPaddle: this.guest_paddle.position,
+			})
+
+			this.guest_socket.emit('FRAME', {
+				ball: {
+					position: {
+						x: Game.WIDTH -  ball_position.x,
+						y: ball_position.y,
+					}
+				},
+				MyPaddle: this.guest_paddle.position,
+				EnemyPaddle: this.host_paddle.position,
+			})
+			// console.log(this.host_paddle.bounds.max.y  ,  "max paddle height")
+			// console.log(this.host_paddle.bounds.min.y  ,  "min paddle height")
+	}
+
+	getBallPosition() {
+		return this.ball.position
 	}
 
 	generateVector (angle: number) {
 		const randian = angle * (Math.PI/180);
 		return {
-			x: Math.cos(randian),
-			y: Math.sin(randian)
+			x: Math.cos(randian) * this.speed,
+			y: Math.sin(randian) * this.speed
 		}
 	}
 
@@ -247,24 +183,22 @@ export default class Game {
 		return angle
 	}
 
-	setBallVelocity(x: number, y: number) {
-		Matter.Body.setVelocity(this.ball, {x, y})
+	isValidPlayer (socket_id: string) {
+		return this.host_socket.id === socket_id  || this.guest_socket.id === socket_id
 	}
 
-	getBallVelocity() {
-		return Matter.Body.getVelocity(this.ball)
+	
+	setRecievedPaddlePos(socket_id: string, y:number)
+	{
+		if (this.host_socket.id === socket_id)
+		{
+			this.host_paddle.position.y = y;
+		}
+		
+		if (this.guest_socket.id === socket_id)
+		{
+			this.guest_paddle.position.y = y;
+		}
 	}
 
-	getBallPosition() {
-		return this.ball.position
-	}
-
-	setPaddlePosition (y: number, choice: string) {
-
-		console.log("hello ", y, "chice", choice)
-		if (choice === 'LEFT')
-			Matter.Body.setPosition(this.leftPaddle, {x: this.leftPaddle.position.x, y: y});
-		else
-			Matter.Body.setPosition(this.rightPaddle, {x: this.rightPaddle.position.x, y: y});
-	}
 }

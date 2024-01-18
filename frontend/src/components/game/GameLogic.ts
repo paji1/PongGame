@@ -1,177 +1,145 @@
-import * as Matter from "matter-js";
 import { EDifficulty } from "../Context/QueueingContext";
 import { EASY_THEME, HARD_THEME, IDifficultyTheme, MEDIUM_THEME } from "./GameConfig";
 
+export class Game {
 
-export default class Game {
+	static readonly BALL_RADIUS: number = 10
+	static readonly WIDTH_SCALE: number = 320
+	static readonly HEIGHT_SCALE: number = 180
 
-	static readonly BALL_RADIUS = 20
-	static readonly PADDLE_HEIGHT_RATIO = .25
-	static readonly PADDLE_WIDTH_RATIO = .015
-	static readonly MIN_THRESHOLD = .3
+	static readonly H_RATIO = .25
+	static readonly W_RATIO = .015
 
-	static readonly EASY_SPEED = 8
-	static readonly MEDIUM_SPEED = 12
-	static readonly HARD_SPEED = 15
 
-	static readonly WALL_THICKNESS = 1
 
-	static readonly WALLS_OPTIONS = {
-		friction: 0,
-		frictionAir: 0,
-		isStatic: true
-	}
-
-	static readonly PADDLES_OPTIONS = {
-		friction: 0,
-		frictionAir: 0,
-		isStatic: true
-	}
-
-	static readonly BALL_OPTIONS = {
-		restitution: 1,
-		friction: 0,
-		frictionAir: 0,
-		mass: 0,
-		inertia: Infinity
-	}
-
-	difficulty: EDifficulty
 	theme: IDifficultyTheme
-	/** MATTER JS */
-	ball_speed: number
-	canvas_width: number
-	canvas_height: number
-	width_scale: number
-	height_scale: number
+	width: number
+	height: number
+	canvas: HTMLCanvasElement
+	context: CanvasRenderingContext2D
 
-	engine: Matter.Engine
-	world: Matter.World
-	runner: Matter.Runner
-	ground: any
-	ceiling: any
-	leftWall: any
-	rightWall: any
-	ball: any
-	leftPaddle: any
-	rightPaddle: any
-
-	constructor(difficulty: EDifficulty, canvas_width: number, canvas_height: number) {
-		this.difficulty = difficulty;
-		this.ball_speed = this.difficulty === EDifficulty.EASY ? 8 :
-			this.difficulty === EDifficulty.MEDIUM ? 11 : 15
-
-		this.canvas_width = canvas_width
-		this.canvas_height = canvas_height
-		this.theme = difficulty === EDifficulty.EASY ? EASY_THEME : difficulty === EDifficulty.MEDIUM ? MEDIUM_THEME : HARD_THEME
-		this.width_scale = 1
-		this.height_scale = 1
-
-		/**
-		 * Create world object
-		 */
-		this.engine = Matter.Engine.create({
-			gravity: {x: 0, y: 0, scale: 0}
-		});
-		this.world = this.engine.world
-		this.runner = Matter.Runner.create({
-			delta: 1000 / 60,
-			isFixed: true
-		})
+	myPaddle: {
+			x: number,
+			y: number
+		}
+		
+	enPaddle: {
+		x: number,
+		y: number
+	}
+	ball_position: {
+		x: number
+		y: number
 	}
 
-	setup() {
-		this.createWalls()
-		this.createBall()
-		this.createPaddles()
+	constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, difficulty: EDifficulty) {
 
-		const render = Matter.Render.create({
-			engine: this.engine,
-			element: document.body,
-			options: {
-				width: 1315,
-				height: 740
+
+		this.canvas = canvas
+		this.context = context
+		this.width = this.canvas.width
+		this.height = this.canvas.height;
+		this.theme = difficulty === EDifficulty.EASY ? EASY_THEME : difficulty === EDifficulty.MEDIUM ? MEDIUM_THEME : HARD_THEME;
+		
+	
+		this.ball_position = {
+			x: this.canvas.width / 2,
+			y: this.canvas.height / 2
+		}
+		this.myPaddle = {
+		
+				x:0,
+				y:0
 			}
-		});
-		  Matter.Render.run(render)
-		  Matter.Runner.run(this.runner, this.engine);
+		this.enPaddle =
+			{
+				x:0,
+				y:0
+			}
+	}
+
+	init_canvas () {
 
 	}
 
-	createWorld () {
-		this.engine = Matter.Engine.create({
-			gravity: {x: 0, y: 0, scale: 0}
-		});
-		this.world = this.engine.world
-		this.runner = Matter.Runner.create({
-			delta: 1000 / 60,
-			isFixed: true
-		})
+	resize_canvas () {
+
 	}
 
-	createWalls () {
-		this.ceiling = Matter.Bodies.rectangle(this.canvas_width / 2, 0, this.canvas_width, Game.WALL_THICKNESS, Game.WALLS_OPTIONS)
-		this.ground = Matter.Bodies.rectangle(this.canvas_width / 2, this.canvas_height - Game.WALL_THICKNESS, this.canvas_width, Game.WALL_THICKNESS, Game.WALLS_OPTIONS)
-		this.leftWall = Matter.Bodies.rectangle(0, this.canvas_height / 2, Game.WALL_THICKNESS, this.canvas_height, Game.WALLS_OPTIONS)
-		this.rightWall = Matter.Bodies.rectangle(this.canvas_width - Game.WALL_THICKNESS, this.canvas_height / 2, Game.WALL_THICKNESS, this.canvas_height, Game.WALLS_OPTIONS)
-		const walls = [
-			this.ground,
-			this.ceiling,
-			this.leftWall,
-			this.rightWall,
-		]
-		Matter.World.add(this.world, walls)
+	set_ball_position (x: number, y: number) {
+		this.ball_position.x = x
+		this.ball_position.y = y
 	}
 
-	createPaddle (x: number) {
-		const paddle = Matter.Bodies.rectangle(x, this.canvas_height / 2, this.canvas_width * Game.PADDLE_WIDTH_RATIO, this.canvas_height *  Game.PADDLE_HEIGHT_RATIO, Game.WALLS_OPTIONS)
-		return paddle
-	}
+	render () {
 
-	createPaddles () {
-		let x = this.canvas_width * Game.PADDLE_WIDTH_RATIO
-		this.leftPaddle = this.createPaddle(x)
-		x = this.canvas_width - this.canvas_width * Game.PADDLE_WIDTH_RATIO
-		this.rightPaddle = this.createPaddle(x)
-		Matter.World.add(this.world, [this.leftPaddle, this.rightPaddle])
-	}
+		// const width_scale = this.canvas.width / Game.WIDTH_SCALE
+		// const height_scale = this.canvas.height / Game.HEIGHT_SCALE
+		const width_scale = 1
+		const height_scale = 1
+		
+		const paddleL = this.canvas.height * Game.H_RATIO;
+		const paddeW = this.canvas.width * Game.W_RATIO;
 
-	createBall () {
-		this.ball = Matter.Bodies.circle(this.canvas_width / 2, this.canvas_height / 2, Game.BALL_RADIUS, Game.WALLS_OPTIONS);
-		Matter.World.add(this.world, this.ball)
-	}
+		
+		this.context.fillStyle = this.theme.background_color
+		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
+		
+		// Draw
+		this.context.beginPath()
+		this.context.arc((this.ball_position.x) * width_scale, (this.ball_position.y ) * height_scale, Game.BALL_RADIUS, 0, 2 * Math.PI)
+		this.context.fillStyle = this.theme.element_color
+		this.context.fill()
+		this.context.closePath()
+		
+		// my paddle
+		this.context.beginPath()
+		this.context.beginPath()
+		
+		
+		// if the paddle overflows over the canvas then set the lenght to the maximum
+		// if (minepad + paddleLenght  > this.canvas.height)
+		// {
+		// 	console.log("minepad + paddleLenght" , minepad + paddleLenght )
+		// 	minepad -=  minepad + paddleLenght - this.canvas.height
+		// 	console.log("debug monepad" , minepad  )
 
-	setBallVelocity(x: number, y: number) {
-		Matter.Body.setVelocity(this.ball, {x, y})
-	}
+		// }
+		// if (enemupad + paddleLenght   > this.canvas.height)
+		// enemupad = this.canvas.height - paddleLenght
 
-	setBallPosition(x: number, y: number) {
-		Matter.Body.setPosition(this.ball, {x: x * this.width_scale, y: y * this.height_scale})
-	}
+// console.log("debug monepad" , minepad ," mypaddle y", this.myPaddle.y )
+// 		console.log( "paddle eheight", paddleLenght /height_scale)
+		// nchdek ndirlek seglak
+		
+			// mypaddle
+	
 
-	getPaddleWidth () {
-		const width = this.leftPaddle.bounds.max.x - this.leftPaddle.bounds.min.x;
-		return width
-	}
+		this.context.beginPath()
+		this.context.rect(this.myPaddle.x - (paddeW / 2 ) , this.myPaddle.y - (paddleL /2 ) , paddeW ,paddleL ) //0.015 is Game.PADDLE_WIDTH_RATIO i the backend
+		this.context.fillStyle = this.theme.element_color
+		this.context.fill()
+		this.context.beginPath()
 
-	getPaddleHeight () {
-		const bound = this.leftPaddle.bounds
-		return bound.max.y - bound.min.y
+		this.context.beginPath()
+		this.context.rect(0 , this.canvas.height / 2, this.canvas.width , 1) //0.015 is Game.PADDLE_WIDTH_RATIO i the backend
+		this.context.fillStyle = this.theme.element_color
+		this.context.fill()
+		this.context.beginPath()
+		this.context.beginPath()
+		this.context.rect(this.canvas.width / 2  , 0, 1 , this.canvas.height) //0.015 is Game.PADDLE_WIDTH_RATIO i the backend
+		this.context.fillStyle = this.theme.element_color
+		this.context.fill()
+		this.context.beginPath()
+			// enemypaddle
+		this.context.beginPath()
+		this.context.rect(this.enPaddle.x - (paddeW / 2 ) , this.enPaddle.y - (paddleL /2 ) , paddeW ,paddleL) //0.015 is Game.PADDLE_WIDTH_RATIO i the backend
+		this.context.fillStyle = this.theme.element_color
+		this.context.fill()
+		this.context.beginPath()
+		
+		requestAnimationFrame(() => this.render());
 	}
-
-	setPaddlePosition (newPosition: number, choice: string) {
-		const paddle = choice === "LEFT" ? this.leftPaddle : this.rightPaddle
-		Matter.Body.setPosition(paddle, {x: paddle.position.x, y: newPosition})
-	}
-
-	getBallVelocity() {
-		return Matter.Body.getVelocity(this.ball)
-	}
-
-	getBallPosition() {
-		return this.ball.position
-	}
-
 
 
 }

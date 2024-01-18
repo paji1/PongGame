@@ -1,7 +1,7 @@
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { GetCurrentUserId } from 'src/common/decorators';
 import { Server, Socket } from 'socket.io'
-import { UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, UseFilters, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AtGuard } from 'src/common/guards';
 import { EDifficulty, EMatchingType } from 'src/types.ts/game-matching.interface';
 import { MatchingGameDto } from './dto/matching-dto.dto';
@@ -15,12 +15,6 @@ import { actionstatus, game_modes } from '@prisma/client';
 import { RejectGameInviteDto } from './dto/reject-game-invite.dto';
 import Game from './pong-game/Game';
 
-interface IGame {
-	game: Game,
-	numberOfPlayers: number
-}
-
-
 @WebSocketGateway({transports: ['websocket']})
 @UsePipes(new ValidationPipe())
 @UseFilters(WsValidationExeption)
@@ -33,12 +27,12 @@ export class GameGateway {
 		private readonly event: EventEmitter2,
 		private readonly inviteService: InviteService,
 	) {
-		this.games = new Map<string, IGame>()
+		this.games = new Map<string, Game>()
 	}
 
 	@WebSocketServer()
 	server: Server
-	games: Map<string, IGame>
+	games: Map<string, Game>
 
 	@SubscribeMessage('matching')
 	// TODO: when session expires the client does not leave the queue
@@ -80,24 +74,24 @@ export class GameGateway {
 			const len = this.matching.getQueueLength(difficulty)
 			if (len >= 2)
 			{
-				const id1 = this.matching.getQueueContentAtIndex(0, difficulty)
-				const id2 = this.matching.getQueueContentAtIndex(1, difficulty)
-				const sock1 = this.server.sockets.sockets.get(id1.socket_id)
-				const sock2 = this.server.sockets.sockets.get(id2.socket_id)
-				if (!sock1)
+				const host = this.matching.getQueueContentAtIndex(0, difficulty)
+				const guest = this.matching.getQueueContentAtIndex(1, difficulty)
+				const host_socket = this.server.sockets.sockets.get(host.socket_id)
+				const guest_socket = this.server.sockets.sockets.get(guest.socket_id)
+				if (!host_socket)
 				{
-					this.matching.leaveQueue(id1.id)
-					this.randomQueueingHandler(id2.id, difficulty, id2.socket_id)
+					this.matching.leaveQueue(host.id)
+					this.randomQueueingHandler(guest.id, difficulty, guest.socket_id)
 					return 
 				}
-				if (!sock2)
+				if (!guest_socket)
 				{
-					this.matching.leaveQueue(id2.id)
-					this.randomQueueingHandler(id1.id, difficulty, id1.socket_id)
+					this.matching.leaveQueue(guest.id)
+					this.randomQueueingHandler(host.id, difficulty, host.socket_id)
 					return 
 				}
 				const room_id = `${Date.now().toString()}`
-				this.start_game(room_id, sock1, sock2, id1.id, id2.id, difficulty)
+				this.start_game(room_id, host_socket, guest_socket, host.id, guest.id, difficulty)
 				const err = new Error('Failed to create new game');
 				err["room"] = room_id
 			}
@@ -186,82 +180,49 @@ export class GameGateway {
 		})
 		if (!new_game)
 			throw new Error('Failed to create new game')
-		const game: IGame = {
-			game: new Game(game_id, difficulty, this.server.to(game_id), user1.id,  user2.id),
-			numberOfPlayers: 1
-		}
+		const game = new Game(user1, user2, difficulty)
 		this.games.set(game_id, game)
-		this.server.to(game_id).emit('start_game', {
+		this.server.sockets.sockets.get(user1.id).emit('start_game', {
 			game_id,
 			user1_id,
 			user2_id,
-			difficulty
+			difficulty,
+			is_host: true
+		})
+		this.server.sockets.sockets.get(user2.id).emit('start_game', {
+			game_id,
+			user1_id,
+			user2_id,
+			difficulty,
+			is_host: false
 		})
 	}
 
-	@SubscribeMessage('GAME_STARTED')
-	async run_game(@MessageBody() payload: any, @ConnectedSocket() client: Socket) {
+	@SubscribeMessage('GAME_READY')
+	game_ready (@ConnectedSocket() client: Socket, @MessageBody() payload: any) { // TODO: needs dto
+
 		const game_id = payload.game_id
 		const game = this.games.get(game_id)
-		if (game.numberOfPlayers === 2)
+		if (!game.isValidPlayer(client.id))
+			return // TODO: handle socket id error (invalid player zbiiiii la dkhlti)
+		game.number_of_players++
+		if (game.number_of_players === 2)
 		{
-			const velocity = await game.game.setup()
-			this.server.to(game_id).except(client.id).emit('INITIALIZE_GAME', { // This is the host
-				velocity,
-				ballX: game.game.ball.position.x,
-				ballY: game.game.ball.position.y,
-				scale_width: game.game.width,
-				scale_height: game.game.height,
-				score: {
-					host: game.game.host_score,
-					guest: game.game.guest_score
-				}
-			})
-			client.emit('INITIALIZE_GAME', { // This is the guest
-				velocity: {
-					x: -velocity.x,
-					y: velocity.y
-				},
-				ballX: game.game.width - game.game.ball.position.x,
-				ballY: game.game.ball.position.y,
-				scale_width: game.game.width,
-				scale_height: game.game.height,
-				score: {
-					host: game.game.host_score,
-					guest: game.game.guest_score
-				}
-			})
+			game.setup()
+			game.run()
 		}
-		else if (game.numberOfPlayers < 2)
-			game.numberOfPlayers++
+		else {
+			// siiir qwed
+		}
 	}
 
 	@SubscribeMessage('PADDLE_POSITION')
-	paddlesHandler (@ConnectedSocket() client: Socket, @MessageBody() payload: any) {
-
-		console.log('PADDLE_POSITION', payload)
-		const game_id = payload.game_id;
-		const y = payload.paddleY
+	updatePaddles (@ConnectedSocket() client, @MessageBody() payload: any) { // TODO: dto
+		const game_id = payload.game_id
 		const game = this.games.get(game_id)
-		console.log(game_id);
-		if (client.id === game.game.host_id)
-		{
-			game.game.setPaddlePosition(y, 'LEFT')
-			// console.log('left position --->', game.game.leftPaddle.position.y)
-			
-		}
-		else if (client.id === game.game.guest_id)
-		{
-			game.game.setPaddlePosition(y, 'RIGHT')
-			// console.log('right position --->', game.game.rightPaddle.position.y) 
-		}
-		else
-		{
-			// TODO: stop game here
-		}
-		this.server.to(game_id).except(client.id).emit('PADDLE_POSITION', {
-			y: y
-		})
-
+		if (!game.isValidPlayer(client.id))
+			return // TODO: handle socket id error (invalid player zbiiiii la dkhlti)
+		game.setRecievedPaddlePos(client.id, payload.Why)
+		console.log(payload.Why)
 	}
 }
