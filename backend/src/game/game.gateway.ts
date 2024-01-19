@@ -8,7 +8,7 @@ import { MatchingGameDto } from './dto/matching-dto.dto';
 import { GameMatchingService } from './game-matching/game-matching.service';
 import { WsValidationExeption } from './filters/ws.exception.filter';
 import { GameService } from './game.service';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { AcceptGameInviteDto } from './dto/accept-game-invite.dto';
 import { InviteService } from 'src/invite/invite.service';
 import { actionstatus, game_modes } from '@prisma/client';
@@ -180,7 +180,7 @@ export class GameGateway {
 		})
 		if (!new_game)
 			throw new Error('Failed to create new game')
-		const game = new Game(user1, user2, difficulty, user1_id, user2_id)
+		const game = new Game(game_id, user1, user2, difficulty, user1_id, user2_id, this.event)
 		this.games.set(game_id, game)
 		this.server.sockets.sockets.get(user1.id).emit('start_game', {
 			game_id,
@@ -203,6 +203,7 @@ export class GameGateway {
 
 		const game_id = payload.game_id
 		const game = this.games.get(game_id)
+		if (!game) return // TODO: game not started
 		if (!game.isValidPlayer(client.id))
 			return // TODO: handle socket id error (invalid player zbiiiii la dkhlti)
 		game.number_of_players++
@@ -220,11 +221,27 @@ export class GameGateway {
 	updatePaddles (@ConnectedSocket() client, @MessageBody() payload: any) { // TODO: dto
 		const game_id = payload.game_id
 		const game = this.games.get(game_id)
+		if (!game) return // TODO: game not started
 		if (!game.isValidPlayer(client.id))
-			return // TODO: handle socket id error (invalid player zbiiiii la dkhlti)
-		let newY = payload.Why
-		
+			return // TODO: handle socket id error (invalid player zbiiiii la dkhlti)		
 		game.setRecievedPaddlePos(client.id, payload.Why)
-		// console.log(payload.Why)
+	}
+
+	@OnEvent('GAME_RESULT')
+	async gameResult (game_id: string, winner_id: number, loser_id: number, host_score: number, guest_score: number) {
+
+		const res = await this.gameService.prisma.matchhistory.update({
+			where: {
+				id: game_id
+			},
+			data: {
+				loser_id: loser_id,
+				winner_id: winner_id,
+				state: 'FINISHED',
+				score1: host_score,
+				score2: guest_score
+			}
+		})
+		this.games.delete(game_id)
 	}
 }

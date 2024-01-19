@@ -4,6 +4,8 @@ import { Game } from "./GameLogic";
 import { GameContext } from "../Context/GameContext";
 import { Socket } from "socket.io-client";
 import GameOver from "./GameOver";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 interface ICanvasDimensionsState {
 	width: number;
@@ -31,6 +33,7 @@ export const PlayGround = () => {
 	const [gameContext, _] = useContext(GameContext)
 	const [isGameOver, setIsGameOver] = useState(false)
 	const [isWinner, setIsWinner] = useState(false)
+	const navigate = useNavigate()
 
 	useEffect(() => {
 
@@ -38,10 +41,15 @@ export const PlayGround = () => {
 		const parent = parentRef.current
 		const context = canvas?.getContext("2d")
 		const difficulty = gameContext?.difficulty
-		
+
+		if (isGameOver)
+			return
+
 		if (!parent || !canvasRef || !canvas || !context || !difficulty || !gameContext)
 		{
-			return // TODO: rja3 hna azbii
+			navigate(`/game`)
+			toast.error("Something went wrong")
+			return
 		}
 		const is_host = gameContext.is_host
 		const game = new Game(canvas, context, difficulty, is_host)
@@ -86,10 +94,8 @@ export const PlayGround = () => {
 	}, [isGameOver])
 
 	return (
-		<div ref={parentRef} className="bg-green-400 w-full h-full">
-			{
-				!isGameOver ? <canvas className="w-full h-full"  ref={canvasRef}></canvas> : <GameOver isWinner={isWinner} />
-			}
+		<div ref={parentRef} className="bg-textColor w-full h-full">
+			{!isGameOver ? <canvas className="w-full h-full"  ref={canvasRef}></canvas> : <GameOver isWinner={isWinner} />}
 		</div>
 	)
 }

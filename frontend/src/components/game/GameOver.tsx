@@ -1,6 +1,6 @@
 const GameOver = ({isWinner}: {isWinner: boolean}) => {
 	return (
-		<div>
+		<div className={`text-white`}>
 			{
 				isWinner ? "winner" : "loser"
 			}

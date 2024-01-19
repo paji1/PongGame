@@ -1,3 +1,4 @@
+import { EventEmitter2 } from "@nestjs/event-emitter"
 import { game_modes } from "@prisma/client"
 import { max } from "class-validator"
 import * as Matter from "matter-js"
@@ -32,6 +33,8 @@ export default class Game {
 
 	static readonly MAX_SCORE: number = 10
 
+	event: EventEmitter2
+
 	engine: Matter.Engine
 	runner: Matter.Runner
 	world: Matter.World
@@ -49,6 +52,7 @@ export default class Game {
 
 	host_id: number
 	guese_id: number
+	game_id: string
 
 	host_score: number
 	guest_score: number
@@ -58,7 +62,7 @@ export default class Game {
 
 	speed: number
 
-	constructor(host_socket: Socket, guest_socket: Socket, difficulty: game_modes, host_id: number, guest_id: number) {
+	constructor(game_id: string, host_socket: Socket, guest_socket: Socket, difficulty: game_modes, host_id: number, guest_id: number, event: EventEmitter2) {
 		
 		this.host_socket = host_socket
 		this.guest_socket = guest_socket
@@ -71,8 +75,12 @@ export default class Game {
 		this.host_id = host_id
 		this.guese_id = guest_id
 
+		this.game_id = game_id
+
 		this.host_score = 0
 		this.guest_score = 0
+
+		this.event = event
 	}
 
 	setup () {
@@ -125,30 +133,32 @@ export default class Game {
 
 	addToWorld () {
 		Matter.World.add(this.world, [this.ball, this.topBorder, this.bottomBorder, this.host_paddle, this.guest_paddle])
-	}
+	} 
 
 	run () {
 		Matter.Runner.run(this.runner, this.engine);
 
 		const interval = setInterval(() => {
-			if (!this.host_socket.connected || !this.host_socket.connected )
+			if (!this.host_socket.connected || !this.guest_socket.connected )
 			{
+				this.clientDisconnect()
 				clearInterval(interval)
 				return ;
 			}
 
-			this.broadcast()
+			this.broadcast(interval)
+
 		}, 20)
 	}
 
-	broadcast () {
+	broadcast (interval: NodeJS.Timeout) {
 
 			const ball_position = this.getBallPosition()
 
 			if (this.ball.position.x <= 0)
-				this.goal("LEFT")
+				this.goal("LEFT", interval)
 			else if (this.ball.position.x >= Game.WIDTH)
-				this.goal("RIGHT")
+				this.goal("RIGHT", interval)
 
 			this.host_socket.emit('FRAME', {
 				ball: {
@@ -232,25 +242,6 @@ export default class Game {
 		return this.host_socket.id === socket_id  || this.guest_socket.id === socket_id
 	}
 
-	// collisions () {
-
-	// 	Matter.Events.on(this.engine, 'collisionStart', (event) => this.onCollision(event))
-	// }
-
-	// onCollision (event) {
-
-	// 	const pairs = event.pairs
-
-	// 	for (const pair of pairs) {
-
-	// 		const obstacle = pair.bodyA !== this.ball ? pair.bodyA : pair.bodyB
-
-	// 		if (obstacle === this.leftBorder || obstacle === this.rightBorder)
-	// 			this.goal(obstacle)
-	// 		else continue
-	// 	}
-	// }
-	
 	setRecievedPaddlePos(socket_id: string, y:number)
 	{
 		if (this.host_socket.id === socket_id)
@@ -279,7 +270,7 @@ export default class Game {
 		Matter.Body.setVelocity(this.ball, velocity)
 	}
 
-	goal (choice : string) {
+	goal (choice : string, interval: NodeJS.Timeout) {
 		this.reset()
 		if (choice === "LEFT") {
 			this.guest_score++
@@ -291,8 +282,10 @@ export default class Game {
 				self: this.guest_score,
 				opp: this.host_score
 			})
-			if (this.guest_score >= Game.MAX_SCORE)
+			if (this.guest_score >= Game.MAX_SCORE) {
 				this.gameOver()
+				clearInterval(interval)
+			}
 		} else if (choice === "RIGHT") {
 			this.host_score++
 			this.host_socket.emit('GOAL', {
@@ -303,12 +296,14 @@ export default class Game {
 				self: this.guest_score,
 				opp: this.host_score
 			})
-			if (this.host_score >= Game.MAX_SCORE)
+			if (this.host_score >= Game.MAX_SCORE) {
 				this.gameOver()
+				clearInterval(interval)
+			}
 		}
 	}
 
-	gameOver () {
+	gameResults () {
 		const isWinner = true
 		if (this.host_score > this.guest_score) {
 			this.host_socket.emit('GAME_OVER', {
@@ -326,10 +321,31 @@ export default class Game {
 				isWinner: !isWinner
 			})
 		}
-		// TODO: update database accordingly
-		// TODO: clear interval
-		// TODO: destroy the game
-		// TODO: delete game from the map
 	}
+
+	gameOver () {
+
+	
+		this.gameResults()
+		const winner_id = this.host_score > this.guest_score ? this.host_id : this.guese_id
+		const loser_id = this.host_score < this.guest_score ? this.guese_id : this.host_id
+		this.event.emit('GAME_RESULT', this.game_id, winner_id, loser_id, this.host_score, this.guest_score)
+		
+		// TODO: update database accordingly
+	}
+
+	clientDisconnect () {
+		let winner_id: number
+		let loser_id: number
+		if (this.host_socket.connected) {
+			winner_id = this.host_id
+			loser_id = this.guese_id
+		} else {
+			winner_id = this.guese_id
+			loser_id = this.host_id
+		}
+		this.event.emit('GAME_RESULT', this.game_id, winner_id, loser_id, this.host_score, this.guest_score)
+	}
+
 
 }
