@@ -180,7 +180,7 @@ export class GameGateway {
 		})
 		if (!new_game)
 			throw new Error('Failed to create new game')
-		const game = new Game(user1, user2, difficulty)
+		const game = new Game(user1, user2, difficulty, user1_id, user2_id)
 		this.games.set(game_id, game)
 		this.server.sockets.sockets.get(user1.id).emit('start_game', {
 			game_id,
@@ -222,7 +222,14 @@ export class GameGateway {
 		const game = this.games.get(game_id)
 		if (!game.isValidPlayer(client.id))
 			return // TODO: handle socket id error (invalid player zbiiiii la dkhlti)
+		let newY = payload.Why
+		console.log('------>', game.paddle_height / 2)
+		if (newY <= game.paddle_height / 2)
+			newY = game.paddle_height
+		if (newY >= Game.HEIGHT - game.paddle_height / 2)
+			newY = Game.HEIGHT - game.paddle_height / 2
+		
 		game.setRecievedPaddlePos(client.id, payload.Why)
-		console.log(payload.Why)
+		// console.log(payload.Why)
 	}
 }

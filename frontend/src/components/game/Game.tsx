@@ -2,8 +2,8 @@ import { useContext, useEffect, useRef, useState } from "react"
 import { SocketContext } from "../Context/SocketContext";
 import { Game } from "./GameLogic";
 import { GameContext } from "../Context/GameContext";
-import { EDifficulty } from "../Context/QueueingContext";
 import { Socket } from "socket.io-client";
+import GameOver from "./GameOver";
 
 interface ICanvasDimensionsState {
 	width: number;
@@ -22,16 +22,10 @@ const window_resize_handler = (event: Event, canvas: any, context:any, parent: a
 }
 
 const mousemove_handler = (event: any, game: Game, socket: Socket, game_id: string) => {
-	// const x = event.
 	let new_position = event.offsetY
-	// if (new_position < game.getPaddleHeight() / 2)
-	// 	new_position = game.getPaddleHeight() / 2
-	// if (new_position > game.canvas_height - game.getPaddleHeight() / 2)
-	// 	new_position = game.canvas_height - game.getPaddleHeight() / 2
-	// game.setPaddlePosition(new_position, 'LEFT')
 	
 	socket.emit('PADDLE_POSITION', {
-			'Why': new_position / (game.canvas.height / Game.HEIGHT_SCALE),
+			'Why': new_position ,
 			'game_id': game_id
 		})
 }
@@ -42,6 +36,8 @@ export const PlayGround = () => {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const socket = useContext(SocketContext)
 	const [gameContext, _] = useContext(GameContext)
+	const [isGameOver, setIsGameOver] = useState(false)
+	const [isWinner, setIsWinner] = useState(false)
 
 	useEffect(() => {
 
@@ -49,13 +45,14 @@ export const PlayGround = () => {
 		const parent = parentRef.current
 		const context = canvas?.getContext("2d")
 		const difficulty = gameContext?.difficulty
-
+		
 		if (!parent || !canvasRef || !canvas || !context || !difficulty || !gameContext)
 		{
 			console.log('zaaaaapi')
 			return
 		}
-		const game = new Game(canvas, context, difficulty)
+		const is_host = gameContext.is_host
+		const game = new Game(canvas, context, difficulty, is_host)
 
 		socket.emit('GAME_READY', {
 			game_id: gameContext?.game_id
@@ -65,10 +62,18 @@ export const PlayGround = () => {
 			game.set_ball_position(data.ball.position.x, data.ball.position.y)
 			game.myPaddle = data.MyPaddle
 			game.enPaddle = data.EnemyPaddle
-			console.log(game.myPaddle)
 		})
 
-		game.render()
+		socket.on('GOAL', (data) => {
+			game.setPlayerScore(data.self)
+			game.setOpponentScore(data.opp)
+		})
+
+		socket.on('GAME_OVER', (data: any) => {
+			setIsGameOver(!isGameOver)
+			setIsWinner(data.isWinner)
+		})
+
 
 
 		// canvas.width = parent.offsetWidth
@@ -79,21 +84,24 @@ export const PlayGround = () => {
 		window.addEventListener('resize', (e) => window_resize_handler(e, canvas, context, parent))
 		canvas.addEventListener('mousemove', (e) => mousemove_handler(e, game, socket, gameContext.game_id))
 		
+		game.render()
 
 		return () => {
 			socket.off('FRAME')
+			socket.off('GOAL')
+			socket.off('GAME_OVER')
 			window.removeEventListener('load', (e) => window_load_handler(e, canvas))
 			window.removeEventListener('resize', (e) => window_resize_handler(e, canvas, context, parent))
 			canvas.removeEventListener('mousemove', (e) => mousemove_handler(e, game, socket, gameContext.game_id))
 		}
 
-	}, [])
+	}, [isGameOver])
 
 	return (
 		<div ref={parentRef} className="bg-green-400 w-full h-full">
-			{/* <canvas className={`w-full h-full`} ref={canvasRef}></canvas> */}
-			<canvas  ref={canvasRef}></canvas>
-
+			{
+				!isGameOver ? <canvas  ref={canvasRef}></canvas> : <GameOver isWinner={isWinner} />
+			}
 		</div>
 	)
 }
