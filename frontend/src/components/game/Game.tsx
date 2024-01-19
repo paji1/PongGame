@@ -10,22 +10,15 @@ interface ICanvasDimensionsState {
 	height: number;
 }
 
-const window_load_handler = (event: Event, canvas: any) => {
-	console.log(`----> ${canvas.width}    ${canvas.height}`)
-}
-
 const window_resize_handler = (event: Event, canvas: any, context:any, parent: any) => {
-	// canvas.width = parent.offsetWidth
-	// canvas.height = parent.offsetHeight
-	canvas.width = 320
-	canvas.height = 180
+	canvas.width = parent.offsetWidth
+	canvas.height = parent.offsetHeight
 }
 
 const mousemove_handler = (event: any, game: Game, socket: Socket, game_id: string) => {
 	let new_position = event.offsetY
-	
 	socket.emit('PADDLE_POSITION', {
-			'Why': new_position ,
+			'Why': new_position / (game.canvas.height / Game.BACK_END_HEIGHT),
 			'game_id': game_id
 		})
 }
@@ -48,8 +41,7 @@ export const PlayGround = () => {
 		
 		if (!parent || !canvasRef || !canvas || !context || !difficulty || !gameContext)
 		{
-			console.log('zaaaaapi')
-			return
+			return // TODO: rja3 hna azbii
 		}
 		const is_host = gameContext.is_host
 		const game = new Game(canvas, context, difficulty, is_host)
@@ -76,11 +68,8 @@ export const PlayGround = () => {
 
 
 
-		// canvas.width = parent.offsetWidth
-		// canvas.height = parent.offsetHeight	
-		canvas.width = 320
-		canvas.height = 180
-		window.addEventListener('load', (e) => window_load_handler(e, canvas))
+		canvas.width = parent.offsetWidth
+		canvas.height = parent.offsetHeight	
 		window.addEventListener('resize', (e) => window_resize_handler(e, canvas, context, parent))
 		canvas.addEventListener('mousemove', (e) => mousemove_handler(e, game, socket, gameContext.game_id))
 		
@@ -90,7 +79,6 @@ export const PlayGround = () => {
 			socket.off('FRAME')
 			socket.off('GOAL')
 			socket.off('GAME_OVER')
-			window.removeEventListener('load', (e) => window_load_handler(e, canvas))
 			window.removeEventListener('resize', (e) => window_resize_handler(e, canvas, context, parent))
 			canvas.removeEventListener('mousemove', (e) => mousemove_handler(e, game, socket, gameContext.game_id))
 		}
@@ -100,7 +88,7 @@ export const PlayGround = () => {
 	return (
 		<div ref={parentRef} className="bg-green-400 w-full h-full">
 			{
-				!isGameOver ? <canvas  ref={canvasRef}></canvas> : <GameOver isWinner={isWinner} />
+				!isGameOver ? <canvas className="w-full h-full"  ref={canvasRef}></canvas> : <GameOver isWinner={isWinner} />
 			}
 		</div>
 	)

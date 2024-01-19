@@ -1,23 +1,27 @@
 import { game_modes } from "@prisma/client"
+import { max } from "class-validator"
 import * as Matter from "matter-js"
 import { Socket } from "socket.io"
 
 export default class Game {
 
-	static readonly WIDTH: number = 320
-	static readonly HEIGHT: number = 180
+	static readonly WIDTH: number = 1280
+	static readonly HEIGHT: number = 960
 	
-	static readonly BORDER_THICKNESS: number = 5
+	static readonly BORDER_THICKNESS: number = 20
 	static readonly BORDERS_OPTIONS = {
-		friction: 0,
-		frictionAir: 0,
+		// restitution: 1,
+		// friction: 0,
+		// frictionAir: 0,
 		isStatic: true,
+		// inertia: Infinity,
+		// frictionStatic: 0,
 	}
 
-	static readonly PADDLE_HEIGHT_RATIO = .25
+	static readonly PADDLE_HEIGHT_RATIO = .15
 	static readonly PADDLE_WIDTH_RATIO = .015
 
-	static readonly BALL_RADIUS: number = 5
+	static readonly BALL_RADIUS: number = 20
 	static readonly BALL_OPTIONS = {
 		restitution: 1,
 		friction: 0,
@@ -32,8 +36,6 @@ export default class Game {
 	runner: Matter.Runner
 	world: Matter.World
 	ball: Matter.Body
-	leftBorder: Matter.Body
-	rightBorder: Matter.Body
 	topBorder: Matter.Body
 	bottomBorder: Matter.Body
 
@@ -64,7 +66,7 @@ export default class Game {
 		this.difficulty = difficulty
 		this.number_of_players = 0
 
-		this.speed = this.difficulty === game_modes.EASY ? 5 : this.difficulty === game_modes.MEDIUM ? 9 : 13
+		this.speed = this.difficulty === game_modes.EASY ? 10 : this.difficulty === game_modes.MEDIUM ? 20 : 30
 
 		this.host_id = host_id
 		this.guese_id = guest_id
@@ -80,7 +82,7 @@ export default class Game {
 		this.createWalls()
 		this.createPaddles()
 		this.createBall()
-		this.collisions()
+		// this.collisions()
 		this.addToWorld()
 		this.paddle_height = this.getPaddleHeight()
 	}
@@ -109,8 +111,6 @@ export default class Game {
 	}
 
 	createWalls () {
-		this.leftBorder = Matter.Bodies.rectangle(2.5, Game.HEIGHT / 2, Game.BORDER_THICKNESS, Game.HEIGHT, Game.BORDERS_OPTIONS)
-		this.rightBorder = Matter.Bodies.rectangle(Game.WIDTH - (Game.BORDER_THICKNESS / 2), Game.HEIGHT / 2, Game.BORDER_THICKNESS, Game.HEIGHT, Game.BORDERS_OPTIONS)
 		this.topBorder = Matter.Bodies.rectangle(Game.WIDTH / 2, 2.5, Game.WIDTH, Game.BORDER_THICKNESS, Game.BORDERS_OPTIONS)
 		this.bottomBorder = Matter.Bodies.rectangle(Game.WIDTH / 2, Game.HEIGHT - (Game.BORDER_THICKNESS / 2), Game.WIDTH, Game.BORDER_THICKNESS, Game.BORDERS_OPTIONS)
 	}
@@ -118,13 +118,13 @@ export default class Game {
 	createPaddles () {
 		let x = Game.WIDTH * Game.PADDLE_WIDTH_RATIO
 		this.host_paddle = Matter.Bodies.rectangle(x + 10, Game.HEIGHT / 2, Game.WIDTH * Game.PADDLE_WIDTH_RATIO, Game.HEIGHT *  Game.PADDLE_HEIGHT_RATIO, Game.BORDERS_OPTIONS)
-		x = Game.WIDTH - Game.WIDTH * Game.PADDLE_WIDTH_RATIO - x
+		x = Game.WIDTH - Game.WIDTH * Game.PADDLE_WIDTH_RATIO
 
 		this.guest_paddle = Matter.Bodies.rectangle(x - 10, Game.HEIGHT / 2, Game.WIDTH * Game.PADDLE_WIDTH_RATIO, Game.HEIGHT *  Game.PADDLE_HEIGHT_RATIO, Game.BORDERS_OPTIONS)
 	}
 
 	addToWorld () {
-		Matter.World.add(this.world, [this.ball, this.leftBorder, this.rightBorder, this.topBorder, this.bottomBorder, this.host_paddle, this.guest_paddle])
+		Matter.World.add(this.world, [this.ball, this.topBorder, this.bottomBorder, this.host_paddle, this.guest_paddle])
 	}
 
 	run () {
@@ -132,27 +132,24 @@ export default class Game {
 
 		const interval = setInterval(() => {
 			if (!this.host_socket.connected || !this.host_socket.connected )
-			{	
-				console.log("game ended")
+			{
 				clearInterval(interval)
 				return ;
 			}
 
 			this.broadcast()
-		}, 1000/ 60)
+		}, 20)
 	}
 
 	broadcast () {
 
 			const ball_position = this.getBallPosition()
-			// console.log(" host paddle", this.host_paddle.position);
-			// console.log(this.host_paddle.bounds.max.x,this.host_paddle.bounds.min.x );
-			// console.log(this.host_paddle.bounds.max.y, this.host_paddle.bounds.min.y);
-			
-			 
-			// console.log(" guestpaddle", this.guest_paddle.position);
-			// console.log(this.guest_paddle.bounds.max.x,this.guest_paddle.bounds.min.x );
-			// console.log(this.guest_paddle.bounds.max.y, this.guest_paddle.bounds.min.y);
+
+			if (this.ball.position.x <= 0)
+				this.goal("LEFT")
+			else if (this.ball.position.x >= Game.WIDTH)
+				this.goal("RIGHT")
+
 			this.host_socket.emit('FRAME', {
 				ball: {
 					position: {
@@ -160,10 +157,44 @@ export default class Game {
 						y: ball_position.y,
 					}
 				},
-				MyPaddle: this.host_paddle.position,
-				EnemyPaddle: this.guest_paddle.position,
-			})
+				MyPaddle:
+				{
+					min : this.host_paddle.bounds.min,
+					max : this.host_paddle.bounds.max
+				},
+				EnemyPaddle:
+				{
+					min : this.guest_paddle.bounds.min,
+					max: this.guest_paddle.bounds.max,
 
+				}
+			})
+			const mynpaddle =
+			{
+				min:
+				{
+					x:	this.host_paddle.bounds.min.x,
+					y:	this.guest_paddle.bounds.min.y,
+				},
+				max:
+				{
+					x: this.host_paddle.bounds.max.x,
+					y:this.guest_paddle.bounds.max.y,
+				}
+			}
+			const myepaddle =
+			{
+				min:
+				{
+					x:	this.guest_paddle.bounds.min.x,
+					y:	this.host_paddle.bounds.min.y,
+				},
+				max:
+				{
+					x: this.guest_paddle.bounds.max.x,
+					y: this.host_paddle.bounds.max.y,
+				}
+			}
 			this.guest_socket.emit('FRAME', {
 				ball: {
 					position: {
@@ -171,15 +202,8 @@ export default class Game {
 						y: ball_position.y,
 					}
 				},
-				MyPaddle:
-				{
-					x: this.host_paddle.position.x,
-					y: this.guest_paddle.position.y
-				},
-				EnemyPaddle:{
-					x: this.guest_paddle.position.x,
-					y: this.host_paddle.position.y
-				}
+				MyPaddle: mynpaddle,
+				EnemyPaddle: myepaddle
 			})
 	}
 
@@ -208,24 +232,24 @@ export default class Game {
 		return this.host_socket.id === socket_id  || this.guest_socket.id === socket_id
 	}
 
-	collisions () {
+	// collisions () {
 
-		Matter.Events.on(this.engine, 'collisionStart', (event) => this.onCollision(event))
-	}
+	// 	Matter.Events.on(this.engine, 'collisionStart', (event) => this.onCollision(event))
+	// }
 
-	onCollision (event) {
+	// onCollision (event) {
 
-		const pairs = event.pairs
+	// 	const pairs = event.pairs
 
-		for (const pair of pairs) {
+	// 	for (const pair of pairs) {
 
-			const obstacle = pair.bodyA !== this.ball ? pair.bodyA : pair.bodyB
+	// 		const obstacle = pair.bodyA !== this.ball ? pair.bodyA : pair.bodyB
 
-			if (obstacle === this.leftBorder || obstacle === this.rightBorder)
-				this.goal(obstacle)
-			else continue
-		}
-	}
+	// 		if (obstacle === this.leftBorder || obstacle === this.rightBorder)
+	// 			this.goal(obstacle)
+	// 		else continue
+	// 	}
+	// }
 	
 	setRecievedPaddlePos(socket_id: string, y:number)
 	{
@@ -249,8 +273,15 @@ export default class Game {
 		return this.host_paddle.bounds.max.y - this.host_paddle.bounds.min.y
 	}
 
-	goal (obstacle) {
-		if (obstacle === this.leftBorder) {
+	reset () {
+		const velocity = this.generateVector(this.generateAngle())
+		Matter.Body.set(this.ball, "position", {x: Game.WIDTH / 2, y: Game.HEIGHT / 2})
+		Matter.Body.setVelocity(this.ball, velocity)
+	}
+
+	goal (choice : string) {
+		this.reset()
+		if (choice === "LEFT") {
 			this.guest_score++
 			this.host_socket.emit('GOAL', {
 				self: this.host_score,
@@ -262,7 +293,7 @@ export default class Game {
 			})
 			if (this.guest_score >= Game.MAX_SCORE)
 				this.gameOver()
-		} else if (obstacle === this.rightBorder) {
+		} else if (choice === "RIGHT") {
 			this.host_score++
 			this.host_socket.emit('GOAL', {
 				self: this.host_score,
@@ -286,7 +317,6 @@ export default class Game {
 			this.guest_socket.emit('GAME_OVER', {
 				isWinner: !isWinner
 			})
-			console.log('Host won!')
 		}
 		if (this.guest_score > this.host_score) {
 			this.guest_socket.emit('GAME_OVER', {
@@ -295,7 +325,6 @@ export default class Game {
 			this.host_socket.emit('GAME_OVER', {
 				isWinner: !isWinner
 			})
-			console.log('Guest won!')
 		}
 		// TODO: update database accordingly
 		// TODO: clear interval

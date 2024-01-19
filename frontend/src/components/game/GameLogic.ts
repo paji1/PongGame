@@ -3,11 +3,11 @@ import { EASY_THEME, HARD_THEME, IDifficultyTheme, MEDIUM_THEME } from "./GameCo
 
 export class Game {
 
-	static readonly BALL_RADIUS: number = 5
-	static readonly BACK_END_WIDTH: number = 320
-	static readonly BACK_END_HEIGHT: number = 180
+	static readonly BALL_RADIUS: number = 20
+	static readonly BACK_END_WIDTH: number = 1280
+	static readonly BACK_END_HEIGHT: number = 960
 
-	static readonly H_RATIO = .25
+	static readonly H_RATIO = .15
 	static readonly W_RATIO = .015
 	
 
@@ -20,14 +20,29 @@ export class Game {
 	context: CanvasRenderingContext2D
 
 	myPaddle: {
-			x: number,
-			y: number
+		min:{
+			x:number,
+			y:number
+		},
+		max:
+		{
+			x:number,
+			y:number
 		}
+	}
 		
 	enPaddle: {
-		x: number,
-		y: number
+		min:{
+			x:number,
+			y:number
+		},
+		max:
+		{
+			x:number,
+			y:number
+		}
 	}
+		
 	ball_position: {
 		x: number
 		y: number
@@ -52,12 +67,26 @@ export class Game {
 			y: this.canvas.height / 2
 		}
 		this.myPaddle = {
-			x:0,
-			y:0
+			min:{
+				x:0,
+				y:0
+			},
+			max:
+			{
+				x:0,
+				y:0
+			}
 		}
 		this.enPaddle = {
-			x:0,
-			y:0
+			min:{
+				x:0,
+				y:0
+			},
+			max:
+			{
+				x:0,
+				y:0
+			}
 		}
 
 		this.player_score = 0
@@ -70,10 +99,9 @@ export class Game {
 	}
 			
 	render () {
-		// const width_scale = this.canvas.width / Game.WIDTH_SCALE
-		// const height_scale = this.canvas.height / Game.HEIGHT_SCALE
-		const width_scale = 1
-		const height_scale = 1
+		const width_scale = (this.canvas.width) / 1280
+		const height_scale = this.canvas.height / 960
+	
 
 		
 		this.context.fillStyle = this.theme.background_color
@@ -95,55 +123,20 @@ export class Game {
 		
 		// Draw ball
 		this.context.beginPath()
-		this.context.arc((this.ball_position.x) * width_scale, (this.ball_position.y ) * height_scale, Game.BALL_RADIUS, 0, 2 * Math.PI)
+		this.context.arc((this.ball_position.x) * width_scale, (this.ball_position.y ) * height_scale, Game.BALL_RADIUS * height_scale , 0, 2 * Math.PI)
 		this.context.fillStyle = this.theme.element_color
 		this.context.fill()
 		this.context.closePath()
 
-	
-		
-		// my paddle
-		// this.context.beginPath()
-		// this.context.beginPath()
-		
-		
-		// if the paddle overflows over the canvas then set the lenght to the maximum
-		// if (minepad + paddleLenght  > this.canvas.height)
-		// {
-		// 	console.log("minepad + paddleLenght" , minepad + paddleLenght )
-		// 	minepad -=  minepad + paddleLenght - this.canvas.height
-		// 	console.log("debug monepad" , minepad  )
-
-		// }
-		// if (enemupad + paddleLenght   > this.canvas.height)
-		// enemupad = this.canvas.height - paddleLenght
-
-		// console.log("debug monepad" , minepad ," mypaddle y", this.myPaddle.y )
-		// 		console.log( "paddle eheight", paddleLenght /height_scale)
-		// nchdek ndirlek seglak
-		
-			// mypaddle
-	
-
 		this.context.beginPath()
-		this.context.rect(this.myPaddle.x - (paddeW / 2 ) , this.myPaddle.y - (paddleL /2 ) , paddeW ,paddleL ) //0.015 is Game.PADDLE_WIDTH_RATIO i the backend
+		this.context.rect(this.myPaddle.min.x * width_scale , this.myPaddle.min.y *height_scale, (this.myPaddle.max.x  - this.myPaddle.min.x)  *width_scale ,  (this.myPaddle.max.y  - this.myPaddle.min.y) *height_scale) //0.015 is Game.PADDLE_WIDTH_RATIO i the backend
 		this.context.fillStyle = this.theme.element_color
 		this.context.fill()
 		this.context.beginPath()
 
+		// enemypaddle
 		this.context.beginPath()
-		this.context.rect(0 , this.canvas.height / 2, this.canvas.width , 1) //0.015 is Game.PADDLE_WIDTH_RATIO i the backend
-		this.context.fillStyle = this.theme.element_color
-		this.context.fill()
-		this.context.beginPath()
-		this.context.beginPath()
-		this.context.rect(this.canvas.width / 2  , 0, 1 , this.canvas.height) //0.015 is Game.PADDLE_WIDTH_RATIO i the backend
-		this.context.fillStyle = this.theme.element_color
-		this.context.fill()
-		this.context.beginPath()
-			// enemypaddle
-		this.context.beginPath()
-		this.context.rect(this.enPaddle.x - (paddeW / 2 ) , this.enPaddle.y - (paddleL /2 ) , paddeW ,paddleL) //0.015 is Game.PADDLE_WIDTH_RATIO i the backend
+		this.context.rect(this.enPaddle.min.x * width_scale , this.enPaddle.min.y *height_scale, (this.enPaddle.max.x  - this.enPaddle.min.x)  * width_scale ,  (this.enPaddle.max.y  - this.enPaddle.min.y) *height_scale) //0.015 is Game.PADDLE_WIDTH_RATIO i the backend
 		this.context.fillStyle = this.theme.element_color
 		this.context.fill()
 		this.context.beginPath()
