@@ -223,11 +223,6 @@ export class GameGateway {
 		if (!game.isValidPlayer(client.id))
 			return // TODO: handle socket id error (invalid player zbiiiii la dkhlti)
 		let newY = payload.Why
-		console.log('------>', game.paddle_height / 2)
-		if (newY <= game.paddle_height / 2)
-			newY = game.paddle_height
-		if (newY >= Game.HEIGHT - game.paddle_height / 2)
-			newY = Game.HEIGHT - game.paddle_height / 2
 		
 		game.setRecievedPaddlePos(client.id, payload.Why)
 		// console.log(payload.Why)
