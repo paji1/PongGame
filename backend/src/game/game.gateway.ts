@@ -11,7 +11,7 @@ import { GameService } from './game.service';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { AcceptGameInviteDto } from './dto/accept-game-invite.dto';
 import { InviteService } from 'src/invite/invite.service';
-import { actionstatus, game_modes } from '@prisma/client';
+import { actionstatus, current_state, game_modes } from '@prisma/client';
 import { RejectGameInviteDto } from './dto/reject-game-invite.dto';
 import Game from './pong-game/Game';
 
@@ -187,6 +187,7 @@ export class GameGateway {
 			user1_id,
 			user2_id,
 			difficulty,
+			opp: new_game.player2_id,
 			is_host: true
 		})
 		this.server.sockets.sockets.get(user2.id).emit('start_game', {
@@ -194,8 +195,25 @@ export class GameGateway {
 			user1_id,
 			user2_id,
 			difficulty,
+			opp: new_game.player1_id,
 			is_host: false
 		})
+
+		const res = await this.gameService.prisma.user.updateMany({
+			where:{
+				OR: [
+					{id: user1_id},
+					{id: user2_id}
+				]
+			},
+			
+			data: {
+				connection_state: current_state.IN_GAME
+			},
+			
+		})
+		this.event.emit('PUSH', res[0].user42, [current_state.IN_GAME], 'STATUS');
+		this.event.emit('PUSH', res[1].user42, [current_state.IN_GAME], 'STATUS');
 	}
 
 	@SubscribeMessage('GAME_READY')
@@ -242,6 +260,7 @@ export class GameGateway {
 				score2: guest_score
 			}
 		})
+		// TODO: update state
 		this.games.delete(game_id)
 	}
 }

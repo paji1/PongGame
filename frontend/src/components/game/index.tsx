@@ -8,6 +8,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ip } from "../../network/ipaddr";
 import { toast } from "react-toastify";
 import GameOver from "./GameOver";
+import { currentUser } from "../Context/AuthContext";
+import { GameContext } from "../Context/GameContext";
 
 const ButtonComponent = () => {
 	return (
@@ -22,28 +24,50 @@ const ButtonComponent = () => {
 	)
 }
 
-const GameFooter = () => (
-	<div className={`border-solid border-textColor border-4 shadow-gameShadow h-22
-	sm:w-[576px] md:w-[691px] lg:w-[921px] xl:w-[1152px] 2xl:w-[1346px] w-[281px]
-	bg-textColor font-pixelify text-background flex items-center justify-evenly
-	rounded-b`}>
-		<div className={`sm:flex sm:flex-row gap-1 sm:gap-4 lg:gap-10 py-2 hidden`}>
-			<ButtonComponent />
-			<ButtonComponent />
+const PlayerInfo = ({isMe}: {isMe: boolean}) => {
+
+	const user = useContext(currentUser)
+	const [gameContext, setGameContext] = useContext(GameContext)
+
+	return (
+		<div className={`flex fle-row gap-x-2 md:gap-x-8 justify-center items-center ${!isMe ? 'flex-row-reverse' : ''}`}>
+			<div className={`rounded-full overflow-hidden `}>
+				<img className={`w-16`} src={isMe ? user?.avatar : gameContext?.opp.avatar} alt="" />
+			</div>
+			<div className={`hidden md:flex text-lg`}>
+				{isMe ? user?.nickname : gameContext?.opp.nickname}
+			</div>
 		</div>
-		<div className={`flex flex-col gap-3 p-4 box-border`}>
-			<p className={`text-center capitalize text-xl`}>
-				transcendence
-			</p>
-			<p className={`text-center capitalize`}>
-				may the odds never be in your favor
-			</p>
+	)
+}
+
+const GameFooter = () => {
+
+	const [gameContext, setGameContext] = useContext(GameContext)
+
+	return (
+		<div className={`border-solid border-textColor border-4 shadow-gameShadow h-22
+		sm:w-[576px] md:w-[691px] lg:w-[921px] xl:w-[1152px] 2xl:w-[1346px] w-[281px]
+		bg-textColor font-pixelify text-background flex items-center justify-center md:justify-between p-4
+		rounded-b`}>
+			<div className={`sm:flex sm:flex-row gap-1 sm:gap-4 lg:gap-10 py-2 hidden`}>
+				{gameContext ? <PlayerInfo isMe={true} />: (<><ButtonComponent /><ButtonComponent /></>)}
+			</div>
+			<div className={`flex flex-col gap-3 p-4 box-border`}>
+				<p className={`text-center capitalize text-xl`}>
+					transcendence
+				</p>
+				<p className={`text-center capitalize`}>
+					may the odds never be in your favor
+				</p>
+			</div>
+			<div className={`sm:flex sm:flex-row gap-1 sm:gap-4 lg:gap-10 py-2 hidden `}>
+				{gameContext ? <PlayerInfo isMe={false} /> : <ButtonComponent />}
+			</div>
 		</div>
-		<div className={`md:flex md:flex-row gap-1 sm:gap-4 lg:gap-10 py-2 hidden `}>
-			<ButtonComponent />
-		</div>
-    </div>
-)
+	)
+}
+
 
 const GameNotAvailable = () => (
 	<div>
@@ -59,6 +83,7 @@ const GameBody = () => {
 	const [isGameOver, setIsGameOver] = useState(false)
 	const [isWinner, setIsWinner] = useState(false)
 	const navigate = useNavigate()
+	const [gameContext, setGameContext] = useContext(GameContext)
 
 	const params = useParams()
 	const [isSet, setIsSet] = useState(false)
@@ -99,10 +124,12 @@ const GameBody = () => {
 
 		socket.on('GAME_OVER', (data: any) => {
 			navigate(`/game`)
+			setGameContext(null)
 			setPreparation(EGamePreparationState.GAME_OVER_STATE)
 			setIsSet(false)
 			setIsGameOver(!isGameOver)
 			setIsWinner(data.isWinner)
+			
 		})
 
 		return (

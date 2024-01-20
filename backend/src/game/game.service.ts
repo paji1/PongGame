@@ -21,6 +21,22 @@ export class GameService {
 				player2: createGameDto.player2,
 				state: game_state.IN_PLAY,
 				mode: createGameDto.game_mode
+			},
+			select: {
+				player1_id: {
+					select: {
+						id: true,
+						nickname: true,
+						avatar: true,
+					}
+				},
+				player2_id: {
+					select: {
+						id: true,
+						nickname: true,
+						avatar: true,
+					}
+				}
 			}
 		})
 		return res
