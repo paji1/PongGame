@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Res, Http
 import { GameService } from './game.service';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
+import { game_state } from '@prisma/client';
 
 @Controller('game')
 export class GameController {
@@ -27,6 +28,8 @@ export class GameController {
 	async findOne(@Param('id') id: string) {
 		const game = await this.gameService.findOne(id);
 		if (!game)
+			throw new HttpException("Game not found", HttpStatus.BAD_REQUEST);
+		if (game.state === game_state.FINISHED)
 			throw new HttpException("Game not found", HttpStatus.BAD_REQUEST);
 		return game
 	}

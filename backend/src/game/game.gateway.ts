@@ -203,7 +203,7 @@ export class GameGateway {
 
 		const game_id = payload.game_id
 		const game = this.games.get(game_id)
-		if (!game) return // TODO: game not started
+		if (!game || game.game_over) return // TODO: game not started
 		if (!game.isValidPlayer(client.id))
 			return // TODO: handle socket id error (invalid player zbiiiii la dkhlti)
 		game.number_of_players++
@@ -221,7 +221,7 @@ export class GameGateway {
 	updatePaddles (@ConnectedSocket() client, @MessageBody() payload: any) { // TODO: dto
 		const game_id = payload.game_id
 		const game = this.games.get(game_id)
-		if (!game) return // TODO: game not started
+		if (!game || game.game_over) return // TODO: game not started
 		if (!game.isValidPlayer(client.id))
 			return // TODO: handle socket id error (invalid player zbiiiii la dkhlti)		
 		game.setRecievedPaddlePos(client.id, payload.Why)

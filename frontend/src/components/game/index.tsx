@@ -4,9 +4,10 @@ import { EGamePreparationState } from "../Context/QueueingContext";
 import QueueLoader from "./QueueLoader";
 import { SocketContext } from "../Context/SocketContext";
 import {PlayGround} from "./Game";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ip } from "../../network/ipaddr";
 import { toast } from "react-toastify";
+import GameOver from "./GameOver";
 
 const ButtonComponent = () => {
 	return (
@@ -35,7 +36,7 @@ const GameFooter = () => (
 				transcendence
 			</p>
 			<p className={`text-center capitalize`}>
-				may the odds be ever in your favor
+				may the odds never be in your favor
 			</p>
 		</div>
 		<div className={`md:flex md:flex-row gap-1 sm:gap-4 lg:gap-10 py-2 hidden `}>
@@ -55,6 +56,9 @@ const GameBody = () => {
 	const gameBodyRef = useRef(null)
 	const [preparation, setPreparation] = useState(EGamePreparationState.CONFIG_STATE)
 	const socket = useContext(SocketContext)
+	const [isGameOver, setIsGameOver] = useState(false)
+	const [isWinner, setIsWinner] = useState(false)
+	const navigate = useNavigate()
 
 	const params = useParams()
 	const [isSet, setIsSet] = useState(false)
@@ -93,11 +97,20 @@ const GameBody = () => {
 			toast.info('ma mssalix azbi')
 		})
 
+		socket.on('GAME_OVER', (data: any) => {
+			navigate(`/game`)
+			setPreparation(EGamePreparationState.GAME_OVER_STATE)
+			setIsSet(false)
+			setIsGameOver(!isGameOver)
+			setIsWinner(data.isWinner)
+		})
+
 		return (
 			() => {
 				socket.off('enter_queue')
 				socket.off('SUCCESSFUL_INVITE')
 				socket.off('GAME_INVITE_REFUSED')
+				socket.off('GAME_OVER')
 			}
 		)
 	}, [])
@@ -107,11 +120,11 @@ const GameBody = () => {
 		sm:w-[576px] md:w-[691px] lg:w-[921px] xl:w-[1152px] 2xl:w-[1346px] w-[281px]
 		sm:h-[324px] md:h-[389px] lg:h-[518px] xl:h-[648px] 2xl:h-[757px] h-[500px]`}>
 		{
-			// <PlayGround />
 			isSet ? <PlayGround /> : 
 				preparation === EGamePreparationState.CONFIG_STATE ? <GameSetup /> :
 				preparation === EGamePreparationState.QUEUING_STATE ? <QueueLoader /> :
-				preparation === EGamePreparationState.READY_STATE ? <PlayGround /> : <GameNotAvailable />
+				preparation === EGamePreparationState.READY_STATE ? <PlayGround /> :
+				preparation === EGamePreparationState.GAME_OVER_STATE ? <GameOver isWinner={isWinner} /> : <GameNotAvailable />
 		}
 		</div>
 	)

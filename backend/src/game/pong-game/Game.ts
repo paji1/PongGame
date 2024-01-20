@@ -60,6 +60,8 @@ export default class Game {
 	difficulty: game_modes
 	number_of_players: number
 
+	game_over: boolean
+
 	speed: number
 
 	constructor(game_id: string, host_socket: Socket, guest_socket: Socket, difficulty: game_modes, host_id: number, guest_id: number, event: EventEmitter2) {
@@ -81,6 +83,8 @@ export default class Game {
 		this.guest_score = 0
 
 		this.event = event
+
+		this.game_over = false
 	}
 
 	setup () {
@@ -115,7 +119,8 @@ export default class Game {
 	createBall () {
 		const velocity = this.generateVector(this.generateAngle())
 		this.ball = Matter.Bodies.circle(Game.WIDTH / 2, Game.HEIGHT / 2, Game.BALL_RADIUS, Game.BALL_OPTIONS)
-		Matter.Body.setVelocity(this.ball, velocity)
+		Matter.Body.setVelocity(this.ball, {x:0 , y:0})
+		setTimeout(() => Matter.Body.setVelocity(this.ball, velocity), 1000)
 	}
 
 	createWalls () {
@@ -267,7 +272,8 @@ export default class Game {
 	reset () {
 		const velocity = this.generateVector(this.generateAngle())
 		Matter.Body.set(this.ball, "position", {x: Game.WIDTH / 2, y: Game.HEIGHT / 2})
-		Matter.Body.setVelocity(this.ball, velocity)
+		Matter.Body.setVelocity(this.ball, {x:0 , y:0})
+		setTimeout(() => Matter.Body.setVelocity(this.ball, velocity), 1000)
 	}
 
 	goal (choice : string, interval: NodeJS.Timeout) {
@@ -325,16 +331,24 @@ export default class Game {
 
 	gameOver () {
 
-	
+		this.game_over = true
 		this.gameResults()
-		const winner_id = this.host_score > this.guest_score ? this.host_id : this.guese_id
-		const loser_id = this.host_score < this.guest_score ? this.guese_id : this.host_id
-		this.event.emit('GAME_RESULT', this.game_id, winner_id, loser_id, this.host_score, this.guest_score)
+		if (this.host_score > this.guest_score)
+		{
+			const winner_id = this.host_id
+			const loser_id = this.guese_id
+			this.event.emit('GAME_RESULT', this.game_id, winner_id, loser_id, this.host_score, this.guest_score)
+		} else {
+			const winner_id = this.guese_id
+			const loser_id = this.host_id
+			this.event.emit('GAME_RESULT', this.game_id, winner_id, loser_id, this.host_score, this.guest_score)
+		}
 		
 		// TODO: update database accordingly
 	}
 
 	clientDisconnect () {
+		this.game_over = true
 		let winner_id: number
 		let loser_id: number
 		if (this.host_socket.connected) {

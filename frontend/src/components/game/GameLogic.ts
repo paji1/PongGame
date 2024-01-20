@@ -110,11 +110,11 @@ export class Game {
 
 		// socre
 		const score = `${this.player_score} - ${this.opponent_score}`
-		this.context.font = '20pt Calibri';
+		this.context.font = '32pt Pixelify Sans';
 		this.context.textAlign = 'center'; // Adjust as needed
 		this.context.textBaseline = 'top'; // Adjust as needed
 		this.context.fillStyle = this.theme.element_color;
-		this.context.fillText(score, Game.BACK_END_WIDTH / 2, 10); // Adjust the position (10, 10) as needed
+		this.context.fillText(score, this.canvas.width / 2, 10); // Adjust the position (10, 10) as needed
 
 		
 
