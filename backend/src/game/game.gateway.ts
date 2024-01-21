@@ -198,22 +198,6 @@ export class GameGateway {
 			opp: new_game.player1_id,
 			is_host: false
 		})
-
-		// const res = await this.gameService.prisma.user.updateMany({
-		// 	where:{
-		// 		OR: [
-		// 			{id: user1_id},
-		// 			{id: user2_id}
-		// 		]
-		// 	},
-			
-		// 	data: {
-		// 		connection_state: current_state.IN_GAME
-		// 	},
-			
-		// })
-		// this.event.emit('PUSH', res[0].user42, [current_state.IN_GAME], 'STATUS');
-		// this.event.emit('PUSH', res[1].user42, [current_state.IN_GAME], 'STATUS');
 	}
 
 	@SubscribeMessage('GAME_READY')
@@ -248,6 +232,7 @@ export class GameGateway {
 	@OnEvent('GAME_RESULT')
 	async gameResult (game_id: string, winner_id: number, loser_id: number, host_score: number, guest_score: number) {
 
+		
 		const res = await this.gameService.prisma.matchhistory.update({
 			where: {
 				id: game_id
@@ -260,7 +245,17 @@ export class GameGateway {
 				score2: guest_score
 			}
 		})
-		// TODO: update state
+		const level_inc = res.mode === game_modes.EASY ? 10 : res.mode === game_modes.MEDIUM ? 20 : 30
+		const res2 = await this.gameService.prisma.user.update({
+			where: {
+				id: winner_id
+			},
+			data: {
+				experience_points: {
+					increment: level_inc
+				}
+			}
+		})
 		this.games.delete(game_id)
 	}
 }
