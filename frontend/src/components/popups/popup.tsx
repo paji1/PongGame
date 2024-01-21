@@ -14,7 +14,7 @@ const Popup: React.FC<PopupProps> = ({ onClose, setPopupSignUpVisible, setPopupS
 	const [hasHandledMessage, setHasHandledMessage] = useState(false);
 	useEffect(() => {
 		const handleMessage = (event: any) => {
-			if (event.origin === "http://wladnas.ddns.net:3000") {
+			if (event.origin === "http://sucktit.hopto.org:3000") {
 				if (event.data.success) {
 					onClose();
 					console.log(JSON.parse(event.data.payload));
@@ -36,7 +36,7 @@ const Popup: React.FC<PopupProps> = ({ onClose, setPopupSignUpVisible, setPopupS
 	}, []);
 
 	const KarontdoIntra = () => {
-		const oauthUrl = "http://wladnas.ddns.net:3001/auth/intra/login";
+		const oauthUrl = "http://sucktit.hopto.org:3001/auth/intra/login";
 		var title = "OAuth Pop-up";
 		var w = 600;
 		var h = 300;

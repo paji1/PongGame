@@ -1,14 +1,19 @@
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { AtGuard } from './common/guards';
-import { UseGuards } from '@nestjs/common';
+import { Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { GetCurrentUser, GetCurrentUserId } from './common/decorators';
 import { PrismaService } from './prisma/prisma.service';
 import { current_state, relationsip_status } from '@prisma/client';
-import { Server } from "socket.io";
+import { Server , Socket} from "socket.io";
 import { stat } from 'fs';
 import { RoomGuard } from './common/guards/chat/RoomGuards.guard';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { use } from 'passport';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from "@nestjs/config";
+import { Request } from 'express';
+
+const conf: ConfigService = new ConfigService();
 
 @WebSocketGateway()
 @UseGuards(RoomGuard)
@@ -17,18 +22,56 @@ export class AppGateway {
 
   constructor(
 		private readonly prisma: PrismaService,
-		private statusnotify: EventEmitter2
+		private statusnotify: EventEmitter2,
+		private jwtServide : JwtService,
 		
 	) {
 	}
 
 
-
 	@WebSocketServer()
 	server :Server;
- 	async handleConnection(client) {
-		client.emit("HANDSHAKE", "chkon m3aya")
-		console.log("dhsbhdbhabscdhjalsbjcbdsjvbchjdfsvjfnjvcklc")
+
+	async welcome(client, user)
+	{
+		client.join(user["user42"])
+				if ((await this.server.to(user["user42"]).fetchSockets()).length == 1)
+				{
+					const	state = await this.prisma.user.update({where:{user42:user["user42"],},data:{connection_state: current_state.ONLINE}});
+					this.statusnotify.emit("PUSHSTATUS", state.user42 , [{ nickname:state.nickname , connection_state: state.connection_state}])
+				}
+
+				console.log(user["user42"] , "connected")
+	}
+
+ 	async handleConnection(client ) {
+		let user;
+		 try
+		 {
+				user = (await this.jwtServide.verify(client.request.headers.cookie.match(/(?<=atToken=)(.*?)(?=;|$)/)[0] , {
+					"secret" : conf.get('AT_SECRET')
+				}))
+				this.welcome(client, user)
+				console.log("atconnect", client.request.headers.cookie, user)				
+			}
+			catch (e)
+			{
+				try
+				{
+					user = (await this.jwtServide.verify(client.request.headers.cookie.match(/(?<=rtToken=)(.*?)(?=;|$)/)[0] , {
+						"secret" : conf.get('RT_SECRET')
+					}))
+
+					console.log("rt connect")
+					this.welcome(client, user)
+				}
+				catch(e)
+				{
+				}
+
+				
+				client.disconnect()
+			}
 	}
 	
 	
@@ -43,21 +86,12 @@ export class AppGateway {
 
 		}
 	}	
-	@SubscribeMessage("HANDSHAKE")
-	async sayHitoserver(@GetCurrentUser("user42") identifier:string, @GetCurrentUser("sub") id:number, @ConnectedSocket() client)
-	{
-		client.join(identifier)
-		if ((await this.server.to(identifier).fetchSockets()).length == 1)
-		{
-			const	state = await this.prisma.user.update({where:{user42:identifier,},data:{connection_state: current_state.ONLINE}});
-			this.statusnotify.emit("PUSHSTATUS", state.user42 , [{ nickname:state.nickname , connection_state: state.connection_state}])
-		}
-		
-	}
+
 	
 	@SubscribeMessage("ONNSTATUS")
 	async getPrimarystatus( @GetCurrentUser("user42") identifier:string, @ConnectedSocket() client)
 	{
+		console.log("yassir zamel")
 		const status = await this.prisma.user.findUnique(
 			{
 				where:{
@@ -97,7 +131,6 @@ export class AppGateway {
 	
 		client.emit("ON_STATUS",   allstatus)
 		console.log("all send", allstatus)
-
 	}
 	@OnEvent('PUSHSTATUS')
 	async notifyALL(user: string, status:[])

@@ -3,7 +3,7 @@ import {  useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const changeName = async (nickname: string, navigate : any) => {
-	const res = await fetch("http://wladnas.ddns.net:3001/auth/local/apdate/nickname", {
+	const res = await fetch("http://sucktit.hopto.org:3001/auth/local/apdate/nickname", {
 		method: "POST",
 				credentials: "include",
 				headers: {

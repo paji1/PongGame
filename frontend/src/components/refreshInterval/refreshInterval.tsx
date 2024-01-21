@@ -9,7 +9,7 @@ const useRefreshinterval = () => {
 
 	const getToken = useCallback(() => {
 		axios
-			.post("http://wladnas.ddns.net:3001/auth/refresh", {}, { withCredentials: true })
+			.post("http://sucktit.hopto.org:3001/auth/refresh", {}, { withCredentials: true })
 			.then((res) => {
 				console.log(res);
 				console.log(res.data);

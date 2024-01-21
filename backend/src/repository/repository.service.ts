@@ -16,7 +16,7 @@ const allowed  = [
 
 
 const conf: ConfigService = new ConfigService()
-const url = `http://wladnas.ddns.net:3001/repository/`
+const url = `http://sucktit.hopto.org:3001/repository/`
 
 
 
