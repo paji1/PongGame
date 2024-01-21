@@ -6,20 +6,31 @@ import { Socket } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
+const MIN_WINDOW_WIDTH = 575
+
 interface ICanvasDimensionsState {
 	width: number;
 	height: number;
 }
 
 const window_resize_handler = (event: Event, canvas: any, context:any, parent: any) => {
+	// if (parent.offsetWidth <= MIN_WINDOW_WIDTH)
+	// 	{
+	// 		// canvas.height = parent.offsetWidth
+	// 		// canvas.width = parent.offsetHeight
+	// 		return
+	// 	}
+
+			
 	canvas.width = parent.offsetWidth
 	canvas.height = parent.offsetHeight
 }
 
-const mousemove_handler = (event: any, game: Game, socket: Socket, game_id: string) => {
-	let new_position = event.offsetY
+const mousemove_handler = (event: any, canvas: HTMLCanvasElement, game: Game, socket: Socket, game_id: string) => {
+	let new_position = canvas.width <= MIN_WINDOW_WIDTH ? event.offsetX : event.offsetY
+	let scale = canvas.width <= MIN_WINDOW_WIDTH ? (game.canvas.width   /  Game.BACK_END_HEIGHT) : (game.canvas.height / Game.BACK_END_HEIGHT)
 	socket.emit('PADDLE_POSITION', {
-			'Why': new_position / (game.canvas.height / Game.BACK_END_HEIGHT),
+			'Why': new_position / scale,
 			'game_id': game_id
 		})
 }
@@ -68,7 +79,7 @@ export const PlayGround = () => {
 		canvas.width = parent.offsetWidth
 		canvas.height = parent.offsetHeight	
 		window.addEventListener('resize', (e) => window_resize_handler(e, canvas, context, parent))
-		canvas.addEventListener('mousemove', (e) => mousemove_handler(e, game, socket, gameContext.game_id))
+		canvas.addEventListener('mousemove', (e) => mousemove_handler(e, canvas, game, socket, gameContext.game_id))
 		
 		game.render()
 
@@ -76,7 +87,7 @@ export const PlayGround = () => {
 			socket.off('FRAME')
 			socket.off('GOAL')
 			window.removeEventListener('resize', (e) => window_resize_handler(e, canvas, context, parent))
-			canvas.removeEventListener('mousemove', (e) => mousemove_handler(e, game, socket, gameContext.game_id))
+			canvas.removeEventListener('mousemove', (e) => mousemove_handler(e, canvas, game, socket, gameContext.game_id))
 		}
 
 	}, [])

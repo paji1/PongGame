@@ -6,7 +6,7 @@ import { Socket } from "socket.io"
 
 export default class Game {
 
-	static readonly WIDTH: number = 1280
+	static readonly WIDTH: number = 1280 
 	static readonly HEIGHT: number = 960
 	
 	static readonly BORDER_THICKNESS: number = 20
@@ -348,9 +348,15 @@ export default class Game {
 		if (this.host_socket.connected) {
 			winner_id = this.host_id
 			loser_id = this.guese_id
+			this.host_socket.emit('GAME_OVER', {
+				isWinner: true
+			})
 		} else {
 			winner_id = this.guese_id
 			loser_id = this.host_id
+			this.guest_socket.emit('GAME_OVER', {
+				isWinner: true
+			})
 		}
 		this.event.emit('GAME_RESULT', this.game_id, winner_id, loser_id, this.host_score, this.guest_score)
 	}

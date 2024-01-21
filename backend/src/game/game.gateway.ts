@@ -199,21 +199,21 @@ export class GameGateway {
 			is_host: false
 		})
 
-		const res = await this.gameService.prisma.user.updateMany({
-			where:{
-				OR: [
-					{id: user1_id},
-					{id: user2_id}
-				]
-			},
+		// const res = await this.gameService.prisma.user.updateMany({
+		// 	where:{
+		// 		OR: [
+		// 			{id: user1_id},
+		// 			{id: user2_id}
+		// 		]
+		// 	},
 			
-			data: {
-				connection_state: current_state.IN_GAME
-			},
+		// 	data: {
+		// 		connection_state: current_state.IN_GAME
+		// 	},
 			
-		})
-		this.event.emit('PUSH', res[0].user42, [current_state.IN_GAME], 'STATUS');
-		this.event.emit('PUSH', res[1].user42, [current_state.IN_GAME], 'STATUS');
+		// })
+		// this.event.emit('PUSH', res[0].user42, [current_state.IN_GAME], 'STATUS');
+		// this.event.emit('PUSH', res[1].user42, [current_state.IN_GAME], 'STATUS');
 	}
 
 	@SubscribeMessage('GAME_READY')

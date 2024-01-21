@@ -1,5 +1,6 @@
 import { EDifficulty } from "../Context/QueueingContext";
 import { EASY_THEME, HARD_THEME, IDifficultyTheme, MEDIUM_THEME } from "./GameConfig";
+const MIN_WINDOW_WIDTH = 575
 
 export class Game {
 
@@ -99,13 +100,34 @@ export class Game {
 	}
 			
 	render () {
-		const width_scale = (this.canvas.width) / 1280
-		const height_scale = this.canvas.height / 960
+		let width_scale = (this.canvas.width) / 1280
+		let height_scale = this.canvas.height / 960
 	
-
+		if (this.canvas.width <= MIN_WINDOW_WIDTH)
+		{
+			
+			width_scale = this.canvas.height / 1280
+			height_scale = (this.canvas.width) / 960
 		
-		this.context.fillStyle = this.theme.background_color
+		
+			var deg = -90;
+			
+			this.context.save();
+			
+			this.context.translate(0, this.canvas.height)
+			this.context.rotate(deg * Math.PI/180);
+			this.context.fillStyle = this.theme.background_color
+			this.context.fillRect(0, 0, this.canvas.height, this.canvas.width)
+
+			
+		}else{
+
+			this.context.fillStyle = this.theme.background_color
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
+		}
+			
+			
+			
 
 
 		// socre
@@ -114,7 +136,7 @@ export class Game {
 		this.context.textAlign = 'center'; // Adjust as needed
 		this.context.textBaseline = 'top'; // Adjust as needed
 		this.context.fillStyle = this.theme.element_color;
-		this.context.fillText(score, this.canvas.width / 2, 10); // Adjust the position (10, 10) as needed
+		this.context.fillText(score, (this.canvas.width <= MIN_WINDOW_WIDTH) ? this.canvas.height / 2 :this.canvas.width / 2, 10); // Adjust the position (10, 10) as needed
 
 		
 
@@ -140,6 +162,13 @@ export class Game {
 		this.context.fillStyle = this.theme.element_color
 		this.context.fill()
 		this.context.beginPath()
+
+		if (this.canvas.width <= MIN_WINDOW_WIDTH)
+		{
+			this.context.restore();
+		}
+
+
 		
 		requestAnimationFrame(() => this.render());
 	}
