@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Res, HttpException, HttpStatus } from '@nestjs/common';
 import { GameService } from './game.service';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
-
+import { game_state } from '@prisma/client';
 
 @Controller('game')
 export class GameController {
@@ -25,9 +25,12 @@ export class GameController {
 	}
 
 	@Get(':id')
-
 	async findOne(@Param('id') id: string) {
 		const game = await this.gameService.findOne(id);
+		if (!game)
+			throw new HttpException("Game not found", HttpStatus.BAD_REQUEST);
+		if (game.state === game_state.FINISHED)
+			throw new HttpException("Game not found", HttpStatus.BAD_REQUEST);
 		return game
 	}
 
@@ -38,13 +41,11 @@ export class GameController {
     }
 
 	@Patch(':id')
-
 	update(@Param('id') id: string, @Body() updateGameDto: UpdateGameDto) {
 		return this.gameService.update(id, updateGameDto);
 	}
 
 	@Delete(':id')
-
 	remove(@Param('id') id: string) {
 		return this.gameService.remove(id);
 	}

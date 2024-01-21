@@ -1,11 +1,13 @@
-import { createContext } from "react";
+import { createContext } from 'react';
 
-export interface CurrentUser {
+export interface CurrentUser
+{
 	id: number;
-	user42: string;
+    user42: string;
 	nickname: string;
 	avatar: string;
 	status: string;
 }
 
-export const currentUser = createContext<CurrentUser | null>(null);
+export const currentUser = createContext<CurrentUser | null>(null)
+

@@ -10,7 +10,7 @@ import { SocketContext } from "./components/Context/SocketContext";
 import GameMain from "./components/game";
 import Cookies from "js-cookie";
 
-import { BrowserRouter, Route, RouterProvider, Routes } from "react-router-dom";
+import { BrowserRouter, Route, RouterProvider, Routes, useNavigate } from "react-router-dom";
 import Dashboard from "./components/Dashboard/Dashboard";
 import { SearchWindow } from "./Search/Search";
 import { use } from "matter-js";
@@ -22,6 +22,8 @@ import SettingBar from "./components/settingBar/settingBar";
 import QueueLoader from "./components/game/QueueLoader";
 import useRefreshinterval from "./components/refreshInterval/refreshInterval";
 import IUser from "./types/User";
+import { GameContext, IGameContext } from "./components/Context/GameContext";
+import GameUI from "./components/game";
 
 // TODO: this is a temporary trqi3a
 
@@ -60,6 +62,25 @@ const App = () => {
 	const [togglebar, settoglebar] = useState(0);
 	const [isLoading, setLoading] = useState(true);
 	const [status, setstatus] = useState<Map<string, string>>(new Map())
+
+	const [gameContext, setGameContext] = useState<IGameContext | null>(null)
+	const navigate = useNavigate()
+
+	useEffect(() => {
+		socket.on('start_game', (data: any) => {
+			setGameContext({game_id: data.game_id, issuer_id: data.user1_id, receiver_id: data.user2_id, difficulty: data.difficulty, opp: data.opp, is_host: data.is_host})
+			navigate(`/game/${data.game_id}`)
+		})
+	
+		socket.on('FEEDBACK_ERROR', (data) => {
+			toast.error(data)
+		})
+
+		return () => {
+			socket.off('start_game')
+			socket.off('FEEDBACK_ERROR')
+		}
+	}, [])
 	useEffect(() => {
 		setTimeout(() => {
 			setLoading(false);
@@ -125,7 +146,6 @@ const App = () => {
 			{
 				<currentUser.Provider value={userin.current}>
 					<div>
-						<BrowserRouter>
 							{window.location.pathname !== "/loading" && (
 								<>
 									<Navbar />
@@ -146,6 +166,8 @@ const App = () => {
 									)}
 								</>
 							)}
+							<GameContext.Provider value={[gameContext, setGameContext]}>
+
 							<Routes>
 								<Route path="/search" element={<SearchWindow />} />
 								{userin.current ? (
@@ -156,12 +178,15 @@ const App = () => {
 								) : (
 									<Route path="/" element={<HomePage />} />
 								)}
-								<Route path="/game" element={islogin ? <GameMain /> : <HomePage />} />
 								<Route path="/homepage" element={<HomePage />} />
 								<Route path="/loading" element={<Loading />} />
 								<Route path="/*" element={<HomePage />} />
+								<Route path="/game" element={islogin ? <GameUI/> : <HomePage />} >
+									<Route path=':gameID' element={<GameUI/>} />
+							</Route>
 							</Routes>
-						</BrowserRouter>
+							</GameContext.Provider>
+
 					</div>
 				</currentUser.Provider>
 			}

@@ -35,7 +35,7 @@ export class TwoFactorAuthService {
 		const secret: string = CryptoJS.AES.encrypt(secretRaw, this.config.get<string>("FT_SECRET")).toString()
 		
 		const appName: string = "wladnass";
-		const otpAuthUrl: string = authenticator.keyuri(appName, user42, secret);
+		const otpAuthUrl: string = authenticator.keyuri(appName, user42, secretRaw);
 
 		
 		

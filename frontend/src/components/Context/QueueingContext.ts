@@ -14,7 +14,8 @@ export enum EMatchingType {
 export enum EGamePreparationState {
 	CONFIG_STATE,
 	QUEUING_STATE,
-	READY_STATE
+	READY_STATE,
+	GAME_OVER_STATE,
 }
 
 export interface IQueue {

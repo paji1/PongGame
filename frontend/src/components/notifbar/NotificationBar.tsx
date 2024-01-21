@@ -5,7 +5,7 @@ import { HoverDiv } from "../Common"
 import { CurrentUser, currentUser } from "../Context/AuthContext"
 import profileplaceholder from "../../assets/profileplaceholder.png"
 import NotificationItem from "./NotificationItem"
-import { INotificaion, InviteType } from "../../types/NotificationItem"
+import { INotificaion } from "../../types/NotificationItem"
 import { toast } from "react-toastify"
 import { ip } from "../../network/ipaddr"
 import { SocketContext } from "../Context/SocketContext"
@@ -56,8 +56,8 @@ const NotificationBar = ({toogle, settogle} : {toogle:number, settogle:any}) => 
 		const index = newnotifstate.findIndex((not: INotificaion) => not.id === data.id)
 		if (index === -1)
 			newnotifstate.push(data);
-			else
-		     newnotifstate[index].status = data.status
+		else
+			newnotifstate[index].status = data.status
 		setNotification(newnotifstate)
 	})
 	

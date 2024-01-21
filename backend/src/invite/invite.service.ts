@@ -319,6 +319,48 @@ export class InviteService {
             
         )
     }
+
+
+	async updateGameInvite(current_user: number, id: number, status: actionstatus, game_id: string) {
+		return await this.prisma.invites.update({
+			where: {
+				id: id,
+				reciever: current_user,
+				status: actionstatus.pending,
+				type: invitetype.Game
+			},
+			data: {
+				status: status,
+				game_id: game_id
+			},
+			select: {
+				id: true,
+				status: true,
+				type: true,
+				reciever: true,
+				issuer: true,
+				game_mode: true,
+				game_id: true,
+				issuer_id: {
+					select:
+					{
+						id:true,
+						nickname:true,
+						user42:true,
+						avatar:true
+					},
+				},
+				reciever_id: {
+					select:
+					{
+						id:true,
+						user42:true,
+						nickname:true,
+					}
+				}
+			}
+		})
+	}
 }
 
 
