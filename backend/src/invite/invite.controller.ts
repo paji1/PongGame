@@ -42,9 +42,6 @@ export class InviteController {
         res.status(200).end();
         this.events.emit("PUSH", friendname, [ {"user42": myname, "connection_state": "DEL"} ], "ON_STATUS")
         this.events.emit("PUSH", myname, [ {"user42": friendname, "connection_state": "DEL"} ], "ON_STATUS")
-
-
-
       }
     else
       res.status(400).end();

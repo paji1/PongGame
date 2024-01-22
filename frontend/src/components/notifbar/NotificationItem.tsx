@@ -4,15 +4,16 @@ import { INotificaion, InviteType, NotificationStatus } from "../../types/Notifi
 import IUser from "../../types/User";
 import { currentUser } from "../Context/AuthContext";
 import { SocketContext } from "../Context/SocketContext";
+import { toast } from "react-toastify";
 
 const AcceptFriend = async (id: number) =>
 {
-	const res = await fetch(`http://${ip}3001/invite/friend/invite?id=${id}` , {credentials: 'include', method: "POST"})
+	await fetch(`http://${ip}3001/invite/friend/invite?id=${id}` , {credentials: 'include', method: "POST"}).catch(err => toast.error("Exeption: Network error"))
 }
 
 const RejectFriend = async (id:number) =>
 {
-	await fetch(`http://${ip}3001/invite/friend/invite?id=${id}` , { credentials: "include", method: "DELETE" ,});
+	await fetch(`http://${ip}3001/invite/friend/invite?id=${id}` , { credentials: "include", method: "DELETE"}).catch(err => toast.error("Exeption: Network error"))
 }
 
 

@@ -18,13 +18,20 @@ const useInvites = (setNotification:any)=>
 		const fetchData = async () =>
 		{
 			fetch(`http://${ip}3001/invite`, {credentials: "include"})
-			.then((data)=> data.json())
+			.then((data)=> 
+			{
+				if (data.status < 400)
+					return data.json()
+				else
+					toast.error("Error: Failed to get notifications")
+			}
+			)
 			.then((data) =>
 			{
 				if (Array.isArray(data))
 					setNotification(data);
 			}
-			).catch((e) => toast.error(e.message));
+			).catch((e) => toast.error("Exeption: Network error"));
 		}
 		fetchData();
 	},[]);

@@ -73,19 +73,22 @@ export const SearchWindow = () => {
 		fetch(`http://${ip}3001/chat/search/${query}`, {
 			credentials: "include",
 		})
-			.then((data) => data.json())
 			.then((data) => {
-				console.log(data);
-
+				
+					return data.json()
+			
+			})
+				
+			.then((data) => {
 				if (Array.isArray(data)) roomstate(data);
 			})
 			.catch(() => toast.error(`search: network error`));
+
 		fetch(`http://${ip}3001/users/search/${query}`, {
 			credentials: "include",
 		})
 			.then((data) => data.json())
 			.then((data) => {
-				console.log(data);
 				if (Array.isArray(data)) usersstate(data);
 			})
 			.catch(() => toast.error(`search: network error`));
