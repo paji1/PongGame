@@ -10,8 +10,9 @@ export default function History({ History }: { History: Histo[] | null }) {
 			<div className="Ft flex min-[0px]:flex-col border-solid border-4 border-black p-8 shadow-[2px_4px_0px_0px_#000301]">
 				<div className="flex flex-col gap-x-8 overflow-y-auto max-h-[60rem] rr FF gap-y-14 cursor-row-resize">
 					{History?.length ? (
-						History.map((match: Histo) => (
+						History.map((match: Histo, index:number) => (
 							<HistoryMatch
+								key={index}
 								player1={match.player1_id.nickname}
 								player2={match.player2_id.nickname}
 								one={match.score1}

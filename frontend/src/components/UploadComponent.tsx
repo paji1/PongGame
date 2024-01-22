@@ -20,15 +20,12 @@ export const UploadTest = () => {
 	};
 
 	const handleUpload = (file: File) => {
-		console.log(file);
 		if (!file) {
 			toast.error("please chose  an image");
 			return;
 		}
-		console.log(file);
 		var formdata = new FormData();
 		formdata.append("IMAGE", file);
-		console.log(formdata.get(""));
 		fetch("http://" + ip + "3001/repository", { body: formdata, method: "POST", credentials: "include" }).then(
 			async (res) => {
 				if (res.status < 400) {

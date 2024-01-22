@@ -11,8 +11,7 @@ const useRefreshinterval = () => {
 		axios
 			.post("http://sucktit.hopto.org:3001/auth/refresh", {}, { withCredentials: true })
 			.then((res) => {
-				console.log(res);
-				console.log(res.data);
+			
 			})
 			.catch((err): any => {
 				// console.error("axios get refresh error:", err);

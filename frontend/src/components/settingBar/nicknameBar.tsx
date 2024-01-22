@@ -42,7 +42,6 @@ const ChangeNickname = ({ toogle, setToggle }: { toogle: any; setToggle: any }) 
 	};
 
 	const handleSubmit = (e : any) => {
-		console.log("newnickname")
 		e.preventDefault();
 		changeName(newnickname, navigate);
 	}

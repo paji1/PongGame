@@ -32,7 +32,6 @@ export class intraStrategy extends PassportStrategy(Strategy, "intra") {
 					if (!userResponse.ok) {
 						throw new Error(`Failed to fetch user details: ${userResponse.statusText}`);
 					}
-					// console.log(userResponse);
 					return userResponse.json();
 				})
 				.then((user) => {
@@ -41,7 +40,6 @@ export class intraStrategy extends PassportStrategy(Strategy, "intra") {
 						nickname: user.login,
 						avatar: user.image.link,
 					};
-					// console.log("Fetched User Details:", dtoIntra);
 					user.dtoIntra = dtoIntra;
 					return done(null, user.dtoIntra);
 				})

@@ -65,7 +65,8 @@ const FriendItem = ({ status, selector, room, glimpse }: {status: Map<string, st
 				</Link>
 			</div>
 			<div className="flex items-center justify-center w-1/7 ">
-				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+				<svg onClick={() =>  } width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<rect x="13" y="14" width="2" height="2" rx="1" fill="#000301" />
 					<rect x="7" y="11" width="2" height="6" rx="1" fill="#000301" />
 					<rect x="11" y="13" width="2" height="6" rx="1" transform="rotate(90 11 13)" fill="#000301" />

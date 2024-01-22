@@ -14,8 +14,8 @@ const GroupItem = ({ selector, room, glimpse }: { selector: any; room: room; gli
 
 			</div>
 			<div onClick={selector} className="flex flex-col flex-auto cursor-pointer gap-2 ">
-				<text className=" text-center  text-ellipsis overflow-hidden text-primary text-xl">{name}</text>
-				<text className="text-ellipsis text-center overflow-hidden">{preview}</text>
+				<p className=" text-center  text-ellipsis overflow-hidden text-primary text-xl">{name}</p>
+				<p className="text-ellipsis text-center overflow-hidden">{preview}</p>
 			</div>
 		</div>
 	);

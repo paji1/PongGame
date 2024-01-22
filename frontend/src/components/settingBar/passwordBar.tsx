@@ -39,7 +39,6 @@ const ChangePassword = ({ toogle, setToggle }: { toogle: any; setToggle: any }) 
 		}
 	};
 	const handleSubmit = (e: any) => {
-		console.log("newnickname");
 		e.preventDefault();
 		submitepame(currentPassword, newPassword, confirmPassword, navigate);
 	};

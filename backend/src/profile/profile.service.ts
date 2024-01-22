@@ -16,7 +16,6 @@ export class ProfileService {
 	}
 
 	async findOne(username: string) {
-		console.log("user",username);
 		const data = await this.prisma.user.findFirst({
 			select: {
 				id: true,
@@ -201,8 +200,21 @@ export class ProfileService {
 				score2: true,
 				created_at:true,
 			}
+			
 		})
 		
 		return data;
+	}
+	async getmyachivments(user:string)
+	{
+		return (await this.prisma.user.findUnique({where:{nickname:user},
+				select:{
+					achieved:{
+						select:{
+							index:true
+						}
+					}
+				}
+				})).achieved.map((achived)=> achived.index);
 	}
 }

@@ -27,7 +27,6 @@ export const MessageBar = ({ roomnumber }: { roomnumber: number }) => {
 			room: roomnumber,
 			What: textmessage,
 		};
-		console.log(messsage);
 		socket.emit("CHAT", messsage);
 		input.target.value = "";
 		settextmessage(input.target.value);

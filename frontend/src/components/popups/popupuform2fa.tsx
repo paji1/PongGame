@@ -24,7 +24,6 @@ const PopupForm2fa: React.FC<PopupForm2faProps> = ({ user, setPopupSignInVisible
 		setFormData((prevData) => ({ ...prevData, [name]: value }));
 	};
 	const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
-		console.log("submitting ", JSON.stringify({ code: formData.code }));
 		e.preventDefault();
 		try {
 			const response = await fetch("http://sucktit.hopto.org:3001/auth/local/signinTwofa", {

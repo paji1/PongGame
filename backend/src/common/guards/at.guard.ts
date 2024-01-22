@@ -12,7 +12,6 @@ export class AtGuard extends AuthGuard("jwt") {
 	canActivate(context: ExecutionContext) {
 		const isPublic = this.reflector.getAllAndOverride("isPublic", [context.getHandler(), context.getClass()]);
 		if (isPublic) return true;
-		console.log("world", context.getHandler());
 		const req = context.switchToHttp().getRequest();
 		if (
 			(req.cookies && "atToken" in req.cookies && req.cookies.atToken?.length > 0) ||

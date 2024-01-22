@@ -32,7 +32,7 @@ const ChatBar = ({
 	const user = useContext(currentUser);
 
 	if (conversation && typeof conversation.messages !== "undefined" && user) {
-		messages = conversation.messages.map((obj: messages, index) => <Messageitem user={user} messages={obj} />);
+		messages = conversation.messages.map((obj: messages, index) => <Messageitem key={index} user={user} messages={obj} />);
 	}
 	if (config)
 		return room?.roomtypeof !== "chat" ? (

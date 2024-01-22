@@ -101,12 +101,10 @@ const App = () => {
 		}
 		)
 		setstatus(new Map(status));
-		console.log("updateted status", status)
 	})
 // this section to be moved out of this component
 
 	useEffect(() => {
-		console.log("start");
 		const isLoggedIn = async () => {
 			const res = await fetch(`http://${ip}3001/users/isLogin`, { credentials: "include", method: "GET" })
 			.then(async (res) => {
@@ -123,9 +121,8 @@ const App = () => {
 					}
 					setIsLogin(true);
 				})
-				.catch((e) => console.log("hiiiii"));
+				.catch((e) => toast.error("Exeption: network error"));
 
-			console.log("finish");
 		};
 
 		isLoggedIn();
@@ -137,10 +134,8 @@ const App = () => {
 	}
 	if (userin.current) {
 		socket.connect();
-		socket.off("HANDSHAKE").on("HANDSHAKE", () => socket.emit("HANDSHAKE", "hhhhhhhhhhhhhhhhh li ..."));
 	}
 
-	console.log("status", status);
 	if (isLoading && window.location.pathname !== "/loading")
 		return (
 			<div className="flex justify-center items-center max-w-[1536px] h-[50rem] m-auto">

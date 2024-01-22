@@ -52,9 +52,7 @@ export class TwoFactorAuthService {
 	}
 
 	async verify2facode(code: string, userSecret: string): Promise<boolean> {
-		console.log("dncrypt authenticator.generateSecret()", userSecret)
 		const desecret = CryptoJS.AES.decrypt(userSecret,  this.config.get<string>("FT_SECRET")).toString(CryptoJS.enc.Utf8);
-		console.log("dncrypt authenticator.generateSecret()", desecret)
 
 		return await authenticator.verify({ token: code, secret: desecret });
 	}

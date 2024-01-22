@@ -40,13 +40,11 @@ export class RoomGuard implements CanActivate {
         {
             context.switchToWs().getClient().request.headers["user"] = request.user[key2];
             roomid = context.switchToWs().getData().room;
-            console.log("hona",context.switchToWs().getData(), userState)
         }
         else
             roomid = +request.query["room"]
 
         const now = new Date()
-        console.log("from room guard date is ", now.getTime(), "room id is", roomid )
         if (typeof types !== "undefined")
         {
             
@@ -107,10 +105,8 @@ export class RoomGuard implements CanActivate {
                     }
                     if (membership.ismuted && userState.includes(Roomstattypes.NOTMUTE))
                     {
-                        console.log((new Date()).getTime() - membership.mutetime.getTime() - 60000)
                         if (((new Date()).getTime() - membership.mutetime.getTime() - 60000) > 0)
                         {
-                            console.log("unmuted")
                             const newres = await this.prisma.rooms_members.update({where:{id: membership.id},data: {ismuted:false, mutetime:null}, select: {
                                 id: true,
                                 roomid: true,

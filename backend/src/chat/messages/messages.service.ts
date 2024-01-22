@@ -61,7 +61,6 @@ export class MessagesService {
 					]
 				}
 		})).map((blockrel) => blockrel.initiator === Requester ? blockrel.reciever : blockrel.initiator)
-		console.log("blocked re ", blocked)
 		const conversation = await this.prisma.rooms.findMany({
 			where: {
 					rooms_members: {
@@ -198,7 +197,6 @@ export class MessagesService {
 			})
 			return data;
 		} catch (e){
-			console.log(e.message)
 			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
 		}
 	}

@@ -11,7 +11,6 @@ export class InviteController {
   @Get()
   async Handler(@GetCurrentUserId() user:number)
   {
-    console.log("mok ")
     return await this.inviteService.getdatainvite(user);
   }
 
@@ -52,9 +51,7 @@ export class InviteController {
   @Post('friend/invite')
   async FriendAccept( @GetCurrentUserId() user:number, @Query('id') id: number,@Res() res)
   {
-    console.log("accepting rquest " , id)
     const data =  await this.inviteService.AcceptFriend( user, id);
-    console.log("0")
     let invite;
     if (Array.isArray(data))
        invite = data[0]

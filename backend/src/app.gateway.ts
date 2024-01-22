@@ -1,6 +1,6 @@
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { AtGuard } from './common/guards';
-import { Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Req, UnauthorizedException, UseFilters, UseGuards } from '@nestjs/common';
 import { GetCurrentUser, GetCurrentUserId } from './common/decorators';
 import { PrismaService } from './prisma/prisma.service';
 import { current_state, relationsip_status } from '@prisma/client';
@@ -12,9 +12,10 @@ import { use } from 'passport';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from "@nestjs/config";
 import { Request } from 'express';
+import { WsValidationExeption } from './filters/ws.exeption.filter';
 
 const conf: ConfigService = new ConfigService();
-
+@UseFilters(WsValidationExeption)
 @WebSocketGateway()
 @UseGuards(RoomGuard)
 @UseGuards(AtGuard)
@@ -41,7 +42,6 @@ export class AppGateway {
 			this.statusnotify.emit("PUSHSTATUS", state.user42 , [{ user42:state.user42 , connection_state: state.connection_state}])
 		}
 		
-		console.log(user["user42"] , "connected")
 	}
 
  	async handleConnection(client ) {
@@ -52,7 +52,6 @@ export class AppGateway {
 					"secret" : conf.get('AT_SECRET')
 				}))
 				this.welcome(client, user)
-				console.log("atconnect", client.request.headers.cookie, user)				
 			}
 			catch (e)
 			{
@@ -62,15 +61,14 @@ export class AppGateway {
 						"secret" : conf.get('RT_SECRET')
 					}))
 
-					console.log("rt connect")
 					this.welcome(client, user)
 				}
 				catch(e)
 				{
+					client.disconnect()
 				}
 
 				
-				client.disconnect()
 			}
 	}
 	
@@ -83,7 +81,6 @@ export class AppGateway {
 		{
 			const	state = await this.prisma.user.update({where:{user42:identifier,},data:{connection_state: current_state.OFFLINE}});
 			this.statusnotify.emit("PUSHSTATUS", state.user42 , [{ user42:state.user42 , connection_state: state.connection_state}])
-
 		}
 	}	
 
@@ -139,7 +136,6 @@ export class AppGateway {
 		})
 	
 		client.emit("ON_STATUS",   allstatus)
-		console.log("all send", allstatus)
 	}
 	
 	@OnEvent('PUSHSTATUS')
@@ -215,7 +211,6 @@ export class AppGateway {
 
 	@OnEvent("IN_GAME")
 	async ingame(user1: number, user2: number) {
-		console.log("in game", user1, user2)
 		const status = await this.prisma.user.updateMany({
 			where:
 			{
@@ -239,7 +234,6 @@ export class AppGateway {
 
 	@OnEvent("LEFT_GAME")
 	async leftgame(user1: number, user2: number) {
-		console.log("left game", user1, user2)
 
 		await this.prisma.user.updateMany({
 			where:

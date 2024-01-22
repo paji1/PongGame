@@ -21,7 +21,6 @@ const PopupForm: React.FC<PopupFormProps> = ({ user, setPopupSignInVisible,setpo
 		setFormData((prevData) => ({ ...prevData, [name]: value }));
 	};
 	const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
-		console.log("submitting ", JSON.stringify({ user42: user, password: formData.password }));
 		e.preventDefault();
 		try {
 			const response = await fetch("http://sucktit.hopto.org:3001/auth/local/signin", {
@@ -36,12 +35,10 @@ const PopupForm: React.FC<PopupFormProps> = ({ user, setPopupSignInVisible,setpo
 			if (response.ok) {
 				try {
 					const { is2fa } = await response.json();
-					console.log(is2fa);
 					setpopup(2);
 					
 				} catch (error) {
 					
-					console.log("ana hna ")
 					navigate("/");
 					navigate(0);
 					setPopupSignInVisible(false);

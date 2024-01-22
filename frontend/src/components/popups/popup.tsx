@@ -17,13 +17,11 @@ const Popup: React.FC<PopupProps> = ({ onClose, setPopupSignUpVisible, setPopupS
 			if (event.origin === "http://sucktit.hopto.org:3000") {
 				if (event.data.success) {
 					onClose();
-					console.log(JSON.parse(event.data.payload));
 					const payload = JSON.parse(event.data.payload);
 					if (payload && payload.userData && payload.userData.signUpstate === true) {
 						setloginuser(payload.userData.user);
 						setPopupSignInVisible(true);
 					} else setPopupSignUpVisible(true);
-					console.log(JSON.parse(event.data.payload).userData.signUpstate);
 					popupWindowRef.current.close();
 				}
 			}
@@ -43,7 +41,6 @@ const Popup: React.FC<PopupProps> = ({ onClose, setPopupSignUpVisible, setPopupS
 		const left = window.innerWidth / 2 - w / 2;
 		const top = window.innerHeight / 2 - h / 2;
 		popupWindowRef.current = window.open(oauthUrl, title, `width=${w},height=${h},left=${left},top=${top}`);
-		console.log("her");
 	};
 
 	useEffect(() => {

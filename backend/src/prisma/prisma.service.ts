@@ -11,7 +11,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 	}
 	async onModuleInit() {
 		await this.$connect();
-		console.log("connect prisma");
 		this.setAllofline()
 	}
 
@@ -27,12 +26,12 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 					connection_state: "OFFLINE",
 				}
 			})
+
 		}catch (e)
 		{
 			
 			// const migrate  = await exec("npx prisma migrate dev --name init --schema='/code/prisma/schema.prisma'")
 			const migrate  = await exec("bash /code/prisma/seed/seed.sh")
-			
 		}
 	}
 }

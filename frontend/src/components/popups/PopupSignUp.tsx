@@ -31,7 +31,6 @@ const PopupSignUp: React.FC<SignUpPopupProps> = ({ setPopupSignUpVisible }) => {
 		setFormData((prevData) => ({ ...prevData, [name]: value }));
 	};
 	const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
-		console.log("submitting ", JSON.stringify({ nickname: formData.nickname, password: formData.password }));
 		e.preventDefault();
 		if (formData.password !== formData.retype_password) {
 			return;
@@ -45,7 +44,6 @@ const PopupSignUp: React.FC<SignUpPopupProps> = ({ setPopupSignUpVisible }) => {
 				},
 				body: JSON.stringify({ nickname: formData.nickname, password: formData.password }),
 			});
-			console.log(response);
 			if (response.ok) {
 				setPopupSignUpVisible(false);
 				navigate("/");

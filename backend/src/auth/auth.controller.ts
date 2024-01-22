@@ -37,26 +37,7 @@ export class AuthController {
 		private readonly twoFactorAuthService: TwoFactorAuthService,
 	) {}
 
-	// @Get("create")
-	// @Public()
-	// @UseGuards(AuthGuard("intra"))
-	// async get_user(@Body() user: any) {}
 
-	// 	// Add your logic here to exchange the authorization code for an access token
-	// 	// ...
-	// 	const authenticatedUser = req;
-	// 	// console.log('Authenticated User:', authenticatedUser);
-	// 	// Redirect or respond accordingly
-	// 	return "Callback handled";
-	// }
-
-	// @Post("info")
-	// @UseGuards(AuthGuard("intra"))
-	// async inf(@Body() user: any) {
-	// 	return console.log("hello world");
-	// }
-
-	// TO DO  refactor code to service
 	@Public()
 	@UseGuards(ItGuard)
 	@Post("local/signup")
@@ -108,7 +89,6 @@ export class AuthController {
 		@Res() res: Response,
 		@GetCurrentUser("user42") user42: string,
 	): Promise<any> {
-		// console.log("hello");
 		// try {
 
 		if (dto.user42 !== user42) throw new UnauthorizedException();
@@ -163,7 +143,6 @@ export class AuthController {
 	@Post("hello")
 	@HttpCode(HttpStatus.OK)
 	hello(@GetCurrentUser() papylod: any) {
-		// console.log(papylod);
 		return { hello: "hello" };
 	}
 
@@ -177,8 +156,6 @@ export class AuthController {
 		@GetCurrentUser("user42") user42: string,
 		@Res() res: Response,
 	): Promise<void> {
-		console.log("heeeere")
-		console.log("refresh    ", refreshToken);
 		const [tokens, signUpstate] = await this.authService.refreshTokens(userId, refreshToken, res);
 		
 

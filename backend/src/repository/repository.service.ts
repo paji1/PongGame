@@ -70,7 +70,6 @@ export class RepositoryService {
         
         const files = fs.readdirSync(`./${location}/${user}`)
         files.map((file, index) =>  {
-            console.log(`./${location}/${user}/${filename}`, file, index)
             if (file !== filename)
                 fs.unlinkSync(`./${location}/${user}/${file}`)
         })

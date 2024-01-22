@@ -20,7 +20,6 @@ export class ItGuard extends AuthGuard("jwt-intra") {
 	}
 	
 	canActivate(context: ExecutionContext) {
-		console.log("mouhajir")
 		return super.canActivate(context);
 	}
 }

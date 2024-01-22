@@ -11,11 +11,11 @@ import { GameService } from './game.service';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { AcceptGameInviteDto } from './dto/accept-game-invite.dto';
 import { InviteService } from 'src/invite/invite.service';
-import { actionstatus, current_state, game_modes } from '@prisma/client';
+import { actionstatus, current_state, game_modes, matchhistory } from '@prisma/client';
 import { RejectGameInviteDto } from './dto/reject-game-invite.dto';
 import Game from './pong-game/Game';
 
-@WebSocketGateway({transports: ['websocket']})
+@WebSocketGateway({ transports: ['websocket'] })
 @UsePipes(new ValidationPipe())
 @UseFilters(WsValidationExeption)
 @UseGuards(AtGuard)
@@ -41,14 +41,12 @@ export class GameGateway {
 			await this.inviteHandler(id, payload.invite, client, payload.difficulty)
 		else if (payload.matchingType === EMatchingType.RANDOM)
 			await this.randomQueueingHandler(id, payload.difficulty, client.id)
-		else
-		{
+		else {
 
 		}
 	}
 
-	async inviteHandler(id: number, nickname: string, issuer_socket: Socket, difficulty: EDifficulty)
-	{
+	async inviteHandler(id: number, nickname: string, issuer_socket: Socket, difficulty: EDifficulty) {
 		var notifInfo = null
 		try {
 			const invited = await this.matching.findIDByNickname(nickname)
@@ -59,8 +57,8 @@ export class GameGateway {
 			this.matching.inviteQueueing(notifInfo.game_id, issuer_socket.id, notifInfo.issuer_id.id, difficulty)
 			notifInfo["game_id"] = notifInfo.game_id
 			notifInfo["difficulty"] = difficulty
-			this.event.emit("PUSH", notifInfo.reciever_id.user42, notifInfo , "INVITES")
-			this.event.emit("PUSH", notifInfo.issuer_id.user42, notifInfo , "INVITES")
+			this.event.emit("PUSH", notifInfo.reciever_id.user42, notifInfo, "INVITES")
+			this.event.emit("PUSH", notifInfo.issuer_id.user42, notifInfo, "INVITES")
 			issuer_socket.emit('SUCCESSFUL_INVITE', {})
 		} catch (error) {
 			issuer_socket.emit('game_error', error.message)
@@ -72,23 +70,20 @@ export class GameGateway {
 			this.matching.randomMatchingHandler(id, difficulty, socket_id)
 			this.server.sockets.sockets.get(socket_id).emit('enter_queue', {})
 			const len = this.matching.getQueueLength(difficulty)
-			if (len >= 2)
-			{
+			if (len >= 2) {
 				const host = this.matching.getQueueContentAtIndex(0, difficulty)
 				const guest = this.matching.getQueueContentAtIndex(1, difficulty)
 				const host_socket = this.server.sockets.sockets.get(host.socket_id)
 				const guest_socket = this.server.sockets.sockets.get(guest.socket_id)
-				if (!host_socket)
-				{
+				if (!host_socket) {
 					this.matching.leaveQueue(host.id)
 					this.randomQueueingHandler(guest.id, difficulty, guest.socket_id)
-					return 
+					return
 				}
-				if (!guest_socket)
-				{
+				if (!guest_socket) {
 					this.matching.leaveQueue(guest.id)
 					this.randomQueueingHandler(host.id, difficulty, host.socket_id)
-					return 
+					return
 				}
 				const room_id = `${Date.now().toString()}`
 				this.start_game(room_id, host_socket, guest_socket, host.id, guest.id, difficulty)
@@ -104,15 +99,13 @@ export class GameGateway {
 		}
 	}
 
-	@SubscribeMessage('leave_queue') 
-	leaveQueue (@GetCurrentUserId() id: number) 
-	{
+	@SubscribeMessage('leave_queue')
+	leaveQueue(@GetCurrentUserId() id: number) {
 		this.matching.leaveQueue(id)
 	}
 
-	@SubscribeMessage('ACCEPT_GAME_INVITE') 
-	async acceptGameInvite(@MessageBody() payload: AcceptGameInviteDto, @ConnectedSocket() client: Socket) 
-	{
+	@SubscribeMessage('ACCEPT_GAME_INVITE')
+	async acceptGameInvite(@MessageBody() payload: AcceptGameInviteDto, @ConnectedSocket() client: Socket) {
 		try {
 			let acceptence = null
 			try {
@@ -139,12 +132,11 @@ export class GameGateway {
 			this.start_game(payload.game_id, issuer, reciever, payload.issuer_id, payload.receiver_id, payload.game_mode)
 		} catch (error) {
 			client.emit('FEEDBACK_ERROR', error.message)
-		} 
+		}
 	}
 
 	@SubscribeMessage('REJECT_GAME_INVITE')
-	async rejectGameInvite(@MessageBody() payload: RejectGameInviteDto, @ConnectedSocket() client: Socket)
-	{
+	async rejectGameInvite(@MessageBody() payload: RejectGameInviteDto, @ConnectedSocket() client: Socket) {
 		try {
 			let rejection = null;
 			try {
@@ -201,7 +193,7 @@ export class GameGateway {
 	}
 
 	@SubscribeMessage('GAME_READY')
-	game_ready (@ConnectedSocket() client: Socket, @MessageBody() payload: any) { // TODO: needs dto
+	game_ready(@ConnectedSocket() client: Socket, @MessageBody() payload: any) { // TODO: needs dto
 
 		const game_id = payload.game_id
 		const game = this.games.get(game_id)
@@ -209,10 +201,9 @@ export class GameGateway {
 		if (!game.isValidPlayer(client.id))
 			return // TODO: handle socket id error (invalid player zbiiiii la dkhlti)
 		game.number_of_players++
-		if (game.number_of_players === 2)
-		{
+		if (game.number_of_players === 2) {
 			game.setup()
-			
+
 			game.run()
 		}
 		else {
@@ -221,7 +212,7 @@ export class GameGateway {
 	}
 
 	@SubscribeMessage('PADDLE_POSITION')
-	updatePaddles (@ConnectedSocket() client, @MessageBody() payload: any) { // TODO: dto
+	updatePaddles(@ConnectedSocket() client, @MessageBody() payload: any) { // TODO: dto
 		const game_id = payload.game_id
 		const game = this.games.get(game_id)
 		if (!game || game.game_over) return // TODO: game not started
@@ -231,9 +222,9 @@ export class GameGateway {
 	}
 
 	@OnEvent('GAME_RESULT')
-	async gameResult (game_id: string, winner_id: number, loser_id: number, host_score: number, guest_score: number) {
+	async gameResult(game_id: string, winner_id: number, loser_id: number, host_score: number, guest_score: number) {
 
-		
+
 		const res = await this.gameService.prisma.matchhistory.update({
 			where: {
 				id: game_id
@@ -246,17 +237,82 @@ export class GameGateway {
 				score2: guest_score
 			}
 		})
+
 		const level_inc = res.mode === game_modes.EASY ? 10 : res.mode === game_modes.MEDIUM ? 20 : 30
 		const res2 = await this.gameService.prisma.user.update({
 			where: {
-				id: winner_id
+				id: winner_id,
 			},
 			data: {
 				experience_points: {
 					increment: level_inc
-				}
+				},
+
+			},
+			select:
+			{
+				achieved: true,
+				player1: true,
+				player2: true
+
 			}
 		})
+		try {
+			let addAchieved: any = [];
+			if (res2.achieved.findIndex((rr) => rr.index === 2) === -1) {
+				addAchieved.push({index: 2});
+			}
+			if (res2.achieved.findIndex((rr) => rr.index === 4 ) === -1 ) {
+				let a: matchhistory[];
+				a = Array.isArray(res2.player1) ? res2.player1.filter(user => user.winner_id === winner_id): []
+				a = a.concat(Array.isArray(res2.player2) ? res2.player2.filter(user => user.winner_id === winner_id) : [])
+				if (a.length >= 3) {
+					addAchieved.push({index: 4});
+				}
+			}
+			if (res2.achieved.findIndex((rr) => rr.index ===5 ) === -1)
+			{
+				let a: matchhistory[];
+					a = res2.player1
+					Array.isArray(a) ? a =  a.concat( Array.isArray(res2.player2) ?  res2.player2 : []) :a = []  
+					if (a.findIndex((r) => r.mode === "EASY") !== -1 && a.findIndex((r) => r.mode === "MEDIUM") !== -1  && a.findIndex((r) => r.mode === "HARD") !== -1) {
+						addAchieved.push({index: 5});
+				}
+			}
+			if ((!host_score  || !guest_score ) && res2.achieved.findIndex((rr) => rr.index === 7 ) === -1)
+			{
+				addAchieved.push({index: 7});
+			}
+	
+			if (res2.achieved.findIndex((rr) => rr.index === 8 ) === -1 ) {
+				let a: matchhistory[];
+				a = Array.isArray(res2.player1) ? res2.player1.filter(user => user.winner_id === winner_id): []
+				a = a.concat(Array.isArray(res2.player2) ? res2.player2.filter(user => user.winner_id === winner_id) : [])
+				if (a.findIndex((r) => r.mode === "EASY") !== -1 && a.findIndex((r) => r.mode === "MEDIUM") !== -1  && a.findIndex((r) => r.mode === "HARD") !== -1) {
+					addAchieved.push({index: 8});
+				}
+			}
+	
+			
+			if (addAchieved.length)
+			{
+				await this.gameService.prisma.user.update({
+					where: {
+						id: winner_id
+					},
+					data: {
+						achieved:{
+							createMany:{
+								data:  addAchieved
+							}
+						}
+					}
+				})
+			}
+			
+		} catch (error) {
+			
+		}
 		this.games.delete(game_id)
 		this.event.emit("LEFT_GAME", winner_id, loser_id)
 	}

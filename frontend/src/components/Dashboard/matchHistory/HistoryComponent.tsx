@@ -31,7 +31,7 @@ function Player({ reverse, name, score, pic }: { reverse: boolean; name: string;
 
 export default function HistoryMatch(props: any) {
 	return (
-		<div className="flex justify-evenly flex-col lg:flex-row gap-y-4">
+		<div  className="flex justify-evenly flex-col lg:flex-row gap-y-4">
 			<Player reverse={false} name={props.player1} score={props.one} pic={props.pic1} />
 			<Player reverse={true} name={props.player2} score={props.two} pic={props.pic2} />
 		</div>

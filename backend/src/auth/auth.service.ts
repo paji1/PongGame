@@ -98,6 +98,12 @@ export class AuthService {
 				data: {
 					nickname: dto.nickname,
 					hash,
+					achieved: {
+						create:
+						{
+							index:1,
+						}
+					}
 				},
 				select: {
 					id: true,
@@ -131,7 +137,6 @@ export class AuthService {
 			});
 			
 			if (!user) return [await this.signUpIntra(dto), false, false];
-			console.log("here");
 			
 			// const tokens = await this.getTokens(user.id, user.user42);
 			// await this.updateRtHash(user.id, tokens.refresh_token);

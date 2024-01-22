@@ -62,7 +62,7 @@ const routeinvites = (what:string, notif:INotificaion,  socket: any) =>
 			RejectFriend(notif.id)
 		if (notif.type ===  InviteType.Game)
 		{
-			(()=>( console.log(" MGS do your logic  here ")))()
+		
 			refuseGameInvite(notif, socket)
 		}
 		/**

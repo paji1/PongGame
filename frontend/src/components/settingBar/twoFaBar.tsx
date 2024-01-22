@@ -39,11 +39,9 @@ const useGet2faState = (prop: useGet2faStateProp) => {
 	}, [prop.setTwoFa]);
 };
 const useGetImage = (confirmTwoFa: any, setConfirmTwoFa: any, ref: any, TwoFa: any, toogle: any) => {
-	console.log(confirmTwoFa);
 	useEffect(() => {
 		try {
 			if (!TwoFa && ref.current.checked  ) {
-				console.log("hellkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkko");
 				fetch("http://sucktit.hopto.org:3001/auth/generateQrCode", {
 					method: "POST",
 					credentials: "include",
@@ -71,7 +69,6 @@ const useDisable2fa = (disable: any, isDropdownOpen: any, ref: any, TwoFa: any, 
 	useEffect(() => {
 		try {
 			if (TwoFa && !ref.current.checked  ) {
-				console.log("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
 				fetch("http://sucktit.hopto.org:3001/auth/disable2fa", {
 					method: "POST",
 					credentials: "include",
@@ -118,16 +115,13 @@ const TwoFaBar = ({ toogle, setToggle }: { toogle: any; setToggle: any }) => {
 		setFormData((prevData) => ({ ...prevData, [name]: value }));
 		seterror(undefined);
 	};
-	console.log("TWOFA", TwoFa)
 
 	useDisable2fa(disable, isDropdownOpen, ref, TwoFa, setTwoFa);
 	useGetImage(confirmTwoFa, setConfirmTwoFa, ref, TwoFa, toogle);
 	useGet2faState({ setTwoFa , toogle, ref});
 	useEffect(() => {}, []);
 	const handleDropdownToggle = () => {
-			console.log("start")
-			console.log("ref.current.checke",ref.current.checked)
-			console.log("tooogle",toogle)
+		
 			if (!ref.current.checked && TwoFa)
 				setdisable(true)
 		seterror(undefined)
@@ -144,7 +138,6 @@ const TwoFaBar = ({ toogle, setToggle }: { toogle: any; setToggle: any }) => {
 
 
 	const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
-		console.log("submitting ", JSON.stringify({ code : formData.code }));
 		e.preventDefault();
 		try{
 

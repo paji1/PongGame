@@ -27,6 +27,7 @@ const useGetTrophiesData = async (settrdata: any, nickname: string | undefined) 
 			.then((data) => {
 				if (Array.isArray(data))
 				settrdata(data);
+
 			}).catch((err => {toast.error("Exeption: Netwoek errorr")}));
 	}, []);
 };
@@ -92,7 +93,7 @@ const useGetUserdata = async (setdashstate: any, nickname: string | undefined) =
 			method: "GET",
 			credentials: "include",
 		})
-		.then((data) => {
+			.then((data) => {
 			if (data.status < 400)
 				return data.json()
 			toast.error("Error getting Global Ladder")

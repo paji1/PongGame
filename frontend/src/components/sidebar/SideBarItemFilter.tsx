@@ -20,11 +20,9 @@ const SideBarItemFilter = ({
 		return null;
 	var list;
 	if (rooms) {
-		console.log(rooms)
 		if (query.length) {
 			list = rooms.map((ob: room, index: number) => {
 				let group = ob.name.toLowerCase();
-				console.log("mappin" ,index,  ob);
 				if (ob.roomtypeof === "chat" )
 					{
 						let name =
