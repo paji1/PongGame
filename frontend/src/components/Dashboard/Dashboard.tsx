@@ -18,10 +18,16 @@ const useGetTrophiesData = async (settrdata: any, nickname: string | undefined) 
 			method: "GET",
 			credentials: "include",
 		})
-			.then((data) => data.json())
+			.then((data) => 
+			{
+				if (data.status < 4000)
+					return data.json()
+				toast.error("Error getting achievements")
+			})
 			.then((data) => {
+				if (Array.isArray(data))
 				settrdata(data);
-			}).catch((err => {toast.error("Error getting achievements")}));
+			}).catch((err => {toast.error("Exeption: Netwoek errorr")}));
 	}, []);
 };
 
@@ -31,10 +37,16 @@ const useGetGamingData = async (setgdata: any, nickname: string | undefined) => 
 			method: "GET",
 			credentials: "include",
 		})
-			.then((data) => data.json())
+			.then((data) => 
+			{
+				if (data.status < 400)
+					return data.json()
+				toast.error("Error getting GamingHistory")
+			})
 			.then((data) => {
-				setgdata(data);
-			}).catch((err => {toast.error("Error getting GamingHistory")}));
+				if (Array.isArray(data))
+					setgdata(data);
+			}).catch((err => {toast.error("Exeption: Netwoek error")}));
 	}, []);
 };
 
@@ -44,10 +56,15 @@ const useGetFLadderData = async (setfladder: any, nickname: string | undefined) 
 			method: "GET",
 			credentials: "include",
 		})
-			.then((data) => data.json())
 			.then((data) => {
-				setfladder(data);
-			}).catch((err => {toast.error("Error getting Friends Ladder")}));
+				if (data.status < 400)
+					return data.json()
+				toast.error("Error getting Friends Ladder")
+			})
+			.then((data) => {
+				if (Array.isArray(data))
+					setfladder(data);
+			}).catch((err => {toast.error("Exeption: Netwoek error")}));
 	}, []);
 };
 
@@ -57,10 +74,15 @@ const useGetLadderData = async (setgladder: any, nickname: string | undefined) =
 			method: "GET",
 			credentials: "include",
 		})
-			.then((data) => data.json())
+		.then((data) => {
+			if (data.status < 400)
+				return data.json()
+			toast.error("Error getting Global Ladder")
+		})
 			.then((data) => {
-				setgladder(data);
-			}).catch((err => {toast.error("Error getting Global Ladder")}));
+				if (Array.isArray(data))
+					setgladder(data);
+			}).catch((err => {toast.error("Exeption: Netwoek error")}));
 	}, []);
 };
 
@@ -70,7 +92,11 @@ const useGetUserdata = async (setdashstate: any, nickname: string | undefined) =
 			method: "GET",
 			credentials: "include",
 		})
-			.then((Response) => Response.json())
+		.then((data) => {
+			if (data.status < 400)
+				return data.json()
+			toast.error("Error getting Global Ladder")
+		})
 			.then((Response) => {
 				if (Response.statusCode >= 400) {
 					toast(`HTTP error! Status: ${Response.status}`);

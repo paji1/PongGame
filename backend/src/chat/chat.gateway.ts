@@ -215,8 +215,8 @@ export class ChatGateway {
 		const tosituation = res[0].isblocked ? "BLOCKED" : res[toindex].user_id.connection_state
 
 		
-		this.server.to(res[meindex].user_id.user42).emit("ON_STATUS",[{"nickname": res[toindex].user_id.nickname , "connection_state": tosituation}])
-		this.server.to(res[toindex].user_id.user42 ).emit("ON_STATUS",[{"nickname": res[meindex].user_id.nickname  , "connection_state": mesituation}])
+		this.server.to(res[meindex].user_id.user42).emit("ON_STATUS",[{"user42": res[toindex].user_id.user42 , "connection_state": tosituation}])
+		this.server.to(res[toindex].user_id.user42 ).emit("ON_STATUS",[{"user42": res[meindex].user_id.user42  , "connection_state": mesituation}])
 		this.server.to(res[meindex].user_id.user42).emit("ACTION", {region: "ROOM", action:"update" , data: res[toindex]})
 		this.server.to(res[toindex].user_id.user42).emit("ACTION", {region: "ROOM", action:"update" , data:  res[meindex]})
 

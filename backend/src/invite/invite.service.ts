@@ -156,9 +156,10 @@ export class InviteService {
             }
 
         })
-        if (!control)
-            throw new HttpException('if blocked resolve it first, else try  to be friends first', 400);
-        return control;
+        if (!control.count)
+            return null
+        return ((await this.prisma.user.findUnique({where:{id:friend}, select:{user42:true}})).user42)
+
 
     }
 

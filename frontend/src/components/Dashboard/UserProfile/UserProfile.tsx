@@ -1,11 +1,12 @@
 import AddPerson from "../../../assets/AddPerson.png";
 import BlockPerson from "../../../assets/BlockPerson.png";
 import Profil from "../../../assets/profile.png";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { ip } from "../../../network/ipaddr";
 import IUser from "../../../types/User";
 import { UploadTest } from "../../UploadComponent";
+import { SocketContext } from "../../Context/SocketContext";
 
 const useGetFrienshipsStatus = async (setisFriend: any, dashstate: IUser) => {
 	try {
@@ -32,6 +33,12 @@ const useGetFrienshipsStatus = async (setisFriend: any, dashstate: IUser) => {
 export default function ProfileDiv({ status, who, usr, func }: { status: Map<string, string> , who: Boolean; usr: IUser; func: any }) {
 	const [postContent, setPostContent] = useState("");
 	const [isFriend, setisFriend] = useState<boolean>(false);
+	useEffect(() =>{
+		if (!who && status.get(usr.user42))
+			setisFriend(true)
+		else
+			setisFriend(false)
+	},[status])
 	const updateStatus = async () => {
 		const response = await fetch(`http://${ip}3001/profile/updateStatus`, {
 			method: "PATCH",
@@ -60,13 +67,13 @@ export default function ProfileDiv({ status, who, usr, func }: { status: Map<str
             .then((data) =>
 			{
 				if (data.status == 200)
-					toast("Deleted Friend uccesfully")
+					toast("Deleted Friend succesfully")
 				else
 					toast.error("failed to delete friend")
 
 			} )
           
-            .catch(() => toast.error(`search: network error`));
+            .catch(() => toast.error(`EXEPTION: network error`));
     };
 const addFR = () => {
         fetch(`http://${ip}3001/invite/friend?friend=${usr.id}`, {
