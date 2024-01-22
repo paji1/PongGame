@@ -34,7 +34,7 @@ const FriendItem = ({ status, selector, room, glimpse }: {status: Map<string, st
 		preview = glimpse[0].messages.length > 25 ? glimpse[0].messages.substring(0, 25) : glimpse[0].messages;
 	const name = friend[0].user_id.nickname;
 	const display = name.length > 15 ? name.substring(0, 15) : name;
-	const ping = status.get(name)
+	const ping = status.get(friend[0].user_id.user42)
 	const activity = ping ? ping : "NotFriends"
 	return (
 		<div className={` ${!ping || ping ==="BLOCKED" ? "grayscale" : "" } flex flex-row mx-2 gap-3 p-2 shadow-buttonShadow rounded border-solid border-textColor border-2`}>

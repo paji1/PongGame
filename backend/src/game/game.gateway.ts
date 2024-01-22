@@ -212,6 +212,7 @@ export class GameGateway {
 		if (game.number_of_players === 2)
 		{
 			game.setup()
+			
 			game.run()
 		}
 		else {
@@ -257,5 +258,6 @@ export class GameGateway {
 			}
 		})
 		this.games.delete(game_id)
+		this.event.emit("LEFT_GAME", winner_id, loser_id)
 	}
 }

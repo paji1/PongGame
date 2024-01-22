@@ -118,17 +118,17 @@ const addFR = () => {
 					) : null}
 				</div>
 				<div className="flex flex-col mt-2">
-					{status.get(usr.nickname) == "ONLINE" ? (
+					{status.get(usr.user42) == "ONLINE" ? (
 						<p className="UserStatus text-sm sm:text-base lg:text-xl mt-2 mr-4 text-sucessColor font-extrabold font-Nova">
-							{status.get(usr.nickname)}
+							{status.get(usr.user42)}
 						</p>
-					) : status.get(usr.nickname) == "OFFLINE" ? (
+					) : status.get(usr.user42) == "OFFLINE" ? (
 						<p className="UserStatus text-xl mt-2 mr-4 text-PersianRed font-extrabold font-Nova">
-							{status.get(usr.nickname)}
+							{status.get(usr.user42)}
 						</p>
 					) : (
 						<p className="UserStatus text-xl mt-2 mr-4 text-InGame font-extrabold font-Nova animate-pulse">
-							{status.get(usr.nickname)}
+							{status.get(usr.user42)}
 						</p>
 					)}
 					{who ? (

@@ -35,13 +35,13 @@ export class AppGateway {
 	async welcome(client, user)
 	{
 		client.join(user["user42"])
-				if ((await this.server.to(user["user42"]).fetchSockets()).length == 1)
-				{
-					const	state = await this.prisma.user.update({where:{user42:user["user42"],},data:{connection_state: current_state.ONLINE}});
-					this.statusnotify.emit("PUSHSTATUS", state.user42 , [{ nickname:state.nickname , connection_state: state.connection_state}])
-				}
-
-				console.log(user["user42"] , "connected")
+		if ((await this.server.to(user["user42"]).fetchSockets()).length == 1)
+		{
+			const	state = await this.prisma.user.update({where:{user42:user["user42"],},data:{connection_state: current_state.ONLINE}});
+			this.statusnotify.emit("PUSHSTATUS", state.user42 , [{ user42:state.user42 , connection_state: state.connection_state}])
+		}
+		
+		console.log(user["user42"] , "connected")
 	}
 
  	async handleConnection(client ) {
@@ -82,7 +82,7 @@ export class AppGateway {
 		if (!(await this.server.to(identifier).fetchSockets()).length)
 		{
 			const	state = await this.prisma.user.update({where:{user42:identifier,},data:{connection_state: current_state.OFFLINE}});
-			this.statusnotify.emit("PUSHSTATUS", state.user42 , [{ nickname:state.nickname , connection_state: state.connection_state}])
+			this.statusnotify.emit("PUSHSTATUS", state.user42 , [{ user42:state.user42 , connection_state: state.connection_state}])
 
 		}
 	}	
@@ -91,7 +91,6 @@ export class AppGateway {
 	@SubscribeMessage("ONNSTATUS")
 	async getPrimarystatus( @GetCurrentUser("user42") identifier:string, @ConnectedSocket() client)
 	{
-		console.log("yassir zamel")
 		const status = await this.prisma.user.findUnique(
 			{
 				where:{
@@ -101,37 +100,48 @@ export class AppGateway {
 					friendship1: {
 
 						select:{
-							reciever_id:true,
+							reciever_id:{
+								select:
+								{
+									connection_state:true,
+									user42:true,
+								}
+							},
 							status:true,
 						}
 					},
 					friendship2: {
 						select:{
-							
-							initiator_id:true,
+							initiator_id:{
+								select:
+								{
+									connection_state:true,
+									user42:true,
+								}
+							},
 							status:true
 						}
 					}
-
 				}
 			}
 		)
 		const allstatus = [];
 		status.friendship1?.map((friend) => {
 			friend.status === "DEFAULT"?
-			allstatus.push({nickname: friend.reciever_id.nickname, connection_state: friend.reciever_id.connection_state}):
-			allstatus.push({nickname: friend.reciever_id.nickname, connection_state: "BLOCKED"})
+			allstatus.push({user42: friend.reciever_id.user42, connection_state: friend.reciever_id.connection_state}):
+			allstatus.push({user42: friend.reciever_id.user42, connection_state: "BLOCKED"})
 		
 		})
 		status.friendship2?.map((friend) =>{
 			friend.status === "DEFAULT"?
-			allstatus.push({nickname: friend.initiator_id.nickname, connection_state: friend.initiator_id.connection_state}):
-			allstatus.push({nickname: friend.initiator_id.nickname, connection_state: "BLOCKED"})
+			allstatus.push({user42: friend.initiator_id.user42, connection_state: friend.initiator_id.connection_state}):
+			allstatus.push({user42: friend.initiator_id.user42, connection_state: "BLOCKED"})
 		})
 	
 		client.emit("ON_STATUS",   allstatus)
 		console.log("all send", allstatus)
 	}
+	
 	@OnEvent('PUSHSTATUS')
 	async notifyALL(user: string, status:[])
 	{
@@ -201,6 +211,115 @@ export class AppGateway {
 	async inform(roomid, userstate)
 	{
 		this.server.to(roomid.toString()).emit("ACTION", {region: "ROOM", action:"update" , data: userstate})
+	}
+
+	@OnEvent("IN_GAME")
+	async ingame(user1: number, user2: number) {
+		console.log("in game", user1, user2)
+		const status = await this.prisma.user.updateMany({
+			where:
+			{
+				OR:[
+					{
+						id:user1,
+					},
+					{
+						id:user2,
+					}
+				],
+			},
+			data:{
+				connection_state: 'IN_GAME'
+			}
+		})
+		this.notifyupdate(user1)
+		this.notifyupdate(user2)
+
+	}
+
+	@OnEvent("LEFT_GAME")
+	async leftgame(user1: number, user2: number) {
+		console.log("left game", user1, user2)
+
+		await this.prisma.user.updateMany({
+			where:
+			{
+				OR:[
+					{
+						id:user1,
+						connection_state: "IN_GAME",
+					},
+					{
+						id:user2,
+						connection_state: "IN_GAME"
+					}
+				],
+			},
+			data:{
+				connection_state: 'ONLINE'
+			}
+		})
+		this.notifyupdate(user1)
+		this.notifyupdate(user2)
+	}
+
+	async notifyupdate(user: number)
+	{
+		const friends = await this.getidedfriends(user);
+		const status = await this.prisma.user.findUnique({where:{id:user}, select:{user42:true, connection_state:true}})
+		friends.forEach( async (friend) => 
+		{
+			if((await this.server.to(friend).fetchSockets()).length)
+				this.server.to(friend).emit("ON_STATUS" , [status] );
+		}
+	);
+	}
+	async getidedfriends(user:number)
+	{
+
+		const friends = await this.prisma.friendship.findMany({
+			where	:	{
+				OR :
+				[
+					{
+						initiator_id:{id:user},
+						status:relationsip_status.DEFAULT,
+					},
+					{
+						reciever_id:{id:user},
+						status:relationsip_status.DEFAULT,
+					},
+					
+				]
+			},
+			select:
+			{
+				initiator_id:
+				{
+					select:
+					{
+						id:true,
+						user42:true,
+					}
+				},
+				reciever_id:
+				{
+					select:
+					{
+						id:true,
+						user42:true,
+					}
+				}
+				
+			}
+		});
+		const list = friends.map((frien) =>
+		{
+			if (frien.initiator_id.id == user)
+				return frien.reciever_id.user42;
+			return frien.initiator_id.user42
+		})
+		return list;
 	}
 	
 }

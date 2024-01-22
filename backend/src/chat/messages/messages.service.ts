@@ -182,6 +182,7 @@ export class MessagesService {
 							created_at: true,
 							user_id: {
 								select: {
+									user42:true,
 									id: true,
 									nickname: true,
 									avatar: true,

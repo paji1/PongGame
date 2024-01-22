@@ -142,7 +142,7 @@ export default class Game {
 
 	run () {
 		Matter.Runner.run(this.runner, this.engine);
-
+		this.event.emit("IN_GAME", this.host_id, this.guese_id)
 		const interval = setInterval(() => {
 			if (!this.host_socket.connected || !this.guest_socket.connected )
 			{
@@ -150,7 +150,6 @@ export default class Game {
 				clearInterval(interval)
 				return ;
 			}
-
 			this.broadcast(interval)
 
 		}, 20)

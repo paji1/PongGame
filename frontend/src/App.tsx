@@ -92,7 +92,7 @@ const App = () => {
 	socket.off("ON_STATUS").on("ON_STATUS", (usersstatus: IUser[]) => 
 	{
 		
-		usersstatus.map((user:IUser)=> status.set(user.nickname, user.connection_state))
+		usersstatus.map((user:IUser)=> status.set(user.user42, user.connection_state))
 		setstatus(new Map(status));
 		console.log("updateted status", status)
 	})

@@ -1,3 +1,4 @@
+import IUser from "./User";
 import { messages } from "./messages";
 export enum permission {
 	chat,
@@ -5,11 +6,7 @@ export enum permission {
 	public,
 	protected,
 }
-type member_filler = {
-	avatar: string;
-	nickname: string;
-	id: number;
-};
+
  export type member = {
 	id: number,
 	roomid:number,
@@ -18,7 +15,7 @@ type member_filler = {
 	ismuted:boolean,
 	isBanned:boolean,
 	created_at:Date,
-	user_id: member_filler;
+	user_id: IUser;
 };
 
 export type room = {
