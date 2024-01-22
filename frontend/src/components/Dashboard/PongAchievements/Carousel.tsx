@@ -13,7 +13,7 @@ export const items: achived[] = [
 		name: "FIRST WIN",
 	},
 	{
-		description: "Add first friend",
+		description: "Send a Friend Request friend",
 		name: "BE-FRIENDER",
 	},
 	{
@@ -25,7 +25,7 @@ export const items: achived[] = [
 		name: "VERSATILE PONGER",
 	},
 	{
-		description: "Add 3 friends",
+		description: "Send a Request to  3 friends",
 		name: "THE SOCIALISER",
 	},
 	{
@@ -38,7 +38,7 @@ export const items: achived[] = [
 	},
 	{
 		name: "THE EXECUTIONER",
-		description: "Manage to beat all your friends",
+		description: "Manage to beat all your friends once",
 	},
 ];
 

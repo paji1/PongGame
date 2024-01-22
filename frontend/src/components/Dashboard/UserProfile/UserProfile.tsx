@@ -82,7 +82,7 @@ const addFR = () => {
         })
 		.then((data) =>
 		{
-			if (data.status == 200)
+			if (data.status <= 200)
 				toast("added Friend Succesfully")
 			else
 				toast.error("failed to add friend")

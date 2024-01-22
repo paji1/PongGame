@@ -27,6 +27,9 @@ export class InviteController {
     const invite =  await this.inviteService.InviteFriend(user, friend);
     if (!invite)
       throw new HttpException("Failed inviting", HttpStatus.BAD_REQUEST)
+    invite.issuer_id.achieved = Array.isArray(invite.issuer_id.achieved) ? invite.issuer_id.achieved : []
+    await this.inviteService.handleachivment(invite.issuer_id)
+    delete invite.issuer_id.achieved
     this.events.emit("PUSH", invite.reciever_id.user42, invite, "INVITES")
     this.events.emit("PUSH", invite.issuer_id.user42, invite, "INVITES")
     res.status(200).end()
@@ -85,10 +88,11 @@ export class InviteController {
   async FriendReject( @GetCurrentUserId() user:number,@Query('id') id: number)
   {
     try {
-        return  await this.inviteService.RejectFriend(user, id);
-
+        const invite =   await this.inviteService.RejectFriend(user, id);
+        this.events.emit("PUSH", invite.reciever_id.user42, invite, "INVITES")
+        this.events.emit("PUSH", invite.issuer_id.user42, invite, "INVITES")
     }catch{
-      throw new HttpException("erroc acepring conection", HttpStatus.BAD_REQUEST)
+      throw new HttpException("error acepring conection", HttpStatus.BAD_REQUEST)
     }
     
 

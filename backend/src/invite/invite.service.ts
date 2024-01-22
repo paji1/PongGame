@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from "../prisma/prisma.service";
 import { RoomsService } from '../chat/rooms/rooms.service'
-import { actionstatus, invitetype } from '@prisma/client';
+import { actionstatus, invitetype, user } from '@prisma/client';
 import { REFUSED } from 'dns';
 import { use } from 'passport';
 import { http } from 'winston';
@@ -114,7 +114,8 @@ export class InviteService {
                             id:true,
                             nickname:true,
                             user42:true,
-                            avatar:true
+                            avatar:true,
+                            achieved:true
                         },
                     },
                     reciever_id:
@@ -123,7 +124,7 @@ export class InviteService {
                         {
                             id:true,
                             nickname:true,
-                            user42:true
+                            user42:true,
                         }
                     },
                     room_id: {
@@ -305,7 +306,7 @@ export class InviteService {
 
     async RejectFriend(user, invite)
     {
-        const reject = await  this.prisma.invites.update(
+        return  await  this.prisma.invites.update(
             {
                 where: {
                     id:invite,
@@ -315,7 +316,40 @@ export class InviteService {
                 }
                 ,data:{
                     status:"refused",
-                }
+                },
+                select:
+                {
+                    id:true,
+                    type:true,
+                    created_at:true,
+                    status:true,
+                    issuer_id:
+                    {
+                        select:
+                        {
+                            id:true,
+                            nickname:true,
+                            user42:true,
+                            avatar:true,
+                            achieved:true
+                        },
+                    },
+                    reciever_id:
+                    {
+                        select:
+                        {
+                            id:true,
+                            nickname:true,
+                            user42:true,
+                        }
+                    },
+                    room_id: {
+                        select: {
+                            id:true,
+                            name: true
+                        }
+                    },
+                },
             }
             
         )
@@ -362,6 +396,41 @@ export class InviteService {
 			}
 		})
 	}
+    async handleachivment(user: any)
+    {
+        const a = [];
+        if (user.achieved.findIndex((ach)=> ach.index === 3) === -1)
+        {
+            a.push({index: 3})
+            
+        }
+        console.log(user.achieved.findIndex((ach)=> ach.index === 3), a , user.achieved)
+        if (user.achieved.findIndex((ach)=> ach.index === 6) === -1 && !a.length)
+        {
+            if (await this.prisma.invites.count({where:{issuer: user.id,type:'Friend'}}) === 3)
+                a.push({index: 6})
+        }
+        console.log(a)
+
+        if (a.length)
+        {
+            await this.prisma.user.update(
+                {
+                    where:{
+                        id:user.id
+                    },
+                    data:{
+                        achieved:{
+                            createMany:{
+                                data: a
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+    }
 }
 
 
