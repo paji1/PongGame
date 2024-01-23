@@ -10,7 +10,7 @@ interface useGet2faStateProp {
 const useGet2faState = (prop: useGet2faStateProp) => {
 	useEffect(() => {
 		try {
-			fetch("http://sucktit.hopto.org:3001/auth/is2fa", {
+			fetch("http://lghoul.ddns.net:3001/auth/is2fa", {
 				method: "GET",
 				credentials: "include",
 				headers: {
@@ -42,7 +42,7 @@ const useGetImage = (confirmTwoFa: any, setConfirmTwoFa: any, ref: any, TwoFa: a
 	useEffect(() => {
 		try {
 			if (!TwoFa && ref.current.checked  ) {
-				fetch("http://sucktit.hopto.org:3001/auth/generateQrCode", {
+				fetch("http://lghoul.ddns.net:3001/auth/generateQrCode", {
 					method: "POST",
 					credentials: "include",
 					headers: {
@@ -69,7 +69,7 @@ const useDisable2fa = (disable: any, isDropdownOpen: any, ref: any, TwoFa: any, 
 	useEffect(() => {
 		try {
 			if (TwoFa && !ref.current.checked  ) {
-				fetch("http://sucktit.hopto.org:3001/auth/disable2fa", {
+				fetch("http://lghoul.ddns.net:3001/auth/disable2fa", {
 					method: "POST",
 					credentials: "include",
 					headers: {
@@ -141,7 +141,7 @@ const TwoFaBar = ({ toogle, setToggle }: { toogle: any; setToggle: any }) => {
 		e.preventDefault();
 		try{
 
-		 await fetch("http://sucktit.hopto.org:3001/auth/checkValidcode", {
+		 await fetch("http://lghoul.ddns.net:3001/auth/checkValidcode", {
 				method: "POST",
 				credentials: "include",
 				headers: {

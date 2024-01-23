@@ -1,2 +1,2 @@
-const add ="sucktit.hopto.org"
+const add ="lghoul.ddns.net"
 export const ip= `${add}:`

@@ -47,6 +47,8 @@ export default class Game {
 
 	paddle_height: number
 
+	interval: NodeJS.Timeout
+
 	host_socket: Socket
 	guest_socket: Socket
 
@@ -143,14 +145,14 @@ export default class Game {
 	run () {
 		Matter.Runner.run(this.runner, this.engine);
 		this.event.emit("IN_GAME", this.host_id, this.guese_id)
-		const interval = setInterval(() => {
+		this.interval = setInterval(() => {
 			if (!this.host_socket.connected || !this.guest_socket.connected )
 			{
 				this.clientDisconnect()
-				clearInterval(interval)
+				clearInterval(this.interval)
 				return ;
 			}
-			this.broadcast(interval)
+			this.broadcast(this.interval)
 
 		}, 20)
 	}
@@ -360,5 +362,26 @@ export default class Game {
 		this.event.emit('GAME_RESULT', this.game_id, winner_id, loser_id, this.host_score, this.guest_score)
 	}
 
+
+	clientLeft (socket: Socket) {
+		this.game_over = true
+		let winner_id: number
+		let loser_id: number
+		if (this.host_socket.id !== socket.id) {
+			winner_id = this.host_id
+			loser_id = this.guese_id
+			this.host_socket.emit('GAME_OVER', {
+				isWinner: true
+			})
+		} else {
+			winner_id = this.guese_id
+			loser_id = this.host_id
+			this.guest_socket.emit('GAME_OVER', {
+				isWinner: true
+			})
+		}
+		clearInterval(this.interval)
+		this.event.emit('GAME_RESULT', this.game_id, winner_id, loser_id, this.host_score, this.guest_score)
+	}
 
 }

@@ -120,7 +120,7 @@ export class AuthController {
 	@Get("intra/login")
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(AuthGuard("intra"))
-	@Redirect("http://sucktit.hopto.org:3001/")
+	@Redirect("http://lghoul.ddns.net:3001/")
 	intraLogin(@Body() user: any) {
 		return {};
 	}

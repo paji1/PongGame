@@ -36,7 +36,7 @@ const PopupSignUp: React.FC<SignUpPopupProps> = ({ setPopupSignUpVisible }) => {
 			return;
 		}
 		try {
-			const response = await fetch("http://sucktit.hopto.org:3001/auth/local/signup", {
+			const response = await fetch("http://lghoul.ddns.net:3001/auth/local/signup", {
 				method: "POST",
 				credentials: "include",
 				headers: {

@@ -23,7 +23,7 @@ const PopupForm: React.FC<PopupFormProps> = ({ user, setPopupSignInVisible,setpo
 	const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		try {
-			const response = await fetch("http://sucktit.hopto.org:3001/auth/local/signin", {
+			const response = await fetch("http://lghoul.ddns.net:3001/auth/local/signin", {
 				method: "POST",
 				credentials: "include",
 				headers: {

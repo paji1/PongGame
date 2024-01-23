@@ -26,7 +26,7 @@ const PopupForm2fa: React.FC<PopupForm2faProps> = ({ user, setPopupSignInVisible
 	const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		try {
-			const response = await fetch("http://sucktit.hopto.org:3001/auth/local/signinTwofa", {
+			const response = await fetch("http://lghoul.ddns.net:3001/auth/local/signinTwofa", {
 				method: "POST",
 				credentials: "include",
 				headers: {

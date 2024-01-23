@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Popup from "./popups/popup";
 import PopupSignUp from "./popups/PopupSignUp";
 import PopupSignIn from "./popups/PopupSignIn";
+import { GameContext } from "./Context/GameContext";
 
 interface buttonVariables {
 	name: String;
@@ -16,6 +17,7 @@ const MainButton: React.FC<buttonVariables> = (props) => {
 	const [isPopupSignInVisible, setPopupSignInVisible] = useState(false);
 	const [loginuser, setloginuser] = useState("");
 	const naviagte = useNavigate();
+	const [, setGameContext] = useContext(GameContext)
 
 	const handleButtonClick = () => {
 		if (props.name === "signin") {
@@ -23,7 +25,11 @@ const MainButton: React.FC<buttonVariables> = (props) => {
 			naviagte("/");
 		}
 		if (props.name !== "signin") {
-			naviagte("/game");
+			setGameContext(null)
+			naviagte("/");
+			setTimeout(() => {
+				naviagte("/game");
+			}, 0);
 			setPopupVisibil(false);
 		}
 	};
