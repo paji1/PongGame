@@ -16,6 +16,7 @@ EXPOSE 8001
 
 COPY package.json /code/package.json
 COPY --chmod=777 package-lock.json /code/package-lock.json
+COPY .npmrc /code/.npmrc
 # check every 30s to ensure this service returns HTTP 200
 RUN <<EOF
 npm ci
