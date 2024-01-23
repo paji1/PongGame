@@ -10,7 +10,7 @@ import TwoFaBar from "./twoFaBar";
 import { toast } from "react-toastify";
 
 const logout = async (navigate: any) => {
-	const res = await fetch("http://sucktit.hopto.org:3001/auth/logout", {
+	const res = await fetch("http://taha.redirectme.net:3001/auth/logout", {
 		method: "POST",
 		credentials: "include",
 		headers: {

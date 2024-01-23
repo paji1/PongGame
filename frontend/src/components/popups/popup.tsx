@@ -8,13 +8,12 @@ interface PopupProps {
 	setloginuser: React.Dispatch<React.SetStateAction<string>>;
 }
 
-
 const Popup: React.FC<PopupProps> = ({ onClose, setPopupSignUpVisible, setPopupSignInVisible, setloginuser }) => {
 	const popupWindowRef = useRef<any>(null);
 	const [hasHandledMessage, setHasHandledMessage] = useState(false);
 	useEffect(() => {
 		const handleMessage = (event: any) => {
-			if (event.origin === "http://sucktit.hopto.org:3000") {
+			if (event.origin === "http://taha.redirectme.net:3000") {
 				if (event.data.success) {
 					onClose();
 					const payload = JSON.parse(event.data.payload);
@@ -34,7 +33,7 @@ const Popup: React.FC<PopupProps> = ({ onClose, setPopupSignUpVisible, setPopupS
 	}, []);
 
 	const KarontdoIntra = () => {
-		const oauthUrl = "http://sucktit.hopto.org:3001/auth/intra/login";
+		const oauthUrl = "http://taha.redirectme.net:3001/auth/intra/login";
 		var title = "OAuth Pop-up";
 		var w = 600;
 		var h = 300;
@@ -51,7 +50,7 @@ const Popup: React.FC<PopupProps> = ({ onClose, setPopupSignUpVisible, setPopupS
 	}, []);
 	return (
 		<div className="fixed z-10 inset-0  flex items-center justify-center bg-black bg-opacity-50">
-			<div className="bg-DefaultColor p-6 rounded-lg shadow-xl m-[12%] max-sm:max-w-[90%]" >
+			<div className="bg-DefaultColor p-6 rounded-lg shadow-xl m-[12%] max-sm:max-w-[90%]">
 				<div className="b-50 m-[11%] mx-auto  max-sm:max-w-[90%] flex">
 					<div className="w-[45%]">
 						<img src={karontdo} className="w-[345px]"></img>

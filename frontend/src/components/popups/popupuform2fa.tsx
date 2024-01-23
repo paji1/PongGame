@@ -26,7 +26,7 @@ const PopupForm2fa: React.FC<PopupForm2faProps> = ({ user, setPopupSignInVisible
 	const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		try {
-			const response = await fetch("http://sucktit.hopto.org:3001/auth/local/signinTwofa", {
+			const response = await fetch("http://taha.redirectme.net:3001/auth/local/signinTwofa", {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -40,7 +40,7 @@ const PopupForm2fa: React.FC<PopupForm2faProps> = ({ user, setPopupSignInVisible
 				navigate(0);
 			}
 		} catch (error) {
-			toast.error("retry other code")
+			toast.error("retry other code");
 		}
 	};
 	return (
@@ -71,7 +71,7 @@ const PopupForm2fa: React.FC<PopupForm2faProps> = ({ user, setPopupSignInVisible
 									rounded-full shadow-buttonShadow border-solid border-textColor border-2
 									`}
 						>
-							click here 
+							click here
 						</button>
 					</div>
 				</div>

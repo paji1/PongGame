@@ -37,7 +37,6 @@ export class AuthController {
 		private readonly twoFactorAuthService: TwoFactorAuthService,
 	) {}
 
-
 	@Public()
 	@UseGuards(ItGuard)
 	@Post("local/signup")
@@ -67,16 +66,16 @@ export class AuthController {
 		const tokens = await this.authService.updatepassword(dto, user42);
 		await this.authService.syncTokensHttpOnly(res, tokens), res.end();
 	}
-	
+
 	@HttpCode(HttpStatus.OK)
 	@Post("local/apdate/nickname")
-	async updatedNickname(@Body() dto : UpdateNicknameDto,  @GetCurrentUser("user42") user42: string, @Res() res : Response) : Promise<any>  
-	{
-		return await this.authService.updateNickname(dto,user42,res);
-		
+	async updatedNickname(
+		@Body() dto: UpdateNicknameDto,
+		@GetCurrentUser("user42") user42: string,
+		@Res() res: Response,
+	): Promise<any> {
+		return await this.authService.updateNickname(dto, user42, res);
 	}
-
-
 
 	// tahaTODO  nickname update
 
@@ -120,7 +119,7 @@ export class AuthController {
 	@Get("intra/login")
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(AuthGuard("intra"))
-	@Redirect("http://sucktit.hopto.org:3001/")
+	@Redirect("http://taha.redirectme.net:3001/")
 	intraLogin(@Body() user: any) {
 		return {};
 	}
@@ -157,7 +156,6 @@ export class AuthController {
 		@Res() res: Response,
 	): Promise<void> {
 		const [tokens, signUpstate] = await this.authService.refreshTokens(userId, refreshToken, res);
-		
 
 		const userData = await { ...(await this.usersService.getUser42(user42)), signUpstate };
 		await Promise.all([
@@ -184,7 +182,7 @@ export class AuthController {
 		await this.twoFactorAuthService.activeTwoFactorAuth(user42, false);
 	}
 	@Get("is2fa")
-	async is2fa(@GetCurrentUser("user42") user42: string) : Promise<{is2FA: Boolean}>{
+	async is2fa(@GetCurrentUser("user42") user42: string): Promise<{ is2FA: Boolean }> {
 		return await this.twoFactorAuthService.isTwoFacActiveh(user42);
 	}
 }

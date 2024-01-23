@@ -65,7 +65,7 @@ CONTAINER ID        IMAGE                          COMMAND                  CREA
 1611961bf3d1        postgres:12-alpine             "docker-entrypoint.s…"   42 seconds ago      Up 36 seconds       0.0.0.0:5432->5432/tcp   react-rust-postgres_db_1
 ```
 
-After the application starts, navigate to `http://localhost:3000` in your web browser to get a colorful message.
+After the application starts, navigate to `http://taha.redirectme.net:3000` in your web browser to get a colorful message.
 
 ![page](./capture.png)
 

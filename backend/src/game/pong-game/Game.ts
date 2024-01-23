@@ -248,10 +248,14 @@ export default class Game {
 
 	setRecievedPaddlePos(socket_id: string, y:number)
 	{
-		if (this.host_socket.id === socket_id)
-			Matter.Body.set(this.host_paddle, "position", {x: this.host_paddle.position.x, y: y})
-		if (this.guest_socket.id === socket_id)
-			Matter.Body.set(this.guest_paddle, "position", {x: this.guest_paddle.position.x, y: y})
+		try {
+			if (this.host_socket.id === socket_id)
+				Matter.Body.set(this.host_paddle, "position", {x: this.host_paddle.position.x, y: y})
+			if (this.guest_socket.id === socket_id)
+				Matter.Body.set(this.guest_paddle, "position", {x: this.guest_paddle.position.x, y: y})
+		} catch (error) {
+			
+		}
 	}
 
 	getPaddleWidth () {

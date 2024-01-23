@@ -1,2 +1,2 @@
-const add ="sucktit.hopto.org"
-export const ip= `${add}:`
+const add = "taha.redirectme.net";
+export const ip = `${add}:`;

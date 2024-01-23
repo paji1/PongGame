@@ -7,6 +7,7 @@ ENV PORT=3000
 WORKDIR /code
 COPY package.json /code/package.json
 COPY package-lock.json /code/package-lock.json
+COPY .npmrc /code/.npmrc
 RUN npm ci
 COPY . /code
 

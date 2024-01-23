@@ -14,7 +14,7 @@ async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
 	app.use(cookieParser());
 	app.enableCors({
-		origin: [`http://${ip}:3000`, "http://sucktit.hopto.org:3000"],
+		origin: [`http://${ip}:3000`, "http://taha.redirectme.net:3000"],
 		methods: ["GET", "POST", "DELETE", "PATCH"],
 		credentials: true,
 	});
@@ -24,7 +24,7 @@ async function bootstrap() {
 			transform: true,
 			transformOptions: { enableImplicitConversion: true },
 		}),
-		);
+	);
 	await app.listen(8001);
 
 	// const logger = winston.createLogger({

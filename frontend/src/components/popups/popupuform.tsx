@@ -9,7 +9,7 @@ interface PopupFormProps {
 	setpopup: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const PopupForm: React.FC<PopupFormProps> = ({ user, setPopupSignInVisible,setpopup  }) => {
+const PopupForm: React.FC<PopupFormProps> = ({ user, setPopupSignInVisible, setpopup }) => {
 	const [set2fa, setmatchpassword] = useState<boolean>(false);
 	const [formData, setFormData] = useState<FormDataSignIn>({
 		password: "",
@@ -23,7 +23,7 @@ const PopupForm: React.FC<PopupFormProps> = ({ user, setPopupSignInVisible,setpo
 	const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		try {
-			const response = await fetch("http://sucktit.hopto.org:3001/auth/local/signin", {
+			const response = await fetch("http://taha.redirectme.net:3001/auth/local/signin", {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -31,19 +31,16 @@ const PopupForm: React.FC<PopupFormProps> = ({ user, setPopupSignInVisible,setpo
 				},
 				body: JSON.stringify({ user42: user, password: formData.password }),
 			});
-			
+
 			if (response.ok) {
 				try {
 					const { is2fa } = await response.json();
 					setpopup(2);
-					
 				} catch (error) {
-					
 					navigate("/");
 					navigate(0);
 					setPopupSignInVisible(false);
 				}
-
 			}
 			toast.error("try with correct password");
 		} catch (error) {
@@ -51,7 +48,6 @@ const PopupForm: React.FC<PopupFormProps> = ({ user, setPopupSignInVisible,setpo
 		}
 	};
 	return (
-		
 		<form className="w-full max-w-lg  flex-auto " onSubmit={handleSubmit}>
 			<div className="flex md:items-center mb-6">
 				<div className="md:w-1/3">

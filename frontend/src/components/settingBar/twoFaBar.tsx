@@ -4,13 +4,13 @@ import { toast } from "react-toastify";
 
 interface useGet2faStateProp {
 	setTwoFa: React.Dispatch<React.SetStateAction<boolean>>;
-	toogle : any;
-	ref : any
+	toogle: any;
+	ref: any;
 }
 const useGet2faState = (prop: useGet2faStateProp) => {
 	useEffect(() => {
 		try {
-			fetch("http://sucktit.hopto.org:3001/auth/is2fa", {
+			fetch("http://taha.redirectme.net:3001/auth/is2fa", {
 				method: "GET",
 				credentials: "include",
 				headers: {
@@ -19,7 +19,7 @@ const useGet2faState = (prop: useGet2faStateProp) => {
 			})
 				.then((res) => {
 					if (!res.ok) {
-						return 
+						return;
 					}
 					return res.json();
 				})
@@ -27,10 +27,9 @@ const useGet2faState = (prop: useGet2faStateProp) => {
 					try {
 						if (data.is2FA === true) {
 							prop.setTwoFa(true);
-							prop.ref.current.checked = true
-							
+							prop.ref.current.checked = true;
 						} else {
-							prop.ref.current.checked = false
+							prop.ref.current.checked = false;
 							prop.setTwoFa(false);
 						}
 					} catch (error) {}
@@ -41,8 +40,8 @@ const useGet2faState = (prop: useGet2faStateProp) => {
 const useGetImage = (confirmTwoFa: any, setConfirmTwoFa: any, ref: any, TwoFa: any, toogle: any) => {
 	useEffect(() => {
 		try {
-			if (!TwoFa && ref.current.checked  ) {
-				fetch("http://sucktit.hopto.org:3001/auth/generateQrCode", {
+			if (!TwoFa && ref.current.checked) {
+				fetch("http://taha.redirectme.net:3001/auth/generateQrCode", {
 					method: "POST",
 					credentials: "include",
 					headers: {
@@ -51,7 +50,7 @@ const useGetImage = (confirmTwoFa: any, setConfirmTwoFa: any, ref: any, TwoFa: a
 				})
 					.then(async (res) => {
 						if (!res.ok) {
-							return 
+							return;
 						}
 						const blob = await res.blob();
 						const url = URL.createObjectURL(blob);
@@ -68,8 +67,8 @@ const useGetImage = (confirmTwoFa: any, setConfirmTwoFa: any, ref: any, TwoFa: a
 const useDisable2fa = (disable: any, isDropdownOpen: any, ref: any, TwoFa: any, setTwoFa: any) => {
 	useEffect(() => {
 		try {
-			if (TwoFa && !ref.current.checked  ) {
-				fetch("http://sucktit.hopto.org:3001/auth/disable2fa", {
+			if (TwoFa && !ref.current.checked) {
+				fetch("http://taha.redirectme.net:3001/auth/disable2fa", {
 					method: "POST",
 					credentials: "include",
 					headers: {
@@ -79,12 +78,11 @@ const useDisable2fa = (disable: any, isDropdownOpen: any, ref: any, TwoFa: any, 
 					.then(async (res) => {
 						if (!res.ok) {
 							// throw new Error("two factor error");
-							toast.error("Two Factor disable")
+							toast.error("Two Factor disable");
 							return null;
 						}
-						toast.success("Two Factor disable")
+						toast.success("Two Factor disable");
 						setTwoFa(false);
-						
 					})
 					.then((data: any) => {
 						try {
@@ -92,7 +90,7 @@ const useDisable2fa = (disable: any, isDropdownOpen: any, ref: any, TwoFa: any, 
 					});
 			}
 		} catch (error) {}
-	}, [TwoFa,ref.current.checked]);
+	}, [TwoFa, ref.current.checked]);
 };
 
 interface FormData2fa {
@@ -102,8 +100,8 @@ interface FormData2fa {
 const TwoFaBar = ({ toogle, setToggle }: { toogle: any; setToggle: any }) => {
 	const ref: any = useRef(true);
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-	const [error , seterror] = useState<string | undefined>();
-	const [disable , setdisable] = useState<boolean>();
+	const [error, seterror] = useState<string | undefined>();
+	const [disable, setdisable] = useState<boolean>();
 	const [formData, setFormData] = useState<FormData2fa>({
 		code: "",
 	});
@@ -118,54 +116,46 @@ const TwoFaBar = ({ toogle, setToggle }: { toogle: any; setToggle: any }) => {
 
 	useDisable2fa(disable, isDropdownOpen, ref, TwoFa, setTwoFa);
 	useGetImage(confirmTwoFa, setConfirmTwoFa, ref, TwoFa, toogle);
-	useGet2faState({ setTwoFa , toogle, ref});
+	useGet2faState({ setTwoFa, toogle, ref });
 	useEffect(() => {}, []);
 	const handleDropdownToggle = () => {
-		
-			if (!ref.current.checked && TwoFa)
-				setdisable(true)
-		seterror(undefined)
+		if (!ref.current.checked && TwoFa) setdisable(true);
+		seterror(undefined);
 		if (toogle !== 3) {
 			setIsDropdownOpen(true);
 			setToggle(3);
-			if (!ref.current.checked)
-			ref.current.checked = true
-	} else {
-		setIsDropdownOpen(false);
-		setToggle(-1);
-	}
-};
-
+			if (!ref.current.checked) ref.current.checked = true;
+		} else {
+			setIsDropdownOpen(false);
+			setToggle(-1);
+		}
+	};
 
 	const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		try{
-
-		 await fetch("http://sucktit.hopto.org:3001/auth/checkValidcode", {
+		try {
+			await fetch("http://taha.redirectme.net:3001/auth/checkValidcode", {
 				method: "POST",
 				credentials: "include",
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ code : formData.code }),
-			}).then((res) => {
-				if (!res.ok)
-				{
-					seterror("erroor");
-					return;
-				}
-				setTwoFa(true);
-				toast.success("Two factor is activeted")
-				seterror(undefined);
-				
-			}).catch(error => {}) ;
-			
-			
+				body: JSON.stringify({ code: formData.code }),
+			})
+				.then((res) => {
+					if (!res.ok) {
+						seterror("erroor");
+						return;
+					}
+					setTwoFa(true);
+					toast.success("Two factor is activeted");
+					seterror(undefined);
+				})
+				.catch((error) => {});
 		} catch (error) {
 			// console.error(error);
 		}
-
-	}
+	};
 
 	return (
 		<div
@@ -219,7 +209,11 @@ const TwoFaBar = ({ toogle, setToggle }: { toogle: any; setToggle: any }) => {
 								placeholder="number code"
 							/>
 						</div>
-						{(error) ? (<div className="font-extrabold text-red-500 mt-1"> check code and try again!</div> ) : <></>}
+						{error ? (
+							<div className="font-extrabold text-red-500 mt-1"> check code and try again!</div>
+						) : (
+							<></>
+						)}
 						<button
 							className="bg-buttonColor text-textColor w-full py-2 px-8
 						rounded-full shadow-buttonShadow border-solid border-textColor border-2
