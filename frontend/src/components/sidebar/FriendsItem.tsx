@@ -9,10 +9,21 @@ import GAME from "../../assets/game.svg"
 import BLOCKED from "../../assets/blockicon.svg"
 import SAD from "../../assets/sad.svg"
 import IUser from "../../types/User";
+import { DifficultyContext, EDifficulty, EMatchingType, IQueue } from "../Context/QueueingContext";
+import { SocketContext } from "../Context/SocketContext";
+import { Socket } from "socket.io-client"
 
-const inviteToGame = (navigete: NavigateFunction, user: IUser) => 
+
+const inviteToGame = (socket:Socket, user: IUser, difficulty: EDifficulty , navigate: NavigateFunction	) => 
 {
-	navigete("/game")
+	const queue: IQueue = {
+		difficulty: difficulty,
+		matchingType: EMatchingType.INVITE,
+		invite: user.nickname
+	}
+	navigate("/game")
+	socket.emit('matching', queue)
+	
 }
 const filterStatus= (str:string) => 
 {
@@ -35,6 +46,7 @@ const FriendItem = ({ status, selector, room, glimpse }: {status: Map<string, st
 	let preview;
 	const navigate = useNavigate()
 	const user = useContext(currentUser);
+	const socket = useContext(SocketContext)
 	const friend = room.rooms_members.filter((ob) => ob.user_id.id !== user?.id);
 	if (Array.isArray(glimpse) && glimpse.length === 1)
 		preview = glimpse[0].messages.length > 25 ? glimpse[0].messages.substring(0, 25) : glimpse[0].messages;
@@ -71,8 +83,8 @@ const FriendItem = ({ status, selector, room, glimpse }: {status: Map<string, st
 					
 				</Link>
 			</div>
-			<div className="flex flex-row items-center justify-center w-1/7 ">
-				<svg className="cursor-pointer" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<div className="flex flex-row items-center justify-center w-1/7 gap-x-3 ">
+				<svg onClick={() => inviteToGame(socket,friend[0].user_id, EDifficulty.EASY,navigate )} className="cursor-pointer" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<rect x="13" y="14" width="2" height="2" rx="1" fill="#24BEC8" />
 					<rect x="7" y="11" width="2" height="6" rx="1" fill="#24BEC8" />
 					<rect x="11" y="13" width="2" height="6" rx="1" transform="rotate(90 11 13)" fill="#24BEC8" />
@@ -89,7 +101,7 @@ const FriendItem = ({ status, selector, room, glimpse }: {status: Map<string, st
 						strokeWidth="1"
 						/>
 				</svg>
-				<svg className="cursor-pointer" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<svg onClick={() => inviteToGame(socket,friend[0].user_id, EDifficulty.MEDIUM,navigate)} className="cursor-pointer" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<rect x="13" y="14" width="2" height="2" rx="1" fill="#0076C0" />
 					<rect x="7" y="11" width="2" height="6" rx="1" fill="#0076C0" />
 					<rect x="11" y="13" width="2" height="6" rx="1" transform="rotate(90 11 13)" fill="#0076C0" />
@@ -106,7 +118,7 @@ const FriendItem = ({ status, selector, room, glimpse }: {status: Map<string, st
 						strokeWidth="1"
 						/>
 				</svg>
-				<svg className="cursor-pointer" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<svg onClick={() => inviteToGame(socket,friend[0].user_id , EDifficulty.HARD,navigate)} className="cursor-pointer" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<rect x="13" y="14" width="2" height="2" rx="1" fill="#F18DB3" />
 					<rect x="7" y="11" width="2" height="6" rx="1" fill="#F18DB3" />
 					<rect x="11" y="13" width="2" height="6" rx="1" transform="rotate(90 11 13)" fill="#F18DB3" />

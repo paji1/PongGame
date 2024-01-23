@@ -72,7 +72,7 @@ export class ProfileService {
 			},
 		});
 		if (user) throw new HttpException("ok", 200);
-		else throw new HttpException("not ok", 400);
+		else throw new HttpException("not ok", 201);
 	}
 
 	async getGlobalBoard(username: string) {

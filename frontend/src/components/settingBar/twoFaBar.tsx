@@ -19,7 +19,7 @@ const useGet2faState = (prop: useGet2faStateProp) => {
 			})
 				.then((res) => {
 					if (!res.ok) {
-						throw new Error("two factor error");
+						return 
 					}
 					return res.json();
 				})
@@ -51,7 +51,7 @@ const useGetImage = (confirmTwoFa: any, setConfirmTwoFa: any, ref: any, TwoFa: a
 				})
 					.then(async (res) => {
 						if (!res.ok) {
-							throw new Error("two factor error");
+							return 
 						}
 						const blob = await res.blob();
 						const url = URL.createObjectURL(blob);
@@ -80,7 +80,7 @@ const useDisable2fa = (disable: any, isDropdownOpen: any, ref: any, TwoFa: any, 
 						if (!res.ok) {
 							// throw new Error("two factor error");
 							toast.error("Two Factor disable")
-							return ;
+							return null;
 						}
 						toast.success("Two Factor disable")
 						setTwoFa(false);

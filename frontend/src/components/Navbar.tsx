@@ -9,7 +9,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 
 const listItems = ["home", "about", "our-team", "button"].map((item: String, key: Number) =>
 	item === "button" ? (
-		<li className={`uppercase font-pixelify cursor-pointer py-2 h-auto`}>
+		<li key={`${key}`} className={`uppercase font-pixelify cursor-pointer py-2 h-auto`}>
 			<MainButton name={`signin`} url={`test.com`} />
 		</li>
 	) : (

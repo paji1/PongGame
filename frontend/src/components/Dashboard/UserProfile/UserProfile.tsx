@@ -16,7 +16,7 @@ const useGetFrienshipsStatus = async (setisFriend: any, dashstate: IUser) => {
 				credentials: "include",
 			})
 				.then((Response) => {
-					if (!Response.ok) {
+					if (Response.status !== 200) {
 						setisFriend(false);
 					} else {
 						setisFriend(true);
@@ -73,7 +73,7 @@ export default function ProfileDiv({ status, who, usr, func }: { status: Map<str
 
 			} )
           
-            .catch(() => toast.error(`EXEPTION: network error`));
+            .catch(() => toast.error(`RMFR: network error`));
     };
 const addFR = () => {
         fetch(`http://${ip}3001/invite/friend?friend=${usr.id}`, {
@@ -89,7 +89,7 @@ const addFR = () => {
 
 		} )
            
-            .catch(() => toast.error(`search: network error`));
+            .catch(() => toast.error(`search: ror`));
     };
 	useGetFrienshipsStatus(setisFriend, usr);
 	return (

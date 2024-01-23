@@ -61,7 +61,7 @@ const ChatBar = ({
 					}
 				} else toast.error(data.message);
 			})
-			.catch(() => toast.error(`network error`));
+			.catch(() => toast.error(`CHAT BAR network error`));
 	};
 	return (
 		<div className="flex flex-col h-full">

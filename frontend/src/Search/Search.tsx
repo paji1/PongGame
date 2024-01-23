@@ -116,9 +116,9 @@ export const SearchWindow = () => {
 					</div>
 			</div>
 			<div className="flex flex-col gap-y-10 p-8 mt-2 max-w-[1536px] m-auto">
-				{rooms && roomselector  ? (rooms.map((ob: room) => <RoomItem socket={socket} room={ob} />)) : (null)}
+				{rooms && roomselector  ? (rooms.map((ob: room, key:number) => <RoomItem key={key} socket={socket} room={ob} />)) : (null)}
 
-				{users && userselector ? users.map((ob: IUser) => <UserItem user={ob} />) : null}
+				{users && userselector ? users.map((ob: IUser, key:number) => <UserItem key={key} user={ob} />) : null}
 				{(!roomselector && !userselector && (rooms?.length || users?.length))? <h1 >Select a Filter</h1>: null }
 				{!rooms?.length && !users?.length ? <h1>No result Found</h1> : null } 
 				

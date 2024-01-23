@@ -31,7 +31,7 @@ const useInvites = (setNotification:any)=>
 				if (Array.isArray(data))
 					setNotification(data);
 			}
-			).catch((e) => toast.error("Exeption: Network error"));
+			).catch((e) => toast.error("INVITES: Network error"));
 		}
 		fetchData();
 	},[]);

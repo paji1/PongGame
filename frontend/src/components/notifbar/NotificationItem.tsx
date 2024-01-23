@@ -8,12 +8,12 @@ import { toast } from "react-toastify";
 
 const AcceptFriend = async (id: number) =>
 {
-	await fetch(`http://${ip}3001/invite/friend/invite?id=${id}` , {credentials: 'include', method: "POST"}).catch(err => toast.error("Exeption: Network error"))
+	await fetch(`http://${ip}3001/invite/friend/invite?id=${id}` , {credentials: 'include', method: "POST"}).catch(err => toast.error("ACCEPT: Network error"))
 }
 
 const RejectFriend = async (id:number) =>
 {
-	await fetch(`http://${ip}3001/invite/friend/invite?id=${id}` , { credentials: "include", method: "DELETE"}).catch(err => toast.error("Exeption: Network error"))
+	await fetch(`http://${ip}3001/invite/friend/invite?id=${id}` , { credentials: "include", method: "DELETE"}).catch(err => toast.error("REJECT: Network error"))
 }
 
 

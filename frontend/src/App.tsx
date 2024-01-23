@@ -121,7 +121,7 @@ const App = () => {
 					}
 					setIsLogin(true);
 				})
-				.catch((e) => toast.error("Exeption: network error"));
+				.catch((e) => {});
 
 		};
 

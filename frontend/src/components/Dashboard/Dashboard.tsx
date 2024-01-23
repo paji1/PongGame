@@ -97,9 +97,10 @@ const useGetUserdata = async (setdashstate: any, nickname: string | undefined) =
 			if (data.status < 400)
 				return data.json()
 			toast.error("Error getting Global Ladder")
+			return null
 		})
 			.then((Response) => {
-				if (Response.statusCode >= 400) {
+				if (Response && Response.statusCode >= 400) {
 					toast(`HTTP error! Status: ${Response.status}`);
 					setdashstate(null);
 				} else setdashstate(Response);
@@ -124,7 +125,7 @@ export default function Dashboard({status} : {status: Map<string, string>}) {
 	useGetGamingData(setgdata, nickname);
 	useGetTrophiesData(settrdata, nickname);
 
-	if (dashstate === null || user == undefined || setfladder === null) return <>404</>;
+	if (dashstate === null || user == undefined || setfladder === null) return null;
 	return (
 		<div className="flex flex-col gap-y-16 mt-16">
 			<ProfileDiv status={status} who={who} usr={dashstate} func={setdashstate} />

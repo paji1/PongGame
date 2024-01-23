@@ -35,8 +35,8 @@ export class AtStrategy extends PassportStrategy(Strategy, "jwt") {
 			return atToken;
 		}
 
-		// throw new UnauthorizedException();
-		return null;
+		throw new UnauthorizedException();
+		// return null;
 	}
 
 	validate(payload: JwtPayload) {
