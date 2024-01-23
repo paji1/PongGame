@@ -53,32 +53,8 @@
       volumes:
         - db-data:/var/lib/postgresql/data
 
-    # prisma:
-    #     container_name: prisma
-    #     image: node:20.6.1
-    #     working_dir: /code
-    #     tty: true
-    #     volumes:
-    #         - ./backend:/code
-    #         - ./backend/prisma/seed/seed.sh:/code/seed.sh:rw
-    #     env_file:
-    #         - .env
-    #     command: sh seed.sh  && sleep 50 && echo 'Task finished. Shutting down...' && sleep 20"
-    #     networks:
-    #       - server-side
-    #     depends_on:
-    #         - db
-    pgadmin:
-      container_name: "pp"
-      image: dpage/pgadmin4
-      env_file:
-      - .env
-      ports:
-        - 5050:80
-      networks:
-        - server-side
-      depends_on:
-        - db
+
+
   networks:
     client-side: {}
     server-side: {}

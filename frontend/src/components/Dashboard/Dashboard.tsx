@@ -28,13 +28,14 @@ const useGetTrophiesData = async (settrdata: any, nickname: string | undefined) 
 				if (Array.isArray(data))
 				settrdata(data);
 
-			}).catch((err => {toast.error("Exeption: Netwoek errorr")}));
-	}, []);
+			}).catch((err => {}));
+	}, [nickname]);
 };
 
-const useGetGamingData = async (setgdata: any, nickname: string | undefined) => {
+const useGetGamingData = async (setgdata: any, user: IUser | null , id: number) => {
+
 	useEffect(() => {
-		fetch(`http://${ip}3001/profile/${nickname}/GamingHistory`, {
+		fetch(`http://${ip}3001/profile/${(user) ? user.id : id}/GamingHistory`, {
 			method: "GET",
 			credentials: "include",
 		})
@@ -47,8 +48,10 @@ const useGetGamingData = async (setgdata: any, nickname: string | undefined) => 
 			.then((data) => {
 				if (Array.isArray(data))
 					setgdata(data);
-			}).catch((err => {toast.error("Exeption: Netwoek error")}));
-	}, []);
+					console.log("nickname", user.id)
+					console.log("data",data)
+			}).catch((err => {}));
+	}, [user]);
 };
 
 const useGetFLadderData = async (setfladder: any, nickname: string | undefined) => {
@@ -65,8 +68,8 @@ const useGetFLadderData = async (setfladder: any, nickname: string | undefined) 
 			.then((data) => {
 				if (Array.isArray(data))
 					setfladder(data);
-			}).catch((err => {toast.error("Exeption: Netwoek error")}));
-	}, []);
+			}).catch((err => {}));
+	}, [nickname]);
 };
 
 const useGetLadderData = async (setgladder: any, nickname: string | undefined) => {
@@ -83,8 +86,8 @@ const useGetLadderData = async (setgladder: any, nickname: string | undefined) =
 			.then((data) => {
 				if (Array.isArray(data))
 					setgladder(data);
-			}).catch((err => {toast.error("Exeption: Netwoek error")}));
-	}, []);
+			}).catch((err => {}));
+	}, [nickname]);
 };
 
 const useGetUserdata = async (setdashstate: any, nickname: string | undefined) => {
@@ -104,6 +107,7 @@ const useGetUserdata = async (setdashstate: any, nickname: string | undefined) =
 					toast(`HTTP error! Status: ${Response.status}`);
 					setdashstate(null);
 				} else setdashstate(Response);
+		
 			});
 	}, [nickname]);
 };
@@ -116,21 +120,21 @@ export default function Dashboard({status} : {status: Map<string, string>}) {
 	const [gamesdata, setgdata] = useState<Histo[] | null>(null);
 	const [trophydata, settrdata] = useState<number[] | null>(null);
 	const params = useParams();
-
-	const nickname = params.nickname ? params.nickname : user?.nickname;
+	const nickname = params.nickname ? params.nickname : user?.nickname
 	const who = user?.nickname === nickname;
-	useGetUserdata(setdashstate, nickname);
-	useGetLadderData(setgladder, nickname);
-	useGetFLadderData(setfladder, nickname);
-	useGetGamingData(setgdata, nickname);
-	useGetTrophiesData(settrdata, nickname);
 
+		useGetUserdata(setdashstate, nickname);
+		useGetLadderData(setgladder, nickname);
+		useGetFLadderData(setfladder, nickname);
+		useGetGamingData(setgdata, dashstate, user.id);
+		useGetTrophiesData(settrdata, nickname);
+	console.log("gamedata",gamesdata)
 	if (dashstate === null || user == undefined || setfladder === null) return null;
 	return (
 		<div className="flex flex-col gap-y-16 mt-16">
 			<ProfileDiv status={status} who={who} usr={dashstate} func={setdashstate} />
 			<Carousel achivments={trophydata} />
-			<Stats History={gamesdata} />
+			<Stats History={gamesdata} useer={dashstate} />
 			{who ? <Ladder GLadder={gladder} FLadder={fladder} /> : null}
 			<History History={gamesdata} />
 			<Footer />
