@@ -4,42 +4,51 @@ import { achivments_images } from "../../../assets/dinamicachievments/achived";
 import { achived } from "../../../types/yearlyres";
 
 export const items: achived[] = [
-	{
-		description: "Register in the app",
-		name: "JOINING THE TEAM",
-	},
-	{
-		description: "Make the first win",
-		name: "FIRST WIN",
-	},
-	{
-		description: "Send a Friend Request friend",
-		name: "BE-FRIENDER",
-	},
-	{
-		description: "Complete a combo of 3  wins",
-		name: "WILDIN 'OUT",
-	},
-	{
-		description: "Play a game in every single mode",
-		name: "VERSATILE PONGER",
-	},
-	{
-		description: "Send a Request to  3 friends",
-		name: "THE SOCIALISER",
-	},
-	{
-		description: "Win a game without conseiving a single goal",
-		name: "THE WALL",
-	},
-	{
-		description: "Win a game in every single mode",
-		name: "THE CHAMELEON",
-	},
-	{
-		name: "THE EXECUTIONER",
-		description: "Manage to beat all your friends once",
-	},
+  {
+    description: "Register in the app",
+    name: "JOINING THE TEAM",
+
+  },
+  {
+    description: "Make the first win",
+    name: "FIRST WIN",
+
+  },
+  {
+    description: "Add first friend ",
+    name: "BE-FRIENDER",
+
+  },
+  {
+    description: "Complete a combo of 3 consecutive wins",
+    name: "WILDIN 'OUT",
+
+  },
+  {
+    description: "Play a game in every single mode",
+    name: "VERSATILE PONGER",
+
+  },
+  {
+    description: "Add 3 friends",
+    name: "THE SOCIALISER",
+
+  },
+  {
+    description: "Win a game without conseiving a single goal",
+    name: "THE WALL",
+
+  },
+  {
+    description: "Win a game in every single mode",
+    name: "THE CHAMELEON",
+
+  },
+  {
+    description: "win a game with the top score without conseiving a single goal",
+    name: "THE EXECUTIONER",
+
+  },
 ];
 
 export default function Carousel({ achivments }: { achivments: number[] | null }) {

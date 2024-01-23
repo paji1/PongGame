@@ -292,7 +292,7 @@ export class GameGateway {
 					addAchieved.push({index: 8});
 				}
 			}
-			if ((!host_score  || !guest_score ) && (guest_score== 10 || host_score == 10)&& res2.achieved.findIndex((rr) => rr.index === 9 ) === -1)
+			if ((!host_score  || !guest_score ) && (guest_score== 10 || host_score == 10) && res2.achieved.findIndex((rr) => rr.index === 9 ) === -1)
 			{
 				addAchieved.push({index: 9});
 			}
