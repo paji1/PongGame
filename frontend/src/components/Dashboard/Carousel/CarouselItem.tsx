@@ -41,7 +41,7 @@ export const items = [
     icon: require("../../../assets/Throphy-09.png"),
   },
   {
-    description: "Manage to beat all your friends",
+    description: "win a game with the top score without conseiving a single goal",
     title: "THE EXECUTIONER",
     icon: require("../../../assets/Throphy-10.png"),
   },

@@ -95,7 +95,7 @@ const ChatBar = ({
 				</img>
 			</div>
 			 : null}
-			<div className="  flex overflow-y-scroll   flex-col-reverse basis-full p-1 gap-y-6 ">
+			<div className=" border-black border-2 flex overflow-y-scroll   flex-col-reverse basis-full p-1 gap-y-6 ">
 				{messages}
 			</div>
 			<div >
