@@ -119,7 +119,7 @@ const GameBody = () => {
 		
 		socket.on('GAME_INVITE_REFUSED', () => {
 			setPreparation(EGamePreparationState.CONFIG_STATE)
-			toast.info('ma mssalix azbi')
+			toast.info('ma mssalix')
 		})
 
 		socket.on('GAME_OVER', (data: any) => {

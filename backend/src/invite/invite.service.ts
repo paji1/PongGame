@@ -31,10 +31,13 @@ export class InviteService {
             },
             select:
             {
+
                 id:true,
                 type:true,
                 created_at:true,
                 status:true,
+				game_id:true,
+				game_mode:true,
                 issuer_id:
                 {
                     select:
@@ -49,7 +52,9 @@ export class InviteService {
                 {
                     select:
                     {
+						id: true,
                         nickname:true,
+						user42:true
                     }
                 },
                 room_id: {
