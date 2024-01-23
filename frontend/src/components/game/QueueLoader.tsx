@@ -30,6 +30,7 @@ const QueueLoader = () => {
 		
 		  return () => {
 			window.removeEventListener('beforeunload', cleanup);
+			cleanup()
 		  };
 
 	}, [])

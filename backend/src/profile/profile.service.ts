@@ -30,7 +30,6 @@ export class ProfileService {
 				nickname: username,
 			},
 		});
-		console.log("data",data);
 		if (!data) throw new HttpException("failed to fetch user", HttpStatus.BAD_REQUEST);
 		return data;
 	}

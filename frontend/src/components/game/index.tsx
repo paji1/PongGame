@@ -138,9 +138,10 @@ const GameBody = () => {
 				socket.off('SUCCESSFUL_INVITE')
 				socket.off('GAME_INVITE_REFUSED')
 				socket.off('GAME_OVER')
+				socket.emit('LEAVE_GAME', {game_id: gameContext?.game_id, opp: gameContext?.opp})
 			}
 		)
-	}, [])
+	}, [gameContext])
 
 	return (
 		<div ref={gameBodyRef} className={`border-[.5rem] border-solid border-textColor bg-textColor flex items-center justify-center

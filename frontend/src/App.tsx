@@ -145,27 +145,28 @@ const App = () => {
 			{
 				<currentUser.Provider value={userin.current}>
 					<div>
-						{window.location.pathname !== "/loading" && (
-							<>
-								<Navbar />
-								{(togglebar === 0 || togglebar === 1) && userin.current ? (
-									<SideBar activity={status} toogle={togglebar} settogle={settoglebar} />
-								) : (
-									<></>
+							<GameContext.Provider value={[gameContext, setGameContext]}>
+								{window.location.pathname !== "/loading" && (
+									<>
+										<Navbar />
+										{(togglebar === 0 || togglebar === 1) && userin.current ? (
+											<SideBar activity={status} toogle={togglebar} settogle={settoglebar} />
+										) : (
+											<></>
+										)}
+										{(togglebar === 0 || togglebar === 2) && userin.current ? (
+											<NotificationBar toogle={togglebar} settogle={settoglebar} />
+										) : (
+											<></>
+										)}
+										{(togglebar === 0 || togglebar === 3) && userin.current ? (
+											<SettingBar toogle={togglebar} settogle={settoglebar} />
+										) : (
+											<></>
+										)}
+									</>
 								)}
-								{(togglebar === 0 || togglebar === 2) && userin.current ? (
-									<NotificationBar toogle={togglebar} settogle={settoglebar} />
-								) : (
-									<></>
-								)}
-								{(togglebar === 0 || togglebar === 3) && userin.current ? (
-									<SettingBar toogle={togglebar} settogle={settoglebar} />
-								) : (
-									<></>
-								)}
-							</>
-						)}
-						<GameContext.Provider value={[gameContext, setGameContext]}>
+
 							<Routes>
 								<Route path="/search" element={<SearchWindow />} />
 								{userin.current ? (
