@@ -12,9 +12,6 @@ export default function HomePageDiv() {
 					the classic games, iconic moments, and the unique charm of that era. Whether you're a seasoned
 					player or a curious newcomer, we're here to celebrate the enduring magic of 90s ping-pong.
 				</p>
-				<button className="min-[0px]:text-xl min-[545px]:text-2xl bg-buttonColor rounded-full font-pixelify border-solid border-4 border-black shadow-[2px_4px_0px_0px_#000301] p-4 w-1/2">
-					JOIN US NOW
-				</button>
 			</div>
 			<div className="min-[0px]:hidden min-[1199px]:flex min-[1199px]:w-full m-4 flex place-content-center ">
 				<img src={GameBoy} className="GameBoy" alt="pic" />

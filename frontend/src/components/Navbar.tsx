@@ -47,7 +47,7 @@ const LoggedNavBar: React.FC<isOpen> = (props) => (
 	<nav className={props.isOpen ? "flex" : "hidden lg:flex"}>
 		<ul
 			className={`
-			flex bg-background absolute md:relative flex-col
+			flex bg-default absolute md:relative flex-col
 			lg:flex-row w-full text-center items-center justify-content-center
 			top-9 left-0 lg:top-0 lg:flex gap-2
 		`}

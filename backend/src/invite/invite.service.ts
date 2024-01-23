@@ -396,6 +396,18 @@ export class InviteService {
 			}
 		})
 	}
+	async GetExpUser(id: number) {
+		const exp = await this.prisma.user.findUnique({
+			where: {
+				id: id,
+			},
+			select: {
+				experience_points: true,
+			},
+		});
+		return exp.experience_points;
+	}
+
     async handleachivment(user: any)
     {
         const a = [];
@@ -404,13 +416,11 @@ export class InviteService {
             a.push({index: 3})
             
         }
-        console.log(user.achieved.findIndex((ach)=> ach.index === 3), a , user.achieved)
         if (user.achieved.findIndex((ach)=> ach.index === 6) === -1 && !a.length)
         {
             if (await this.prisma.invites.count({where:{issuer: user.id,type:'Friend'}}) === 3)
                 a.push({index: 6})
         }
-        console.log(a)
 
         if (a.length)
         {

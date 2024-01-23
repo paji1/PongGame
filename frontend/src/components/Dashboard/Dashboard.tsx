@@ -48,8 +48,6 @@ const useGetGamingData = async (setgdata: any, user: IUser | null , id: number) 
 			.then((data) => {
 				if (Array.isArray(data))
 					setgdata(data);
-					console.log("nickname", user.id)
-					console.log("data",data)
 			}).catch((err => {}));
 	}, [user]);
 };
@@ -128,7 +126,6 @@ export default function Dashboard({status} : {status: Map<string, string>}) {
 		useGetFLadderData(setfladder, nickname);
 		useGetGamingData(setgdata, dashstate, user.id);
 		useGetTrophiesData(settrdata, nickname);
-	console.log("gamedata",gamesdata)
 	if (dashstate === null || user == undefined || setfladder === null) return null;
 	return (
 		<div className="flex flex-col gap-y-16 mt-16">

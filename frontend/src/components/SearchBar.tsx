@@ -1,13 +1,25 @@
 import React, { useState } from "react";
 import zoomicon from "../assets/zoomicon.svg";
-import { BrowserRouter, Link } from "react-router-dom";
+import { BrowserRouter, Link, useNavigate } from "react-router-dom";
 
 const SearchBar = () => 
 {
 	const [query, setquery] = useState("")
+	const navigate  = useNavigate()
+
+	const HandleSearch = (e) => {
+		e.preventDefault();
+		navigate("/")
+		setTimeout(() => {
+			navigate(`/search?query=${query}`)
+		}, 0)
+	}
 	return (
+			<form  >
 		<div className={`flex items-start h-fill`}>
+
 			<input
+				
 				type="search"
 				value={query}
 				onChange={(e) => setquery(e.target.value)}
@@ -19,22 +31,19 @@ const SearchBar = () =>
 				placeholder="Search People / Chat rooms.."
 				required
 				></input>
-				 <Link
+				 <button
+				 	onClick={HandleSearch}
 				 	type="submit"
 					 className={`bg-buttonColor text-textColor
 					 rounded-tr-full rounded-br-full border-2 w-12 font-pixelify
 					 border-solid border-textColor h-[39px] focus:outline-none
 					 flex items-center justify-center shadow-buttonShadow
 					 `}
-      				to={{
-        			pathname: '/search',
-        			search: `?query=${query}`,
-      				}}
-    				>
-    			</Link>		
+					 >
+    			</button>		
 			</div>
+				</form>
 		)
 	}
-
 
 export default SearchBar;

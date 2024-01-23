@@ -8,7 +8,6 @@ export default function Stats({ History , useer}: { History: Histo[] | null , us
 	const user = useer;
 	if (!History || !user) return null;
 	const datastat = new state();
-	console.log("trendrate")
 	History.map((match) => {
 		if (new Date(match.created_at).getFullYear() === new Date().getFullYear()) {
 			if (user.id === match.winner_id) datastat.array[new Date(match.created_at).getMonth()][" WINS "] += 1;

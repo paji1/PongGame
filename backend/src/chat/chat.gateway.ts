@@ -155,7 +155,6 @@ export class ChatGateway {
 		@GetCurrentUser("user42") identifier: string,
 	) {
 		let res;
-		console.log("bloction", Message);
 		if (Message.What === "BLOCK") res = await this.service.rooms.block_user(id, Message.target, Message.room);
 		if (Message.What === "UNBLOCK") {
 			res = await this.service.rooms.unblock_user(id, Message.target, Message.room);
@@ -288,7 +287,6 @@ export class ChatGateway {
 		@ConnectedSocket() client,
 		@MessageBody() Message: ActionDTO,
 	) {
-		console.log(Message, "ja men bra");
 
 		const res = await this.service.rooms.give_room_admin(Message.room, Message.target);
 		if (!res) {
@@ -310,7 +308,6 @@ export class ChatGateway {
 		@ConnectedSocket() client,
 		@MessageBody() Message: ActionDTO,
 	) {
-		console.log(Message, "ja men bra");
 
 		const res = await this.service.rooms.revoke_room_admin(Message.room, Message.target);
 		if (!res) {
@@ -346,7 +343,6 @@ export class ChatGateway {
 	@RoomPermitions(user_permission.owner)
 	@RoomType(roomtype.private, roomtype.protected, roomtype.public)
 	async deleteroom(@GetCurrentUserId() id: number, @ConnectedSocket() client, @MessageBody() Message: ActionDTO) {
-		console.log(Message, "ja men bra");
 
 		const res = await this.service.rooms.delete_room(Message.room);
 		if (!res) {
@@ -368,7 +364,6 @@ export class ChatGateway {
 		@ConnectedSocket() client,
 		@MessageBody() Message: ActionDTO,
 	) {
-		console.log(Message);
 		const friend = await this.prisma.user.findUnique({
 			where: {
 				nickname: Message.What,

@@ -21,7 +21,6 @@ const inviteToGame = (socket:Socket, user: IUser, difficulty: EDifficulty , navi
 		matchingType: EMatchingType.INVITE,
 		invite: user.nickname
 	}
-	console.log(queue)
 	navigate("/game")
 	socket.emit('matching', queue)
 	

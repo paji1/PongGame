@@ -14,7 +14,10 @@ export class InviteController {
     return await this.inviteService.getdatainvite(user);
   }
 
-
+  @Get("exp")
+	async GetExpUser(@GetCurrentUserId() id: number) {
+		return await this.inviteService.GetExpUser(id);
+}
   @Post('friend')
   async Friendinvite(@GetCurrentUserId() user:number,  @Query('friend') friend: number, @Res() res)
   {
