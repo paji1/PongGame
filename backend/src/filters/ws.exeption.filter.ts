@@ -1,10 +1,10 @@
-import { ArgumentsHost, BadRequestException, Catch, HttpException } from "@nestjs/common";
+import { ArgumentsHost, BadRequestException, Catch, HttpException, UnauthorizedException } from "@nestjs/common";
 import { BaseWsExceptionFilter, WsException } from "@nestjs/websockets";
 import { Socket } from "dgram";
 
-@Catch(HttpException)
+@Catch(HttpException, UnauthorizedException)
 export class WsValidationExeption extends BaseWsExceptionFilter {
-	catch(exception: HttpException, host: ArgumentsHost) {
+	catch(exception: HttpException | UnauthorizedException, host: ArgumentsHost) {
 		// Here you have the exception and you can check the data
 		const response = exception["response"]["message"];
 		const jj = host.switchToWs();

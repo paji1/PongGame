@@ -15,10 +15,10 @@ import { Request } from 'express';
 import { WsValidationExeption } from './filters/ws.exeption.filter';
 
 const conf: ConfigService = new ConfigService();
-@UseFilters(WsValidationExeption)
 @WebSocketGateway()
 @UseGuards(RoomGuard)
 @UseGuards(AtGuard)
+@UseFilters(WsValidationExeption)
 export class AppGateway {
  
   constructor(

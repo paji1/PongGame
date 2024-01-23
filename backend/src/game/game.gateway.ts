@@ -17,8 +17,8 @@ import Game from './pong-game/Game';
 
 @WebSocketGateway({ transports: ['websocket'] })
 @UsePipes(new ValidationPipe())
-@UseFilters(WsValidationExeption)
 @UseGuards(AtGuard)
+@UseFilters(WsValidationExeption)
 export class GameGateway {
 
 	constructor(

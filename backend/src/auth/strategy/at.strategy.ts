@@ -32,14 +32,16 @@ export class AtStrategy extends PassportStrategy(Strategy, "jwt") {
 			const cook: string = req.request.headers.cookie;
 			const atToken = cook.match(/(?<=atToken=)(.*?)(?=;|$)/)[0];
 			if (!atToken || atToken.length < 2) return null;
+
 			return atToken;
 		}
 
-		throw new UnauthorizedException();
-		// return null;
+		// throw new UnauthorizedException();
+		return null;
 	}
 
 	validate(payload: JwtPayload) {
+		console.log("atToken", "DSSSSSSDSDS", payload);
 		return payload;
 	}
 }
