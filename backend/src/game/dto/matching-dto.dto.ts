@@ -10,6 +10,6 @@ export class  MatchingGameDto {
 
 	@ValidateIf(dto => dto.matchingType === EMatchingType.INVITE)
 	@IsString({message: "Player is not available"})
-	@MinLength(3, {message: "Player is not available"})
+	@MinLength(1, {message: "Player is not available"})
 	invite?: string
 }
