@@ -20,7 +20,7 @@ const conf: ConfigService = new ConfigService();
 @UseGuards(RoomGuard)
 @UseGuards(AtGuard)
 export class AppGateway {
-
+ 
   constructor(
 		private readonly prisma: PrismaService,
 		private statusnotify: EventEmitter2,
@@ -53,7 +53,7 @@ export class AppGateway {
 				}))
 				this.welcome(client, user)
 			}
-			catch (e)
+			catch 
 			{
 				try
 				{
@@ -63,7 +63,7 @@ export class AppGateway {
 
 					this.welcome(client, user)
 				}
-				catch(e)
+				catch
 				{
 					client.disconnect()
 				}
@@ -79,8 +79,13 @@ export class AppGateway {
 			return ;
 		if (!(await this.server.to(identifier).fetchSockets()).length)
 		{
-			const	state = await this.prisma.user.update({where:{user42:identifier,},data:{connection_state: current_state.OFFLINE}});
-			this.statusnotify.emit("PUSHSTATUS", state.user42 , [{ user42:state.user42 , connection_state: state.connection_state}])
+			try
+			{
+				const	state = await this.prisma.user.update({where:{user42:identifier,},data:{connection_state: current_state.OFFLINE}});
+				this.statusnotify.emit("PUSHSTATUS", state.user42 , [{ user42:state.user42 , connection_state: state.connection_state}])
+			}
+			catch
+			{}
 		}
 	}	
 
@@ -88,56 +93,59 @@ export class AppGateway {
 	@SubscribeMessage("ONNSTATUS")
 	async getPrimarystatus( @GetCurrentUser("user42") identifier:string, @ConnectedSocket() client)
 	{
-		const status = await this.prisma.user.findUnique(
-			{
-				where:{
-					user42:identifier,
-				},
-				select:{
-					friendship1: {
-
-						select:{
-							reciever_id:{
-								select:
-								{
-									connection_state:true,
-									user42:true,
-								}
-							},
-							status:true,
-						}
+		try{
+			
+			const status = await this.prisma.user.findUnique(
+				{
+					where:{
+						user42:identifier,
 					},
-					friendship2: {
-						select:{
-							initiator_id:{
-								select:
-								{
-									connection_state:true,
-									user42:true,
-								}
-							},
-							status:true
+					select:{
+						friendship1: {
+							
+							select:{
+								reciever_id:{
+									select:
+									{
+										connection_state:true,
+										user42:true,
+									}
+								},
+								status:true,
+							}
+						},
+						friendship2: {
+							select:{
+								initiator_id:{
+									select:
+									{
+										connection_state:true,
+										user42:true,
+									}
+								},
+								status:true
+							}
 						}
 					}
 				}
-			}
-		)
-		const allstatus = [];
-		status.friendship1?.map((friend) => {
-			friend.status === "DEFAULT"?
-			allstatus.push({user42: friend.reciever_id.user42, connection_state: friend.reciever_id.connection_state}):
-			allstatus.push({user42: friend.reciever_id.user42, connection_state: "BLOCKED"})
-		
-		})
-		status.friendship2?.map((friend) =>{
-			friend.status === "DEFAULT"?
-			allstatus.push({user42: friend.initiator_id.user42, connection_state: friend.initiator_id.connection_state}):
-			allstatus.push({user42: friend.initiator_id.user42, connection_state: "BLOCKED"})
-		})
-	
-		client.emit("ON_STATUS",   allstatus)
+				)
+				const allstatus = [];
+				status.friendship1?.map((friend) => {
+					friend.status === "DEFAULT"?
+					allstatus.push({user42: friend.reciever_id.user42, connection_state: friend.reciever_id.connection_state}):
+					allstatus.push({user42: friend.reciever_id.user42, connection_state: "BLOCKED"})
+					
+				})
+				status.friendship2?.map((friend) =>{
+					friend.status === "DEFAULT"?
+					allstatus.push({user42: friend.initiator_id.user42, connection_state: friend.initiator_id.connection_state}):
+					allstatus.push({user42: friend.initiator_id.user42, connection_state: "BLOCKED"})
+				})
+				
+				client.emit("ON_STATUS",   allstatus)
+			}catch{}
 	}
-	
+			
 	@OnEvent('PUSHSTATUS')
 	async notifyALL(user: string, status:[])
 	{
@@ -146,8 +154,7 @@ export class AppGateway {
 		{
 			if((await this.server.to(friend).fetchSockets()).length)
 				this.server.to(friend).emit("ON_STATUS" , status);
-		}
-	);
+		});
 	}
 
 
@@ -159,7 +166,6 @@ export class AppGateway {
 	}
 	async getfriends(user:string)
 	{
-
 		const friends = await this.prisma.friendship.findMany({
 			where	:	{
 				OR :
@@ -229,12 +235,10 @@ export class AppGateway {
 		})
 		this.notifyupdate(user1)
 		this.notifyupdate(user2)
-
 	}
 
 	@OnEvent("LEFT_GAME")
 	async leftgame(user1: number, user2: number) {
-
 		await this.prisma.user.updateMany({
 			where:
 			{

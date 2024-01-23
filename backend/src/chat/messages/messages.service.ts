@@ -27,6 +27,7 @@ export class MessagesService {
 								nickname:true,
 							}
 						}
+						
 					}
 				});
 				await t.rooms.update({
@@ -210,6 +211,7 @@ export class MessagesService {
 						not: "DEFAULT"
 					},
 					OR:[
+
 						{
 							initiator: Requester,
 						},

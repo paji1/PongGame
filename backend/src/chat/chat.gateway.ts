@@ -53,9 +53,9 @@ export class ChatGateway {
 			const newroom = await this.service.rooms.create_room(id, room);
 			this.server.to(identifier).emit("ACTION", {region: "ROOM", action:"NEW", data: newroom}) 
 		}	
-		catch (e)
+		catch 
 		{
-			client.emit("ChatError", e.message);
+			client.emit("ChatError", "Error creating room");
 		}	
 	}	
 
