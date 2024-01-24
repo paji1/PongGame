@@ -37,6 +37,17 @@ export class GameGateway {
 	@SubscribeMessage('matching')
 	// TODO: when session expires the client does not leave the queue
 	async routeMatching(@GetCurrentUserId() id: number, @MessageBody() payload: MatchingGameDto, @ConnectedSocket() client: Socket) {
+		const res = await this.gameService.prisma.user.findUnique({
+			where: {
+				id: id,
+			},
+			select: {
+				connection_state: true
+			}
+		})
+
+		if (res && res.connection_state === "IN_GAME")
+			return
 		if (payload.matchingType === EMatchingType.INVITE)
 			await this.inviteHandler(id, payload.invite, client, payload.difficulty)
 		else if (payload.matchingType === EMatchingType.RANDOM)
