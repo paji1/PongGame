@@ -14,7 +14,7 @@ const Popup: React.FC<PopupProps> = ({ onClose, setPopupSignUpVisible, setPopupS
 	const [hasHandledMessage, setHasHandledMessage] = useState(false);
 	useEffect(() => {
 		const handleMessage = (event: any) => {
-			if (event.origin === "http://taha.redirectme.net:3000") {
+			if (event.origin === "http://taha.redirectme.net") {
 				if (event.data.success) {
 					onClose();
 					const payload = JSON.parse(event.data.payload);

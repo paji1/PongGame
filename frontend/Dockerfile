@@ -29,9 +29,16 @@ COPY --from=gloursdocker/docker / /
 CMD [ "npm", "start" ]
 
 FROM development AS builder
-
 RUN npm run build
 
-FROM nginx:1.13-alpine
 
-COPY --from=builder /code/build /usr/share/nginx/html
+FROM nginx:1.13-alpine as production
+ 
+
+RUN rm -rf /usr/share/nginx/html/*
+COPY --from=builder /code/dist /usr/share/nginx/html
+COPY conf/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 8080
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

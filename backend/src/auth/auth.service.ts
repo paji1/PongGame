@@ -162,7 +162,7 @@ export class AuthService {
 			]);
 			// const windowRef = window;
 
-			res.redirect("http://taha.redirectme.net:3000/loading");
+			res.redirect("http://taha.redirectme.net/loading");
 		} catch (error) {
 			console.error("Error in handleCallback:", error);
 			res.status(500).send("Internal Server Error");
