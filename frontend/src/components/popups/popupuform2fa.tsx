@@ -27,7 +27,7 @@ const PopupForm2fa: React.FC<PopupForm2faProps> = ({ user, setPopupSignInVisible
 	const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		try {
-			const response = await fetch("http://devlopment.ddns.net:3001/auth/local/signinTwofa", {
+			const response = await fetch("http://taha.redirectme.net:3001/auth/local/signinTwofa", {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -39,11 +39,8 @@ const PopupForm2fa: React.FC<PopupForm2faProps> = ({ user, setPopupSignInVisible
 				setPopupSignInVisible(false);
 				navigate("/");
 				navigate(0);
-			}
-			else
-				HandleError(response);
-		} catch (error) {
-		}
+			} else HandleError(response);
+		} catch (error) {}
 	};
 	return (
 		<form className="w-full max-w-lg  flex-auto " onSubmit={handleSubmit}>

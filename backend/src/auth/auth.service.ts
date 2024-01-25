@@ -40,7 +40,7 @@ export class AuthService {
 				throw error;
 			});
 		const isAble: boolean = await argon.verify(user.hash, dto.currentPassword);
-		if (!isAble) throw new UnauthorizedException( "current password not correct");
+		if (!isAble) throw new UnauthorizedException("current password not correct");
 
 		const newPassword: string = await argon.hash(dto.newPassword);
 		await this.prisma.user
@@ -162,7 +162,7 @@ export class AuthService {
 			]);
 			// const windowRef = window;
 
-			res.redirect("http://devlopment.ddns.net:3000/loading");
+			res.redirect("http://taha.redirectme.net/loading");
 		} catch (error) {
 			res.status(500).send("Internal Server Error");
 		}

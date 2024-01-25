@@ -4,30 +4,28 @@ import { toast } from "react-toastify";
 import { messages } from "../../types/messages";
 import HandleError from "../../types/error";
 
-
-
 const changeName = async (nickname: string, navigate: any) => {
-	const res = await fetch("http://devlopment.ddns.net:3001/auth/local/apdate/nickname", {
+	const res = await fetch("http://taha.redirectme.net:3001/auth/local/apdate/nickname", {
 		method: "POST",
 		credentials: "include",
 		headers: {
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({ newNickname: nickname }),
-	}).then(async (res) => {
-		if (res.ok) {
-			
-			toast.success(`page well refrech in  in 1 secend`);
-			setTimeout(() => {
-				navigate(0);
-			}, 3000);
-			return;
-		}
-		return Promise.reject(res);
-		
-	}).catch((res : Response) => {
-		HandleError(res);
-	});
+	})
+		.then(async (res) => {
+			if (res.ok) {
+				toast.success(`page well refrech in  in 1 secend`);
+				setTimeout(() => {
+					navigate(0);
+				}, 3000);
+				return;
+			}
+			return Promise.reject(res);
+		})
+		.catch((res: Response) => {
+			HandleError(res);
+		});
 };
 
 const ChangeNickname = ({ toogle, setToggle }: { toogle: any; setToggle: any }) => {

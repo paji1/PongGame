@@ -4,22 +4,24 @@ import { toast } from "react-toastify";
 import HandleError from "../../types/error";
 
 const submitepame = async (currentPassword: string, newPassword: string, confirmPassword: string, navigate: any) => {
-	const res = await fetch("http://devlopment.ddns.net:3001/auth/local/apdate/password", {
+	const res = await fetch("http://taha.redirectme.net:3001/auth/local/apdate/password", {
 		method: "POST",
 		credentials: "include",
 		headers: {
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({ currentPassword: currentPassword, newPassword: newPassword }),
-	}).then(async (res) => {
-		if (res.ok) {
-			toast.success(`password changed`);
-			return;
-		}
-		return Promise.reject(res);
-	}).catch((res : Response) => {
-		HandleError(res);
 	})
+		.then(async (res) => {
+			if (res.ok) {
+				toast.success(`password changed`);
+				return;
+			}
+			return Promise.reject(res);
+		})
+		.catch((res: Response) => {
+			HandleError(res);
+		});
 };
 
 const ChangePassword = ({ toogle, setToggle }: { toogle: any; setToggle: any }) => {
