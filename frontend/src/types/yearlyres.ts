@@ -1,4 +1,3 @@
-import { type } from "os";
 import IUser from "./User";
 
 export type Histo = {

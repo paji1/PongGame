@@ -29,11 +29,9 @@ const SideBar = ({ activity , toogle, settogle }: {activity: Map<string, string>
 	const [subscriberooms, setsubscriptrooms] = useState(false);
 	const [newAlert, setNewAlert] = useState(false);
 
-	console.log("socket is here", socket)
 
 
 
-	console.log("roomstate", roomsState,  "chatstate", chatState)
 	const friendroom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof === "chat") : null;
 	const grouproom = Array.isArray(roomsState) ? roomsState.filter((room: room) => room.roomtypeof !== "chat") : null;
 	useMessages(false, setChatState);
@@ -48,7 +46,6 @@ const SideBar = ({ activity , toogle, settogle }: {activity: Map<string, string>
 	const currentroom = Array.isArray(roomsState) ? roomsState.find((ob: room) => ob.id === chatSelector) : null;
 	socket.off("connect").on("connect", () => setsubscriptrooms(!subscriberooms));
 	socket.off("ACTION").on("ACTION", (data) => {
-		console.log("incomin sokcet data" , data)
 
 		update(data, roomsState, setRoomsState, chatState, setChatState, user);
 		if (data.region === "CHAT" && data.action === "NEW") setNewAlert(true);

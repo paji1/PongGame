@@ -12,7 +12,6 @@ export default function Tooltip({ children, description }: { children: any; desc
 }
 
 export const CarouselItem = ({ hasit, item, image }: { hasit: boolean; item: achived; image: any }) => {
-	console.log(hasit, item);
 	return (
 		<div
 			className={` ${

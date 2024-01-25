@@ -1,4 +1,4 @@
-import { ExecutionContext, Injectable } from "@nestjs/common";
+import { Catch, ExecutionContext, Injectable, UnauthorizedException, UseFilters } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { AuthGuard } from "@nestjs/passport";
 import { Response } from "express";
@@ -12,7 +12,6 @@ export class AtGuard extends AuthGuard("jwt") {
 	canActivate(context: ExecutionContext) {
 		const isPublic = this.reflector.getAllAndOverride("isPublic", [context.getHandler(), context.getClass()]);
 		if (isPublic) return true;
-		console.log("world", context.getHandler());
 		const req = context.switchToHttp().getRequest();
 		if (
 			(req.cookies && "atToken" in req.cookies && req.cookies.atToken?.length > 0) ||

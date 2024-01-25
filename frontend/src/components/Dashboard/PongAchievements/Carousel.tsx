@@ -1,45 +1,54 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { CarouselItem } from "./CarouselItem";
 import { achivments_images } from "../../../assets/dinamicachievments/achived";
 import { achived } from "../../../types/yearlyres";
 
 export const items: achived[] = [
-	{
-		description: "Register in the app",
-		name: "JOINING THE TEAM",
-	},
-	{
-		description: "Make the first win",
-		name: "FIRST WIN",
-	},
-	{
-		description: "Add first friend",
-		name: "BE-FRIENDER",
-	},
-	{
-		description: "Complete a combo of 3 consecutive wins",
-		name: "WILDIN 'OUT",
-	},
-	{
-		description: "Play a game in every single mode",
-		name: "VERSATILE PONGER",
-	},
-	{
-		description: "Add 3 friends",
-		name: "THE SOCIALISER",
-	},
-	{
-		description: "Win a game without conseiving a single goal",
-		name: "THE WALL",
-	},
-	{
-		description: "Win a game in every single mode",
-		name: "THE CHAMELEON",
-	},
-	{
-		name: "THE EXECUTIONER",
-		description: "Manage to beat all your friends",
-	},
+  {
+    description: "Register in the app",
+    name: "JOINING THE TEAM",
+
+  },
+  {
+    description: "Make the first win",
+    name: "FIRST WIN",
+
+  },
+  {
+    description: "Add first friend ",
+    name: "BE-FRIENDER",
+
+  },
+  {
+    description: "Complete a combo of 3 consecutive wins",
+    name: "WILDIN 'OUT",
+
+  },
+  {
+    description: "Play a game in every single mode",
+    name: "VERSATILE PONGER",
+
+  },
+  {
+    description: "Add 3 friends",
+    name: "THE SOCIALISER",
+
+  },
+  {
+    description: "Win a game without conseiving a single goal",
+    name: "THE WALL",
+
+  },
+  {
+    description: "Win a game in every single mode",
+    name: "THE CHAMELEON",
+
+  },
+  {
+    description: "win a game with the top score without conseiving a single goal",
+    name: "THE EXECUTIONER",
+
+  },
 ];
 
 export default function Carousel({ achivments }: { achivments: number[] | null }) {
@@ -63,14 +72,14 @@ export default function Carousel({ achivments }: { achivments: number[] | null }
 			</div>
 			<div className="overflow-hidden snap-mandatory snap-x inner whitespace-nowrap border-4 border-solid boder-black m-9 shadow-[2px_4px_0px_0px_#000301]">
 				{items.map((item: achived, index: number) => {
-					const exist = (achivments && achivments.length )? achivments.includes(index + 1) : false;
-
+					const exist =  achivments ? achivments?.includes(index + 1 ) : false
 					return (
 						<div
+						key={index}
 							className="inline-flex w-full transition-transform delay-150 duration-1000 ease-in-out snap-center"
 							style={{ transform: `translate(-${activeIndex * 100}%)` }}
 						>
-							<CarouselItem hasit={exist} item={item} image={newimages.images[index]} />
+							<CarouselItem  hasit={exist} item={item} image={newimages.images[index]} />
 						</div>
 					);
 				})}

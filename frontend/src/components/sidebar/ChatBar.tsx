@@ -32,7 +32,7 @@ const ChatBar = ({
 	const user = useContext(currentUser);
 
 	if (conversation && typeof conversation.messages !== "undefined" && user) {
-		messages = conversation.messages.map((obj: messages, index) => <Messageitem user={user} messages={obj} />);
+		messages = conversation.messages.map((obj: messages, index) => <Messageitem key={index} user={user} messages={obj} />);
 	}
 	if (config)
 		return room?.roomtypeof !== "chat" ? (
@@ -61,7 +61,7 @@ const ChatBar = ({
 					}
 				} else toast.error(data.message);
 			})
-			.catch(() => toast.error(`network error`));
+			.catch(() => toast.error(`CHAT BAR network error`));
 	};
 	return (
 		<div className="flex flex-col h-full">
@@ -95,7 +95,7 @@ const ChatBar = ({
 				</img>
 			</div>
 			 : null}
-			<div className="  flex overflow-y-scroll   flex-col-reverse basis-full p-1 gap-y-6 ">
+			<div className=" border-black border-2 flex overflow-y-scroll   flex-col-reverse basis-full p-1 gap-y-6 ">
 				{messages}
 			</div>
 			<div >

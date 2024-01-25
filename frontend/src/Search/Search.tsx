@@ -73,19 +73,22 @@ export const SearchWindow = () => {
 		fetch(`http://${ip}3001/chat/search/${query}`, {
 			credentials: "include",
 		})
-			.then((data) => data.json())
 			.then((data) => {
-				console.log(data);
-
+				
+					return data.json()
+			
+			})
+				
+			.then((data) => {
 				if (Array.isArray(data)) roomstate(data);
 			})
 			.catch(() => toast.error(`search: network error`));
+
 		fetch(`http://${ip}3001/users/search/${query}`, {
 			credentials: "include",
 		})
 			.then((data) => data.json())
 			.then((data) => {
-				console.log(data);
 				if (Array.isArray(data)) usersstate(data);
 			})
 			.catch(() => toast.error(`search: network error`));
@@ -113,9 +116,9 @@ export const SearchWindow = () => {
 					</div>
 			</div>
 			<div className="flex flex-col gap-y-10 p-8 mt-2 max-w-[1536px] m-auto">
-				{rooms && roomselector  ? (rooms.map((ob: room) => <RoomItem socket={socket} room={ob} />)) : (null)}
+				{rooms && roomselector  ? (rooms.map((ob: room, key:number) => <RoomItem key={key} socket={socket} room={ob} />)) : (null)}
 
-				{users && userselector ? users.map((ob: IUser) => <UserItem user={ob} />) : null}
+				{users && userselector ? users.map((ob: IUser, key:number) => <UserItem key={key} user={ob} />) : null}
 				{(!roomselector && !userselector && (rooms?.length || users?.length))? <h1 >Select a Filter</h1>: null }
 				{!rooms?.length && !users?.length ? <h1>No result Found</h1> : null } 
 				

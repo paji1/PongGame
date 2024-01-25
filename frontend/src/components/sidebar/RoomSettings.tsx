@@ -17,7 +17,7 @@ const RoomSettings = ({ returnf, returnbutton, room }: { returnf: any; returnbut
 		list = room.rooms_members.map((ob: member, index: number) => {
 			let nickname = ob.user_id.nickname.toLowerCase();
 			if (nickname.includes(query.toLowerCase()))
-				return <RoomsettingItem returnf={returnf} user={ob} roomid={room.id} userPerm={thisuser} />;
+				return <RoomsettingItem key={index} returnf={returnf} user={ob} roomid={room.id} userPerm={thisuser} />;
 			return <></>
 		});
 	}

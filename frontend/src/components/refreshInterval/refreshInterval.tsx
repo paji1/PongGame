@@ -1,19 +1,14 @@
 import axios from "axios";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-
-
 const useRefreshinterval = () => {
 	const [error, setError] = useState<string | null>(null);
 	const intervalRef = useRef<NodeJS.Timer | undefined>();
 
 	const getToken = useCallback(() => {
 		axios
-			.post("http://wladnas.ddns.net:3001/auth/refresh", {}, { withCredentials: true })
-			.then((res) => {
-				console.log(res);
-				console.log(res.data);
-			})
+			.post("http://taha.redirectme.net:3001/auth/refresh", {}, { withCredentials: true })
+			.then((res) => {})
 			.catch((err): any => {
 				// console.error("axios get refresh error:", err);
 				setError("error : refresh token not found");
@@ -24,7 +19,6 @@ const useRefreshinterval = () => {
 		getToken();
 		const interval = setInterval(() => getToken(), 14 * 60 * 1000);
 		intervalRef.current = interval;
-		
 
 		return () => clearInterval(interval);
 	}, [getToken]);
@@ -35,7 +29,6 @@ const useRefreshinterval = () => {
 			setError(null);
 		}
 	}, [error]);
-
 };
 
 export default useRefreshinterval;

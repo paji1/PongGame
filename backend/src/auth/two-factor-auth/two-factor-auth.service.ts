@@ -9,6 +9,8 @@ import { toFileStream } from "qrcode";
 import { user } from "@prisma/client";
 import { Response } from "express";
 import { TwoFaAuthDto } from "../dto/twoFa.dto";
+import  * as CryptoJS  from "crypto-js";
+
 
 @Injectable()
 export class TwoFactorAuthService {
@@ -29,10 +31,14 @@ export class TwoFactorAuthService {
 		if (user.is2FA) {
 			return null;
 		}
-
-		const secret: string = authenticator.generateSecret();
+		const secretRaw =  authenticator.generateSecret();
+		const secret: string = CryptoJS.AES.encrypt(secretRaw, this.config.get<string>("FT_SECRET")).toString()
+		
 		const appName: string = "wladnass";
-		const otpAuthUrl: string = authenticator.keyuri(appName, user42, secret);
+		const otpAuthUrl: string = authenticator.keyuri(appName, user42, secretRaw);
+
+		
+		
 		await this.prisma.user.update({
 			where: {
 				user42: user42,
@@ -46,7 +52,9 @@ export class TwoFactorAuthService {
 	}
 
 	async verify2facode(code: string, userSecret: string): Promise<boolean> {
-		return await authenticator.verify({ token: code, secret: userSecret });
+		const desecret = CryptoJS.AES.decrypt(userSecret,  this.config.get<string>("FT_SECRET")).toString(CryptoJS.enc.Utf8);
+
+		return await authenticator.verify({ token: code, secret: desecret });
 	}
 
 	async qrCodeStreamPipe(stream: Response, otpAuthUrl: string) {
@@ -55,6 +63,7 @@ export class TwoFactorAuthService {
 
 	async checkIfValidCode(dto: TwoFaAuthDto, user42: string): Promise<any> {
 		const user: user = await this.usersService.findOne(user42);
+		
 		const valid = await this.verify2facode(dto.code, user.secret2FA);
 		if (!valid) {
 			throw new UnauthorizedException("code is not valid");

@@ -2,12 +2,12 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { Histo, state } from "../../../types/yearlyres";
 import { useContext } from "react";
 import { currentUser } from "../../Context/AuthContext";
+import IUser from "../../../types/User";
 
-export default function Stats({ History }: { History: Histo[] | null }) {
-	const user = useContext(currentUser);
+export default function Stats({ History , useer}: { History: Histo[] | null , useer: IUser | null }) {
+	const user = useer;
 	if (!History || !user) return null;
 	const datastat = new state();
-
 	History.map((match) => {
 		if (new Date(match.created_at).getFullYear() === new Date().getFullYear()) {
 			if (user.id === match.winner_id) datastat.array[new Date(match.created_at).getMonth()][" WINS "] += 1;

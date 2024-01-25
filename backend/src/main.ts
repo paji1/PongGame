@@ -10,12 +10,11 @@ import { ConfigService } from "@nestjs/config";
 // declare const module: any;
 const conf: ConfigService = new ConfigService();
 const ip = conf.get<string>("ip");
-console.log("ip is: ", ip);
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
 	app.use(cookieParser());
 	app.enableCors({
-		origin: [`http://${ip}:3000`, "http://wladnas.ddns.net:3000"],
+		origin: [`http://${ip}:3000`, "http://taha.redirectme.net:3000"],
 		methods: ["GET", "POST", "DELETE", "PATCH"],
 		credentials: true,
 	});

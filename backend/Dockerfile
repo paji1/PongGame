@@ -16,6 +16,7 @@ EXPOSE 8001
 
 COPY package.json /code/package.json
 COPY --chmod=777 package-lock.json /code/package-lock.json
+COPY .npmrc /code/.npmrc
 # check every 30s to ensure this service returns HTTP 200
 RUN <<EOF
 npm ci
@@ -29,6 +30,7 @@ HEALTHCHECK --interval=30s \
 RUN <<EOF
 
 EOF
+
 
 # copy in our source code last, as it changes the most
 COPY prisma /code/prisma
@@ -51,9 +53,12 @@ RUN <<EOF
 apt-get update
 apt-get install -y expect
 apt-get install -y --no-install-recommends git
+npm install -g prisma
 EOF
 
-CMD [ "npm", "run", "t:d" ]
+COPY  ./tools/entrypoint.sh /code
+RUN chmod +x /code/entrypoint.sh
+ENTRYPOINT [ "/code/entrypoint.sh" ] 
 
 RUN <<EOF
 useradd -s /bin/bash -m vscode

@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from "../prisma/prisma.service";
 import { RoomsService } from '../chat/rooms/rooms.service'
-import { actionstatus, invitetype } from '@prisma/client';
+import { actionstatus, invitetype, user } from '@prisma/client';
 import { REFUSED } from 'dns';
 import { use } from 'passport';
 import { http } from 'winston';
@@ -31,10 +31,13 @@ export class InviteService {
             },
             select:
             {
+
                 id:true,
                 type:true,
                 created_at:true,
                 status:true,
+				game_id:true,
+				game_mode:true,
                 issuer_id:
                 {
                     select:
@@ -49,7 +52,9 @@ export class InviteService {
                 {
                     select:
                     {
+						id: true,
                         nickname:true,
+						user42:true
                     }
                 },
                 room_id: {
@@ -114,7 +119,8 @@ export class InviteService {
                             id:true,
                             nickname:true,
                             user42:true,
-                            avatar:true
+                            avatar:true,
+                            achieved:true
                         },
                     },
                     reciever_id:
@@ -123,7 +129,7 @@ export class InviteService {
                         {
                             id:true,
                             nickname:true,
-                            user42:true
+                            user42:true,
                         }
                     },
                     room_id: {
@@ -156,9 +162,10 @@ export class InviteService {
             }
 
         })
-        if (!control)
-            throw new HttpException('if blocked resolve it first, else try  to be friends first', 400);
-        return control;
+        if (!control.count)
+            return null
+        return ((await this.prisma.user.findUnique({where:{id:friend}, select:{user42:true}})).user42)
+
 
     }
 
@@ -304,7 +311,7 @@ export class InviteService {
 
     async RejectFriend(user, invite)
     {
-        const reject = await  this.prisma.invites.update(
+        return  await  this.prisma.invites.update(
             {
                 where: {
                     id:invite,
@@ -314,10 +321,130 @@ export class InviteService {
                 }
                 ,data:{
                     status:"refused",
-                }
+                },
+                select:
+                {
+                    id:true,
+                    type:true,
+                    created_at:true,
+                    status:true,
+                    issuer_id:
+                    {
+                        select:
+                        {
+                            id:true,
+                            nickname:true,
+                            user42:true,
+                            avatar:true,
+                            achieved:true
+                        },
+                    },
+                    reciever_id:
+                    {
+                        select:
+                        {
+                            id:true,
+                            nickname:true,
+                            user42:true,
+                        }
+                    },
+                    room_id: {
+                        select: {
+                            id:true,
+                            name: true
+                        }
+                    },
+                },
             }
             
         )
+    }
+
+
+	async updateGameInvite(current_user: number, id: number, status: actionstatus, game_id: string) {
+		return await this.prisma.invites.update({
+			where: {
+				id: id,
+				reciever: current_user,
+				status: actionstatus.pending,
+				type: invitetype.Game
+			},
+			data: {
+				status: status,
+				game_id: game_id
+			},
+			select: {
+				id: true,
+				status: true,
+				type: true,
+				reciever: true,
+				issuer: true,
+				game_mode: true,
+				game_id: true,
+				issuer_id: {
+					select:
+					{
+						id:true,
+						nickname:true,
+						user42:true,
+						avatar:true
+					},
+				},
+				reciever_id: {
+					select:
+					{
+						id:true,
+						user42:true,
+						nickname:true,
+					}
+				}
+			}
+		})
+	}
+	async GetExpUser(id: number) {
+		const exp = await this.prisma.user.findUnique({
+			where: {
+				id: id,
+			},
+			select: {
+				experience_points: true,
+			},
+		});
+		return exp.experience_points;
+	}
+
+    async handleachivment(user: any)
+    {
+        const a = [];
+        if (user.achieved.findIndex((ach)=> ach.index === 3) === -1)
+        {
+            a.push({index: 3})
+            
+        }
+        if (user.achieved.findIndex((ach)=> ach.index === 6) === -1 && !a.length)
+        {
+            if (await this.prisma.invites.count({where:{issuer: user.id,type:'Friend'}}) === 3)
+                a.push({index: 6})
+        }
+
+        if (a.length)
+        {
+            await this.prisma.user.update(
+                {
+                    where:{
+                        id:user.id
+                    },
+                    data:{
+                        achieved:{
+                            createMany:{
+                                data: a
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
     }
 }
 

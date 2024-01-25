@@ -30,17 +30,13 @@ export const ChangeRoomType = ({ room }: { room: room | null }) => {
 			name: name,
 			type: type,
 		};
-		console.log();
 		socket.emit("MOD", roomform);
 
 		setPassword("");
 		setName(name);
 		setType(type);
 	};
-	// function DeleteRecordAction(id: any, event: any) {
-	// 	event.stopPropagation();
-	// 	console.log("n7wi mok");
-	// }
+
 
 	return (
 		<div

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CarouselItem } from "./CarouselItem";
-import { items }  from "./CarouselItem";
+import { items }  from "../PongAchievements/Carousel";
 
 export default function Carousel(){
   const [activeIndex, setActiveIndex] = useState(0);

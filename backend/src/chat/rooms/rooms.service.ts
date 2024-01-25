@@ -56,7 +56,7 @@ export class RoomsService {
 			throw new Error("please provide a better password");
 		if (Room.type !== roomtype.protected) Room.password = "";
 		if (Room.type === roomtype.protected) Room.password = createHash("sha256").update(Room.password).digest("hex");
-		console.log("nigga hi");
+		
 		try {
 			const result = await this.prisma.$transaction(async (trx) => {
 				const newroom = await trx.rooms.create({
@@ -107,7 +107,6 @@ export class RoomsService {
 	 *
 	 */
 	async modify_room(Requester: number, room: number, Room: RoomDto) {
-		console.log("wslat lhna");
 		if (Room.type === roomtype.chat) throw new Error("Action Not Allowed");
 		if (Room.type === roomtype.protected && Room.password.length < 9)
 			throw new Error("please provide a better password");
@@ -236,7 +235,7 @@ export class RoomsService {
 				},
 			})
 			return roomret;
-		} catch (e) {
+		} catch  {
 			return null
 		}
 	}
@@ -279,7 +278,7 @@ export class RoomsService {
 
 			});
 			return  result 
-		} catch (e) {
+		} catch  {
 			return null
 		}
 	}
@@ -455,7 +454,7 @@ export class RoomsService {
 				},
 			});
 			return change ;
-		} catch (e) {
+		} catch  {
 			return null;
 		}
 	}
@@ -499,7 +498,7 @@ export class RoomsService {
 				},
 			});
 			return data;
-		} catch (e) {
+		} catch  {
 			return null
 		}
 	}
@@ -585,7 +584,7 @@ export class RoomsService {
 				},
 			});
 			return data;
-		} catch (e) {
+		} catch  {
 			return null
 		}
 	}
@@ -675,7 +674,7 @@ export class RoomsService {
 				},
 			});
 			return data 
-		} catch (e) {
+		} catch  {
 			return null
 		}
 	}
@@ -720,7 +719,7 @@ export class RoomsService {
 				},
 			});
 			return data 
-		} catch (e) {
+		} catch  {
 			null
 		}
 	}
@@ -784,7 +783,7 @@ export class RoomsService {
 				return [data, data2];
 			});
 			return changes;
-		} catch (e) {
+		} catch  {
 			return null
 		}
 	}
@@ -896,7 +895,7 @@ export class RoomsService {
 				return [data, changes];
 			});
 			return  res;
-		} catch (e) {
+		} catch  {
 			return null		}
 	}
 	async invite_room(Requester: number, affected: number, room: number) {
@@ -1053,11 +1052,12 @@ export class RoomsService {
 			})
 			return res;
 		}
-		catch(e) {
+		catch {
 			return null
 		}
 	}
 }
+
 
 
 

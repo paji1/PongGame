@@ -24,10 +24,9 @@ const PopupForm2fa: React.FC<PopupForm2faProps> = ({ user, setPopupSignInVisible
 		setFormData((prevData) => ({ ...prevData, [name]: value }));
 	};
 	const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
-		console.log("submitting ", JSON.stringify({ code: formData.code }));
 		e.preventDefault();
 		try {
-			const response = await fetch("http://wladnas.ddns.net:3001/auth/local/signinTwofa", {
+			const response = await fetch("http://taha.redirectme.net:3001/auth/local/signinTwofa", {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -41,7 +40,7 @@ const PopupForm2fa: React.FC<PopupForm2faProps> = ({ user, setPopupSignInVisible
 				navigate(0);
 			}
 		} catch (error) {
-			toast.error("retry other code")
+			toast.error("retry other code");
 		}
 	};
 	return (
@@ -72,7 +71,7 @@ const PopupForm2fa: React.FC<PopupForm2faProps> = ({ user, setPopupSignInVisible
 									rounded-full shadow-buttonShadow border-solid border-textColor border-2
 									`}
 						>
-							click here 
+							click here
 						</button>
 					</div>
 				</div>

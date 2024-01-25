@@ -6,7 +6,6 @@ import { Response } from "express";
 
 export class RtGuard extends AuthGuard("jwt-refresh") {
 	constructor(private reflector: Reflector) {
-		// console.log("at rtguard")
 
 		super();
 	}
@@ -25,7 +24,6 @@ export class RtGuard extends AuthGuard("jwt-refresh") {
 	}
 
 	canActivate(context: ExecutionContext) {
-		console.log("taha");
 		return super.canActivate(context);
 	}
 }

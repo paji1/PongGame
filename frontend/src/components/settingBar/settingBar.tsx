@@ -10,7 +10,7 @@ import TwoFaBar from "./twoFaBar";
 import { toast } from "react-toastify";
 
 const logout = async (navigate: any) => {
-	const res = await fetch("http://wladnas.ddns.net:3001/auth/logout", {
+	const res = await fetch("http://taha.redirectme.net:3001/auth/logout", {
 		method: "POST",
 		credentials: "include",
 		headers: {
@@ -32,7 +32,6 @@ interface SettingBarProps {
 
 const SettingBar: FC<SettingBarProps> = ({ toogle, settogle }) => {
 	const [isOpen, seIsOpen] = useState(false);
-	const [state, setState] = useState(1);
 	const [newAlert, setNewAlert] = useState(false);
 	const [toggle, setToggle] = useState(-1);
 	const navigate = useNavigate();
@@ -78,16 +77,6 @@ const SettingBar: FC<SettingBarProps> = ({ toogle, settogle }) => {
 							<h2 className={`text-primary font-pixelify font-bold text-lg`}>
 								{user ? user.nickname : "Loading..."}
 							</h2>
-							<p
-								className={`${
-									state === 1 ? "text-sucessColor" : state === 2 ? "text-errorColor" : "text-primary"
-								}
-							text-xs
-						`}
-							>
-								<span>•</span>
-								{state === 1 ? " Online" : state === 2 ? "Offline" : "In-game"}
-							</p>
 						</div>
 
 						<div className="  col-span-2  justify-center  bg-red-800 text-slate-50 shadow-lg rounded-sm h-11 my-auto flex    ">

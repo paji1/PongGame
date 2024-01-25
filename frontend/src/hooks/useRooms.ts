@@ -4,18 +4,20 @@ import { ip } from "../network/ipaddr";
 
 export default function useRooms(rerender: boolean, setRooms: any) {
 	useEffect(() => {
-		const data = fetch("http://" + ip + "3001/chat/town",
+		fetch("http://" + ip + "3001/chat/town",
 		{
 			credentials: 'include'
 	  })
-			.then((data) => data.json())
+			.then((data) => 
+			{
+				if (data.status < 400)
+					return data.json()
+				toast.error("Failed to fetch rooms")
+			})
 			.then((data) => {
-				if (!Array.isArray(data))
-					toast.error(data.message)
-				console.log(data)
-				setRooms(data)
-			}
-			)
+				if (Array.isArray(data))
+					setRooms(data)
+			})
 			.catch(() => toast.error(`Rooms: network error`))
 	}, [rerender]);
 }

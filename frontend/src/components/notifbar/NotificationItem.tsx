@@ -4,28 +4,55 @@ import { INotificaion, InviteType, NotificationStatus } from "../../types/Notifi
 import IUser from "../../types/User";
 import { currentUser } from "../Context/AuthContext";
 import { SocketContext } from "../Context/SocketContext";
+import { toast } from "react-toastify";
 
 const AcceptFriend = async (id: number) =>
 {
-	const res = await fetch(`http://${ip}3001/invite/friend/invite?id=${id}` , {credentials: 'include', method: "POST"})
-	console.log(res);
+	await fetch(`http://${ip}3001/invite/friend/invite?id=${id}` , {credentials: 'include', method: "POST"}).catch(err => toast.error("ACCEPT: Network error"))
 }
 
 const RejectFriend = async (id:number) =>
 {
-	await fetch(`http://${ip}3001/invite/friend/invite?id=${id}` , { credentials: "include", method: "DELETE" ,});
+	await fetch(`http://${ip}3001/invite/friend/invite?id=${id}` , { credentials: "include", method: "DELETE"}).catch(err => toast.error("REJECT: Network error"))
 }
 
+
+const acceptGameInvite = async (notif: INotificaion, socket: any) => {
+	const e = {
+		invite_id: notif.id,
+		issuer_id: notif.issuer_id.id,
+		receiver_id: notif.reciever_id.id,
+		issuer_name: notif.issuer_id.user42,
+		reciever_name: notif.reciever_id.user42,
+		game_id: notif.game_id,
+		game_mode: notif.game_mode
+	}
+	socket.emit("ACCEPT_GAME_INVITE", e)
+}
+
+const refuseGameInvite = async (notif: INotificaion, socket: any) => {
+	const e = {
+		id: notif.id,
+		type: notif.type,
+		issuer_id: notif.issuer_id.id,
+		reciever_id:notif.reciever_id.id,
+		game_id: notif.game_id,
+		status: notif.status,
+	}
+	socket.emit("REJECT_GAME_INVITE", e)
+}
 
 
 const routeinvites = (what:string, notif:INotificaion,  socket: any) => 
 {
-	if (what === "ok")
+	if (what == "ok")
 	{
 		if (notif.type ===  InviteType.Friend)
 			AcceptFriend(notif.id)
 		if (notif.type ===  InviteType.Game)
-			(()=>( console.log("MGS do your logic  here")))()
+		{
+			acceptGameInvite(notif, socket)
+		}
 		if (notif.type ===  InviteType.Room)
 			socket.emit("ROOMACTION", {room:notif.room_id.id, target:notif.id, What: what})
 	}
@@ -34,7 +61,10 @@ const routeinvites = (what:string, notif:INotificaion,  socket: any) =>
 		if (notif.type ===  InviteType.Friend)
 			RejectFriend(notif.id)
 		if (notif.type ===  InviteType.Game)
-			(()=>( console.log(" MGS do your logic  here ")))()
+		{
+		
+			refuseGameInvite(notif, socket)
+		}
 		/**
 		 * 
 		 */

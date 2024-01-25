@@ -2,7 +2,7 @@ const http = require("http");
 
 const options = {
     timeout: 2000,
-    host: "wladnas.ddns.net",
+    host: "taha.redirectme.net",
     port: process.env.PORT || 8080,
     path: "/healthz" // must be the same as HEALTHCHECK in Dockerfile
 };

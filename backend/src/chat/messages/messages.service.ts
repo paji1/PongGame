@@ -27,6 +27,7 @@ export class MessagesService {
 								nickname:true,
 							}
 						}
+						
 					}
 				});
 				await t.rooms.update({
@@ -61,7 +62,6 @@ export class MessagesService {
 					]
 				}
 		})).map((blockrel) => blockrel.initiator === Requester ? blockrel.reciever : blockrel.initiator)
-		console.log("blocked re ", blocked)
 		const conversation = await this.prisma.rooms.findMany({
 			where: {
 					rooms_members: {
@@ -182,6 +182,7 @@ export class MessagesService {
 							created_at: true,
 							user_id: {
 								select: {
+									user42:true,
 									id: true,
 									nickname: true,
 									avatar: true,
@@ -197,7 +198,6 @@ export class MessagesService {
 			})
 			return data;
 		} catch (e){
-			console.log(e.message)
 			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
 		}
 	}
@@ -211,6 +211,7 @@ export class MessagesService {
 						not: "DEFAULT"
 					},
 					OR:[
+
 						{
 							initiator: Requester,
 						},

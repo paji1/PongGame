@@ -16,7 +16,6 @@ export class ProfileService {
 	}
 
 	async findOne(username: string) {
-		console.log("user",username);
 		const data = await this.prisma.user.findFirst({
 			select: {
 				id: true,
@@ -31,7 +30,6 @@ export class ProfileService {
 				nickname: username,
 			},
 		});
-		console.log("data",data);
 		if (!data) throw new HttpException("failed to fetch user", HttpStatus.BAD_REQUEST);
 		return data;
 	}
@@ -73,7 +71,7 @@ export class ProfileService {
 			},
 		});
 		if (user) throw new HttpException("ok", 200);
-		else throw new HttpException("not ok", 400);
+		else throw new HttpException("not ok", 201);
 	}
 
 	async getGlobalBoard(username: string) {
@@ -201,8 +199,21 @@ export class ProfileService {
 				score2: true,
 				created_at:true,
 			}
+			
 		})
 		
 		return data;
+	}
+	async getmyachivments(user:string)
+	{
+		return (await this.prisma.user.findUnique({where:{nickname:user},
+				select:{
+					achieved:{
+						select:{
+							index:true
+						}
+					}
+				}
+				})).achieved.map((achived)=> achived.index);
 	}
 }

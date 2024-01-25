@@ -9,12 +9,16 @@ const useMessages = (updater: boolean, setmessages: any) => {
 		{
 			  credentials: 'include'
 		})
-			.then((data) => data.json())
 			.then((data) => 
 			{
-				if (!Array.isArray(data))
-					toast.error(data.message)
-				setmessages(data) 
+				if (data.status < 400)
+					return data.json()
+				toast.error("failed to fetch messages")
+			})
+			.then((data) => 
+			{
+				if (Array.isArray(data))
+					setmessages(data) 
 			})
 			.catch(() => toast.error(`messages: network error`))
 

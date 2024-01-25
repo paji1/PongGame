@@ -26,15 +26,19 @@ export class ProfileController {
 	
 	}
 
-	@Get("achieved")
-	async getachieved(@GetCurrentUserId() id: number) {
+	@Get(":id/achieved")
+	async getachieved(@Param("id") nick:string ) {
 
+		return await this.profileService.getmyachivments(nick)
 	}
 
 	@Get(":id/GamingHistory")
-	async getData(@GetCurrentUserId() id: number) {
+	async getData(@Param("id") id: number) {
+		if (id === undefined || id == -1)
+			throw new HttpException("id not defined", 404);
 		return this.profileService.getGamingData(id);
 	}
+
 
 	@Get(":id/GLadder")
 	async getGBoard(nickname: string) {

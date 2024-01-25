@@ -1,5 +1,5 @@
 import { actionstatus, game_modes, invitetype } from "@prisma/client";
-import { IsEnum, IsNumber, IsString, Min, MinLength } from "class-validator";
+import { IsEnum, IsNotEmpty, IsNumber, IsString, Min, MinLength } from "class-validator";
 
 export class CreateGameInviteDto {
 	@IsEnum(invitetype)
@@ -18,4 +18,8 @@ export class CreateGameInviteDto {
 
 	@IsEnum(game_modes)
 	game_mode: game_modes
+
+	@IsString()
+	@IsNotEmpty()
+	game_id: string
 }

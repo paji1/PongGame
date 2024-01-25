@@ -6,7 +6,6 @@ export const InviteButton = ({ roomid, type, socket }: { roomid: number; type: s
 	const [friend, setfreind] = useState("");
 	if (type !== "private") return <></>;
 	const invite = () => {
-		console.log({ target: -1, room: roomid, what: friend });
 		socket.emit("INVITEROOM", { target: -1, room: roomid, What: friend });
 		setfreind("");
 	};
