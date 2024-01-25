@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import HandleError from "../../types/error";
 
 const submitepame = async (currentPassword: string, newPassword: string, confirmPassword: string, navigate: any) => {
 	const res = await fetch("http://devlopment.ddns.net:3001/auth/local/apdate/password", {
@@ -11,12 +12,14 @@ const submitepame = async (currentPassword: string, newPassword: string, confirm
 		},
 		body: JSON.stringify({ currentPassword: currentPassword, newPassword: newPassword }),
 	}).then(async (res) => {
-		if (!res.ok) {
-			toast.error("error to update nickname");
+		if (res.ok) {
+			toast.success(`password changed`);
 			return;
 		}
-		toast.success(`password changed`);
-	});
+		return Promise.reject(res);
+	}).catch((res : Response) => {
+		HandleError(res);
+	})
 };
 
 const ChangePassword = ({ toogle, setToggle }: { toogle: any; setToggle: any }) => {

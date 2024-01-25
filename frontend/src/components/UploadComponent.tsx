@@ -6,7 +6,8 @@ import { Label } from "recharts";
 export const UploadTest = () => {
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const types = ["image/png", "image/gif", "image/jpg", "image/jpeg"];
-		if (e.target.files) {
+		if (e.target.files && e.target.files.length == 1 ) {
+ 
 			if (!types.includes(e.target.files[0].type)) {
 				toast.error("Error: png, jpg or jpeg  are the accepted types");
 				return;

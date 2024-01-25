@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FormDataSignIn } from "./PopupSignIn";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import HandleError from "../../types/error";
 
 interface PopupForm2faProps {
 	setPopupSignInVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -39,8 +40,9 @@ const PopupForm2fa: React.FC<PopupForm2faProps> = ({ user, setPopupSignInVisible
 				navigate("/");
 				navigate(0);
 			}
+			else
+				HandleError(response);
 		} catch (error) {
-			toast.error("retry other code");
 		}
 	};
 	return (

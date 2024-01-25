@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import HandleError from "../../types/error";
 
 interface SignUpPopupProps {
 	setPopupSignUpVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -49,8 +50,10 @@ const PopupSignUp: React.FC<SignUpPopupProps> = ({ setPopupSignUpVisible }) => {
 				navigate("/");
 				navigate(0);
 			}
+			else
+				HandleError(response)
 		} catch (error) {
-			console.error(error);
+			// console.error(error);
 		}
 	};
 	useEffect(() => {

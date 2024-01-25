@@ -1,6 +1,7 @@
 import { emit } from "process";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import HandleError from "../../types/error";
 
 interface useGet2faStateProp {
 	setTwoFa: React.Dispatch<React.SetStateAction<boolean>>;
@@ -19,7 +20,7 @@ const useGet2faState = (prop: useGet2faStateProp) => {
 			})
 				.then((res) => {
 					if (!res.ok) {
-						return;
+						return Promise.reject(res);
 					}
 					return res.json();
 				})
@@ -34,7 +35,9 @@ const useGet2faState = (prop: useGet2faStateProp) => {
 						}
 					} catch (error) {}
 				});
-		} catch (error) {}
+		} catch (res) {
+			HandleError(res);
+		}
 	}, [prop.setTwoFa]);
 };
 const useGetImage = (confirmTwoFa: any, setConfirmTwoFa: any, ref: any, TwoFa: any, toogle: any) => {

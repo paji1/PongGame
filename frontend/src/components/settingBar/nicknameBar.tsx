@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { messages } from "../../types/messages";
+import HandleError from "../../types/error";
+
+
 
 const changeName = async (nickname: string, navigate: any) => {
 	const res = await fetch("http://devlopment.ddns.net:3001/auth/local/apdate/nickname", {
@@ -11,14 +15,18 @@ const changeName = async (nickname: string, navigate: any) => {
 		},
 		body: JSON.stringify({ newNickname: nickname }),
 	}).then(async (res) => {
-		if (!res.ok) {
-			toast.error("error to update nickname");
+		if (res.ok) {
+			
+			toast.success(`page well refrech in  in 1 secend`);
+			setTimeout(() => {
+				navigate(0);
+			}, 3000);
 			return;
 		}
-		toast.success(`page well refrech in  in 1 secend`);
-		setTimeout(() => {
-			navigate(0);
-		}, 3000);
+		return Promise.reject(res);
+		
+	}).catch((res : Response) => {
+		HandleError(res);
 	});
 };
 
