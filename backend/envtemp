@@ -1,6 +1,0 @@
-AT_SECRET=dsfds
-RT_SECRET=Jlnkl
-ip=
-clientID= ""
-clientSecret= ""
-callbackURL= "http://:3001/auth/callback_42"

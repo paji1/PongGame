@@ -1,2 +1,2 @@
-const add = "taha.redirectme.net";
+const add = "devlopment.ddns.net";
 export const ip = `${add}:`;

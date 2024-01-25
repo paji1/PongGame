@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FormDataSignIn } from "./PopupSignIn";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import HandleError from "../../types/error";
 
 interface PopupForm2faProps {
 	setPopupSignInVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -26,7 +27,7 @@ const PopupForm2fa: React.FC<PopupForm2faProps> = ({ user, setPopupSignInVisible
 	const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		try {
-			const response = await fetch("http://taha.redirectme.net:3001/auth/local/signinTwofa", {
+			const response = await fetch("http://devlopment.ddns.net:3001/auth/local/signinTwofa", {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -39,8 +40,9 @@ const PopupForm2fa: React.FC<PopupForm2faProps> = ({ user, setPopupSignInVisible
 				navigate("/");
 				navigate(0);
 			}
+			else
+				HandleError(response);
 		} catch (error) {
-			toast.error("retry other code");
 		}
 	};
 	return (

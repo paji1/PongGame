@@ -7,7 +7,7 @@ const useRefreshinterval = () => {
 
 	const getToken = useCallback(() => {
 		axios
-			.post("http://taha.redirectme.net:3001/auth/refresh", {}, { withCredentials: true })
+			.post("http://devlopment.ddns.net:3001/auth/refresh", {}, { withCredentials: true })
 			.then((res) => {})
 			.catch((err): any => {
 				// console.error("axios get refresh error:", err);

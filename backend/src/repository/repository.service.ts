@@ -8,7 +8,7 @@ const typechecker = require("fix-esm").require("file-type");
 const allowed = ["png", "gif", "jpg"];
 
 const conf: ConfigService = new ConfigService();
-const url = `http://taha.redirectme.net:3001/repository/`;
+const url = `http://devlopment.ddns.net:3001/repository/`;
 
 @Injectable()
 export class RepositoryService {

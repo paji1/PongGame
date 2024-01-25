@@ -119,7 +119,7 @@ export class AuthController {
 	@Get("intra/login")
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(AuthGuard("intra"))
-	@Redirect("http://taha.redirectme.net:3001/")
+	@Redirect("http://devlopment.ddns.net:3001/")
 	intraLogin(@Body() user: any) {
 		return {};
 	}

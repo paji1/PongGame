@@ -206,7 +206,8 @@ export class ProfileService {
 	}
 	async getmyachivments(user:string)
 	{
-		return (await this.prisma.user.findUnique({where:{nickname:user},
+		try {
+			const userr = await this.prisma.user.findUnique({where:{nickname:user},
 				select:{
 					achieved:{
 						select:{
@@ -214,6 +215,11 @@ export class ProfileService {
 						}
 					}
 				}
-				})).achieved.map((achived)=> achived.index);
+				})
+		if (userr)
+		return userr.achieved.map((achived)=> achived.index);
+		} catch  {
+		}
+		throw new HttpException("nickname not found", HttpStatus.NOT_FOUND)
 	}
 }

@@ -40,7 +40,7 @@ export class AuthService {
 				throw error;
 			});
 		const isAble: boolean = await argon.verify(user.hash, dto.currentPassword);
-		if (!isAble) throw new UnauthorizedException();
+		if (!isAble) throw new UnauthorizedException( "current password not correct");
 
 		const newPassword: string = await argon.hash(dto.newPassword);
 		await this.prisma.user
@@ -140,7 +140,7 @@ export class AuthService {
 
 			return [tokens, !user.hash ? false : true, user.is2FA];
 		} catch (error) {
-			throw new HttpException("error signup", 402);
+			throw new HttpException("error to login with intra", 402);
 		}
 	}
 	async handle2fa(user42: string, res: Response): Promise<any> {
@@ -162,9 +162,8 @@ export class AuthService {
 			]);
 			// const windowRef = window;
 
-			res.redirect("http://taha.redirectme.net/loading");
+			res.redirect("http://devlopment.ddns.net:3000/loading");
 		} catch (error) {
-			console.error("Error in handleCallback:", error);
 			res.status(500).send("Internal Server Error");
 		}
 	}
@@ -199,7 +198,7 @@ export class AuthService {
 			},
 		});
 
-		if (!user) throw new UnauthorizedException("Access Denied");
+		if (!user) throw new UnauthorizedException("password not correct");
 
 		const passwordMatches = await argon.verify(user.hash, dto.password);
 		if (!passwordMatches) throw new UnauthorizedException("Access Denied");

@@ -228,8 +228,6 @@ export class GameGateway {
 		const game = this.games.get(game_id)
 		if (!game || game.game_over) return // TODO: game not started
 		if (!game.isValidPlayer(client.id)) return
-		if (!game.isValidPlayer(client.id))
-			return 
 		game.setRecievedPaddlePos(client.id, payload.Why)
 	}
 

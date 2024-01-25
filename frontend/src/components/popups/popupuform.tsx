@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FormDataSignIn } from "./PopupSignIn";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import HandleError from "../../types/error";
 
 interface PopupFormProps {
 	setPopupSignInVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -23,7 +24,7 @@ const PopupForm: React.FC<PopupFormProps> = ({ user, setPopupSignInVisible, setp
 	const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		try {
-			const response = await fetch("http://taha.redirectme.net:3001/auth/local/signin", {
+			const response = await fetch("http://devlopment.ddns.net:3001/auth/local/signin", {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -42,9 +43,11 @@ const PopupForm: React.FC<PopupFormProps> = ({ user, setPopupSignInVisible, setp
 					setPopupSignInVisible(false);
 				}
 			}
-			toast.error("try with correct password");
+			else
+			{
+				HandleError(response)
+			}
 		} catch (error) {
-			toast.error("no no");
 		}
 	};
 	return (
