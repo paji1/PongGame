@@ -36,7 +36,7 @@ interface AsyncRefreshtoken {
 }
 const asyncRefreshtoken = async (prop: AsyncRefreshtoken) => {
 	await axios
-		.post("http://taha.redirectme.net:3001/auth/refresh", {}, { withCredentials: true })
+		.post("http://devlopment.ddns.net:3001/auth/refresh", {}, { withCredentials: true })
 		.then((res) => {
 			prop.setitems(Cookies.get("userData"));
 			if (prop.item && prop.islogin) {
@@ -145,27 +145,27 @@ const App = () => {
 			{
 				<currentUser.Provider value={userin.current}>
 					<div>
-							<GameContext.Provider value={[gameContext, setGameContext]}>
-								{window.location.pathname !== "/loading" && (
-									<>
-										<Navbar />
-										{(togglebar === 0 || togglebar === 1) && userin.current ? (
-											<SideBar activity={status} toogle={togglebar} settogle={settoglebar} />
-										) : (
-											<></>
-										)}
-										{(togglebar === 0 || togglebar === 2) && userin.current ? (
-											<NotificationBar toogle={togglebar} settogle={settoglebar} />
-										) : (
-											<></>
-										)}
-										{(togglebar === 0 || togglebar === 3) && userin.current ? (
-											<SettingBar toogle={togglebar} settogle={settoglebar} />
-										) : (
-											<></>
-										)}
-									</>
-								)}
+						<GameContext.Provider value={[gameContext, setGameContext]}>
+							{window.location.pathname !== "/loading" && (
+								<>
+									<Navbar />
+									{(togglebar === 0 || togglebar === 1) && userin.current ? (
+										<SideBar activity={status} toogle={togglebar} settogle={settoglebar} />
+									) : (
+										<></>
+									)}
+									{(togglebar === 0 || togglebar === 2) && userin.current ? (
+										<NotificationBar toogle={togglebar} settogle={settoglebar} />
+									) : (
+										<></>
+									)}
+									{(togglebar === 0 || togglebar === 3) && userin.current ? (
+										<SettingBar toogle={togglebar} settogle={settoglebar} />
+									) : (
+										<></>
+									)}
+								</>
+							)}
 
 							<Routes>
 								<Route path="/search" element={<SearchWindow />} />

@@ -14,7 +14,7 @@ const Popup: React.FC<PopupProps> = ({ onClose, setPopupSignUpVisible, setPopupS
 	const [hasHandledMessage, setHasHandledMessage] = useState(false);
 	useEffect(() => {
 		const handleMessage = (event: any) => {
-			if (event.origin === "http://taha.redirectme.net:3000") {
+			if (event.origin === "http://devlopment.ddns.net:3000") {
 				if (event.data.success) {
 					onClose();
 					const payload = JSON.parse(event.data.payload);
@@ -34,7 +34,7 @@ const Popup: React.FC<PopupProps> = ({ onClose, setPopupSignUpVisible, setPopupS
 	}, []);
 
 	const KarontdoIntra = () => {
-		const oauthUrl = "http://taha.redirectme.net:3001/auth/intra/login";
+		const oauthUrl = "http://devlopment.ddns.net:3001/auth/intra/login";
 		var title = "OAuth Pop-up";
 		var w = 600;
 		var h = 300;
