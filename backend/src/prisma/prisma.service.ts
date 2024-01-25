@@ -31,7 +31,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 		{
 			
 			// const migrate  = await exec("npx prisma migrate dev --name init --schema='/code/prisma/schema.prisma'")
-			const migrate  = await exec("bash /code/prisma/seed/seed.sh")
 		}
 	}
 }

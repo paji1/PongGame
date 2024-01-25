@@ -20,7 +20,6 @@
         - NODE_ENV=development
         context: backend
         target: dev-envs
-      command: "npm run t:d" 
       restart: always
       env_file:
       - .env
@@ -52,7 +51,8 @@
         - 5432:5432
       volumes:
         - db-data:/var/lib/postgresql/data
-
+    
+        
 
 
   networks:

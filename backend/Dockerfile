@@ -31,6 +31,7 @@ RUN <<EOF
 
 EOF
 
+
 # copy in our source code last, as it changes the most
 COPY prisma /code/prisma
 RUN <<EOF
@@ -52,9 +53,12 @@ RUN <<EOF
 apt-get update
 apt-get install -y expect
 apt-get install -y --no-install-recommends git
+npm install -g prisma
 EOF
 
-CMD [ "npm", "run", "t:d" ]
+COPY  ./tools/entrypoint.sh /code
+RUN chmod +x /code/entrypoint.sh
+ENTRYPOINT [ "/code/entrypoint.sh" ] 
 
 RUN <<EOF
 useradd -s /bin/bash -m vscode
