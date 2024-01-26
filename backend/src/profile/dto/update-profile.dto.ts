@@ -5,6 +5,6 @@ import { IsString, MaxLength, MinLength } from 'class-validator';
 export class UpdateProfileDto extends PartialType(CreateProfileDto) {
 	@IsString()
 	@MaxLength(700)
-	@MinLength(100)
+	@MinLength(10)
 	status:string
 }
