@@ -2,7 +2,7 @@
 FROM node:lts AS development
 
 ENV CI=true
-ENV PORT=3000
+ENV PORT=80
 
 WORKDIR /code
 COPY package.json /code/package.json

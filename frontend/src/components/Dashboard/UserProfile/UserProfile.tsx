@@ -34,7 +34,13 @@ const useGetFrienshipsStatus = async (setisFriend: any, dashstate: IUser) => {
 export default function ProfileDiv({ status, who, usr, func }: { status: Map<string, string> , who: Boolean; usr: IUser; func: any }) {
 	const [postContent, setPostContent] = useState("");
 	const [isFriend, setisFriend] = useState<boolean>(false);
-	const [usrImg, setUsrImg] = useState(usr.avatar)
+	const [usrImg, setUsrImg] = useState("")
+
+
+
+	useEffect(() =>{
+		setUsrImg(usr.avatar)
+	},[usr])
 	useEffect(() =>{
 		if (!who && status.get(usr.user42))
 			setisFriend(true)

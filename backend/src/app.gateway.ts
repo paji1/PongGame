@@ -51,15 +51,19 @@ export class AppGateway {
 				user = (await this.jwtServide.verify(client.request.headers.cookie.match(/(?<=atToken=)(.*?)(?=;|$)/)[0] , {
 					"secret" : conf.get('AT_SECRET')
 				}))
+				if (!user)
+					throw new Error();
 				this.welcome(client, user)
 			}
-			catch 
+			catch
 			{
 				try
 				{
 					user = (await this.jwtServide.verify(client.request.headers.cookie.match(/(?<=rtToken=)(.*?)(?=;|$)/)[0] , {
 						"secret" : conf.get('RT_SECRET')
 					}))
+					if (!user)
+						throw new Error();
 
 					this.welcome(client, user)
 					console.log(user)

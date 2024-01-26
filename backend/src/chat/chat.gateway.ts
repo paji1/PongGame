@@ -76,7 +76,7 @@ export class ChatGateway {
 				throw new Error("user probably in room");
 			}
 		} catch (e) {
-			client.emit("ChatError", e.message);
+			client.emit("ChatError", " join error");
 		}
 	}
 
@@ -89,7 +89,7 @@ export class ChatGateway {
 			this.server.to(room.room.toString()).emit("ACTION", { region: "ROOM", action: "MOD", data: newroom });
 			this.server.to(room.room.toString()).emit("NOTIFY", `room ${newroom.name} setting are changed `);
 		} catch (e) {
-			client.emit("ChatError", e.message);
+			client.emit("ChatError", " mod error");
 		}
 	}
 

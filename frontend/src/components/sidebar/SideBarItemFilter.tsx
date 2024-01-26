@@ -22,7 +22,9 @@ const SideBarItemFilter = ({
 	if (rooms) {
 		if (query.length) {
 			list = rooms.map((ob: room, index: number) => {
-				let group = ob.name.toLowerCase();
+				console.log(ob.name)
+				console.log(ob)
+		
 				if (ob.roomtypeof === "chat" )
 					{
 						let name =
@@ -33,7 +35,7 @@ const SideBarItemFilter = ({
 							return (
 							<FriendItem status={status} key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />);
 				}
-				else if (ob.roomtypeof !== "chat" && group.includes(query.toLowerCase())) {
+				else if (ob.name && ob.roomtypeof !== "chat" && ob.name.toLowerCase().includes(query.toLowerCase())) {
 					return (
 						<GroupItem key={index} selector={() => roomselector(ob.id)} room={ob} glimpse={ob.messages} />
 					);

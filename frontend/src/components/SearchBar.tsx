@@ -7,7 +7,7 @@ const SearchBar = () =>
 	const [query, setquery] = useState("")
 	const navigate  = useNavigate()
 
-	const HandleSearch = (e) => {
+	const HandleSearch = (e : any) => {
 		e.preventDefault();
 		navigate("/")
 		setTimeout(() => {

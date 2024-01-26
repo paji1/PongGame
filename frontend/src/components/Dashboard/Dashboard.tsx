@@ -124,7 +124,7 @@ export default function Dashboard({status} : {status: Map<string, string>}) {
 		useGetUserdata(setdashstate, nickname);
 		useGetLadderData(setgladder, nickname);
 		useGetFLadderData(setfladder, nickname);
-		useGetGamingData(setgdata, dashstate, user.id);
+		useGetGamingData(setgdata, dashstate,(user)?  user.id : -1);
 		useGetTrophiesData(settrdata, nickname);
 	if (dashstate === null || user == undefined || setfladder === null) return null;
 	return (

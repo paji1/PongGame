@@ -142,7 +142,7 @@ export class GameMatchingService {
 			}
 			const new_created = await this.createInvite(newNotif)
 			return new_created
-		} catch (error) {
+		} catch (error :any) {
 			throw new Error(`${error.message}`)
 		}
 	}

@@ -35,7 +35,7 @@ const useGet2faState = (prop: useGet2faStateProp) => {
 						}
 					} catch (error) {}
 				});
-		} catch (res) {
+		} catch (res : Response | any) {
 			HandleError(res);
 		}
 	}, [prop.setTwoFa]);
