@@ -37,7 +37,7 @@ export class AuthService {
 						throw new ForbiddenException("Credentials incorrect");
 					}
 				}
-				throw error;
+				throw new UnauthorizedException();
 			});
 		const isAble: boolean = await argon.verify(user.hash, dto.currentPassword);
 		if (!isAble) throw new UnauthorizedException("current password not correct");
@@ -58,7 +58,7 @@ export class AuthService {
 						throw new ForbiddenException("Credentials incorrect");
 					}
 				}
-				throw error;
+				throw new UnauthorizedException();
 			});
 		const tokens = await this.getTokens(user.id, user42);
 		await this.updateRtHash(user.id, tokens.refresh_token);
@@ -114,7 +114,7 @@ export class AuthService {
 						throw new ForbiddenException("Credentials incorrect");
 					}
 				}
-				throw error;
+				throw new UnauthorizedException();
 			});
 
 		const tokens = await this.getTokens(user.id, user.user42);
@@ -183,7 +183,7 @@ export class AuthService {
 						throw new ForbiddenException("Credentials incorrect");
 					}
 				}
-				throw error;
+				throw new UnauthorizedException();
 			});
 
 		const intra_token = await this.getTokensIntra(user.id, user.user42);
@@ -212,18 +212,24 @@ export class AuthService {
 	async logout(user42: string, @Res() res: Response): Promise<boolean> {
 		res.cookie("atToken", "", { expires: new Date(Date.now()) });
 		res.cookie("rtToken", "", { expires: new Date(Date.now()) });
+		res.cookie("itToken", "", { expires: new Date(Date.now()) });
 		res.cookie("userData", "", { expires: new Date(Date.now()) });
-		await this.prisma.user.updateMany({
-			where: {
-				user42: user42,
-				hashedRt: {
-					not: null,
+		try {
+			await this.prisma.user.updateMany({
+				where: {
+					user42: user42,
+					hashedRt: {
+						not: null,
+					},
 				},
-			},
-			data: {
-				hashedRt: null,
-			},
-		});
+				data: {
+					hashedRt: null,
+				},
+			});
+			
+		} catch  {
+			
+		}
 		res.end();
 
 		return true;
