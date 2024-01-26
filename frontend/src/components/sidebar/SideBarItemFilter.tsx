@@ -22,9 +22,7 @@ const SideBarItemFilter = ({
 	if (rooms) {
 		if (query.length) {
 			list = rooms.map((ob: room, index: number) => {
-				console.log(ob.name)
-				console.log(ob)
-		
+
 				if (ob.roomtypeof === "chat" )
 					{
 						let name =

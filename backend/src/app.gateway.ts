@@ -66,7 +66,6 @@ export class AppGateway {
 						throw new Error();
 
 					this.welcome(client, user)
-					console.log(user)
 				}
 				catch
 				{

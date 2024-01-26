@@ -205,9 +205,8 @@ export class GameGateway {
 
 	@SubscribeMessage('GAME_READY')
 	game_ready(@ConnectedSocket() client: Socket, @MessageBody() payload: any) { // TODO: needs dto
-		console.log("haha")
+
 		const game_id = payload.game_id
-		console.log(game_id)
 		const game = this.games.get(game_id)
 		if (!game || game.game_over) return // TODO: game not started
 		if (!game.isValidPlayer(client.id))
