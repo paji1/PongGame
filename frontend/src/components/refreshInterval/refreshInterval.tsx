@@ -8,7 +8,7 @@ const useRefreshinterval = () => {
 
 	const getToken = useCallback(() => {
 		axios
-			.post("http://devlopment.ddns.net:3001/auth/refresh", {}, { withCredentials: true })
+			.post("http://taha.redirectme.net:3001/auth/refresh", {}, { withCredentials: true })
 			.then((res: Response | any) => {
 				if (!res.ok) return Promise.reject(res);
 			})

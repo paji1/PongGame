@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import HandleError from "../../types/error";
 
 const submitepame = async (currentPassword: string, newPassword: string, confirmPassword: string, navigate: any) => {
-	const res = await fetch("http://devlopment.ddns.net:3001/auth/local/apdate/password", {
+	const res = await fetch("http://taha.redirectme.net:3001/auth/local/apdate/password", {
 		method: "POST",
 		credentials: "include",
 		headers: {

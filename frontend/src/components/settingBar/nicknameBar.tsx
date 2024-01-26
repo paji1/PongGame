@@ -5,7 +5,7 @@ import { messages } from "../../types/messages";
 import HandleError from "../../types/error";
 
 const changeName = async (nickname: string, navigate: any) => {
-	const res = await fetch("http://devlopment.ddns.net:3001/auth/local/apdate/nickname", {
+	const res = await fetch("http://taha.redirectme.net:3001/auth/local/apdate/nickname", {
 		method: "POST",
 		credentials: "include",
 		headers: {

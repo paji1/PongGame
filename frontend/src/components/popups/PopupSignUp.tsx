@@ -35,10 +35,10 @@ const PopupSignUp: React.FC<SignUpPopupProps> = ({ setPopupSignUpVisible }) => {
 		e.preventDefault();
 		if (formData.password !== formData.retype_password) {
 			setmatchpassword(true);
-			return
+			return;
 		}
 		try {
-			const response = await fetch("http://devlopment.ddns.net:3001/auth/local/signup", {
+			const response = await fetch("http://taha.redirectme.net:3001/auth/local/signup", {
 				method: "POST",
 				credentials: "include",
 				headers: {
