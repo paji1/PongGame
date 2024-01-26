@@ -4,12 +4,16 @@
       container_name: "ff"
       restart: always
       build:
+        args:
+        - NODE_ENV=production
         context: frontend
-        target: development
+        target: production
       networks:
         - client-side
       ports:
         - 3000:3000
+        - 8080:8080
+        - 80:80
       volumes:
         - ./frontend/src:/code/src:ro
       env_file:
