@@ -9,6 +9,8 @@ type error = {
 
 
 const  HandleError = (res : Response) => {
+	if (!(res instanceof Response))
+		return
 	res.json().then((json : error ) => {
 		if (typeof(json.message) === "string")
 		toast.error(json.message)

@@ -25,8 +25,10 @@ export class ChatController {
 
 	@Get("paginate")
 	@RoomPermitions(user_permission.owner, user_permission.admin, user_permission.participation, user_permission.chat)
-	async humansatisfy(@Query("room") room: number,@Query("offset") ofsset:number, @GetCurrentUserId() id:number)
+	async humansatisfy(@Query("room") room: number ,@Query("offset") ofsset:number, @GetCurrentUserId() id:number)
 	{
+		if (Number.isNaN(room) || Number.isNaN(ofsset))
+			throw new HttpException("Bad Req", 404);
 		return await this.service.messages.satisfy(id,room, ofsset);
 	}
 
@@ -39,6 +41,8 @@ export class ChatController {
 	@Post("humans")
 	@RoomType(roomtype.protected, roomtype.public)
 	async roomHumansJoin(@Query("room") room: number, @Body() Room: RoomDto, @GetCurrentUserId() id:number) {
+		if (Number.isNaN(room) )
+			throw new HttpException("Bad Req", 404);
 		return await this.service.rooms.join_room(id, room, Room);
 	}
 	

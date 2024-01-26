@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { ip } from "../network/ipaddr";
 import { Label } from "recharts";
 
-export const UploadTest = () => {
+export const UploadTest = ({setUsrImg} : {setUsrImg : any}) => {
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const types = ["image/png", "image/gif", "image/jpg", "image/jpeg"];
 		if (e.target.files && e.target.files.length == 1 ) {
@@ -28,13 +28,12 @@ export const UploadTest = () => {
 		var formdata = new FormData();
 		formdata.append("IMAGE", file);
 		fetch("http://" + ip + "3001/repository", { body: formdata, method: "POST", credentials: "include" }).then(
-			async (res) => {
-				if (res.status < 400) {
-					toast("image uploaded succesfully");
+			(res) => {
+				if (res.status <= 400) {
+					res.json().then(img =>  setUsrImg(img.message)).catch(() => toast.error("Failed Setting image"))
 					return;
 				}
-				const ret = await res.json();
-				toast.error(ret.message);
+				toast.error("Failed Setting image");
 			}
 		);
 	};

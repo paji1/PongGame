@@ -110,7 +110,7 @@ export class MessagesService {
 	}
 
 	async get_rooms(id: number) {
-		const blocked = (await this.prisma.friendship.findMany({
+		const blocked = await this.prisma.friendship.findMany({
 			where:
 				{
 					status:{
@@ -125,7 +125,10 @@ export class MessagesService {
 						}
 					]
 				}
-		})).map((blockrel) => blockrel.initiator === id ? blockrel.reciever : blockrel.initiator)
+		})
+		let listbl = []
+		if (blocked && blocked.length)
+		 listbl = blocked.map((blockrel) => blockrel.initiator === id ? blockrel.reciever : blockrel.initiator)
 		try {
 			const data = await this.prisma.rooms.findMany({
 				where: {
@@ -193,12 +196,12 @@ export class MessagesService {
 				},
 			});
 			data.map((room) =>  {
-				if (room.messages[0]?.messages && blocked.includes(room.messages[0].sender_id))
+				if (room.messages[0]?.messages && listbl.includes(room.messages[0].sender_id))
 					room.messages[0].messages = "from a blocked user";
 			})
 			return data;
 		} catch (e){
-			throw new HttpException("Database error", HttpStatus.NOT_FOUND);
+			throw new HttpException("error", HttpStatus.NOT_FOUND);
 		}
 	}
 

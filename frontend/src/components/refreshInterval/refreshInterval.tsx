@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useCallback, useEffect, useRef, useState } from "react";
+import HandleError from "../../types/error";
 
 const useRefreshinterval = () => {
 	const [error, setError] = useState<string | null>(null);
@@ -7,11 +8,13 @@ const useRefreshinterval = () => {
 
 	const getToken = useCallback(() => {
 		axios
-			.post("http://taha.redirectme.net:3001/auth/refresh", {}, { withCredentials: true })
-			.then((res) => {})
-			.catch((err): any => {
+			.post("http://devlopment.ddns.net:3001/auth/refresh", {}, { withCredentials: true })
+			.then((res: Response | any) => {
+				if (!res.ok) return Promise.reject(res);
+			})
+			.catch((res): any => {
+				HandleError(res);
 				// console.error("axios get refresh error:", err);
-				setError("error : refresh token not found");
 			});
 	}, []);
 

@@ -7,6 +7,7 @@ import { ConfigService } from "@nestjs/config";
 import { userDatadto } from "../auth/dto";
 import { JwtPayload } from "src/auth/types";
 
+
 @Controller("users")
 export class UsersController {
 	constructor(
@@ -20,8 +21,8 @@ export class UsersController {
 
 	@Get("/search/:user")
 	async getqueryusers(@GetCurrentUserId() id: number, @Param("user") user: string) {
-		const users = await this.users.getusersbyname(id, user);
-		return users;
+		return await this.users.getusersbyname(id, user);
+	
 	}
 
 	@Public()

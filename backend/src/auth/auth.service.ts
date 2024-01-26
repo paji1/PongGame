@@ -162,7 +162,7 @@ export class AuthService {
 			]);
 			// const windowRef = window;
 
-			res.redirect("http://taha.redirectme.net/loading");
+			res.redirect("http://devlopment.ddns.net:3000/loading");
 		} catch (error) {
 			res.status(500).send("Internal Server Error");
 		}
@@ -201,7 +201,7 @@ export class AuthService {
 		if (!user) throw new UnauthorizedException("password not correct");
 
 		const passwordMatches = await argon.verify(user.hash, dto.password);
-		if (!passwordMatches) throw new UnauthorizedException("Access Denied");
+		if (!passwordMatches) throw new UnauthorizedException("password not correct");
 
 		const tokens = await this.getTokens(user.id, user.user42);
 		await this.updateRtHash(user.id, tokens.refresh_token);
@@ -230,18 +230,23 @@ export class AuthService {
 	}
 
 	async refreshTokens(userId: number, rt: string, res: Response): Promise<[Tokens, boolean]> {
-		const user = await this.prisma.user.findUnique({
-			where: {
-				id: userId,
-			},
-		});
-		if (!user || !user.hashedRt) throw new ForbiddenException("Access Denied");
-		const rtMatches = await argon.verify(user.hashedRt, rt);
-		if (!rtMatches) throw new ForbiddenException("Access Denied");
+		try {
+			
+			const user = await this.prisma.user.findUnique({
+				where: {
+					id: userId,
+				},
+			});
+			if (!user || !user.hashedRt) throw new ForbiddenException("refresh token found");
+			const rtMatches = await argon.verify(user.hashedRt, rt);
+			if (!rtMatches) throw new ForbiddenException("refresh token not found");
+			const tokens = await this.getTokens(user.id, user.user42);
+			await this.updateRtHash(user.id, tokens.refresh_token);
+			return [tokens, !user.hash ? false : true];
+		} catch  {
+			throw new ForbiddenException("refresh token not found");
+		}
 
-		const tokens = await this.getTokens(user.id, user.user42);
-		await this.updateRtHash(user.id, tokens.refresh_token);
-		return [tokens, !user.hash ? false : true];
 	}
 
 	async updateRtHash(userId: number, rt: string): Promise<void> {

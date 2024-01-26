@@ -11,7 +11,7 @@ interface useGet2faStateProp {
 const useGet2faState = (prop: useGet2faStateProp) => {
 	useEffect(() => {
 		try {
-			fetch("http://taha.redirectme.net:3001/auth/is2fa", {
+			fetch("http://devlopment.ddns.net:3001/auth/is2fa", {
 				method: "GET",
 				credentials: "include",
 				headers: {
@@ -44,7 +44,7 @@ const useGetImage = (confirmTwoFa: any, setConfirmTwoFa: any, ref: any, TwoFa: a
 	useEffect(() => {
 		try {
 			if (!TwoFa && ref.current.checked) {
-				fetch("http://taha.redirectme.net:3001/auth/generateQrCode", {
+				fetch("http://devlopment.ddns.net:3001/auth/generateQrCode", {
 					method: "POST",
 					credentials: "include",
 					headers: {
@@ -71,7 +71,7 @@ const useDisable2fa = (disable: any, isDropdownOpen: any, ref: any, TwoFa: any, 
 	useEffect(() => {
 		try {
 			if (TwoFa && !ref.current.checked) {
-				fetch("http://taha.redirectme.net:3001/auth/disable2fa", {
+				fetch("http://devlopment.ddns.net:3001/auth/disable2fa", {
 					method: "POST",
 					credentials: "include",
 					headers: {
@@ -137,7 +137,7 @@ const TwoFaBar = ({ toogle, setToggle }: { toogle: any; setToggle: any }) => {
 	const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		try {
-			await fetch("http://taha.redirectme.net:3001/auth/checkValidcode", {
+			await fetch("http://devlopment.ddns.net:3001/auth/checkValidcode", {
 				method: "POST",
 				credentials: "include",
 				headers: {

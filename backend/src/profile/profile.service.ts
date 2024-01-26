@@ -2,18 +2,13 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { CreateProfileDto } from "./dto/create-profile.dto";
 import { UpdateProfileDto } from "./dto/update-profile.dto";
 import { PrismaService } from "src/prisma/prisma.service";
+import { http } from "winston";
 
 @Injectable()
 export class ProfileService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	create(createProfileDto: CreateProfileDto) {
-		return "This action adds a new profile";
-	}
 
-	findAll() {
-		return `This action returns all profile`;
-	}
 
 	async findOne(username: string) {
 		const data = await this.prisma.user.findFirst({
@@ -35,24 +30,32 @@ export class ProfileService {
 	}
 
 	async update(id: number, updateProfileDto: UpdateProfileDto) {
-		const update = await this.prisma.user.update({
-			where: {
-				id: id,
-			},
-			data: {
-				status: updateProfileDto.status,
-			},
-			select: {
-				id: true,
-				avatar: true,
-				status: true,
-				nickname: true,
-				user42: true,
-				connection_state: true,
-				experience_points: true,
-			},
-		});
-		return update;
+		try
+		{
+
+			const update = await this.prisma.user.update({
+				where: {
+					id: id,
+				},
+				data: {
+					status: updateProfileDto.status,
+				},
+				select: {
+					id: true,
+					avatar: true,
+					status: true,
+					nickname: true,
+					user42: true,
+					connection_state: true,
+					experience_points: true,
+				},
+			});
+			return update;
+		}
+		catch
+		{
+			throw new HttpException("Error Updating status", HttpStatus.BAD_REQUEST)
+		}
 	}
 
 	async getFriendship(id: number, friend: number) {
@@ -71,7 +74,7 @@ export class ProfileService {
 			},
 		});
 		if (user) throw new HttpException("ok", 200);
-		else throw new HttpException("not ok", 201);
+		else throw new HttpException("not ok", 400);
 	}
 
 	async getGlobalBoard(username: string) {

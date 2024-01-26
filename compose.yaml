@@ -2,17 +2,14 @@
   services:
     frontend:
       container_name: "ff"
+      restart: always
       build:
-        args:
-          - NODE_ENV=production
         context: frontend
-        target: production
+        target: development
       networks:
         - client-side
       ports:
-        - 3000
-        - 8080:8080
-        - 80:80
+        - 3000:3000
       volumes:
         - ./frontend/src:/code/src:ro
       env_file:
@@ -40,8 +37,8 @@
         - client-side
         - server-side
       depends_on:
-        # - prisma
-        - db
+        db:
+          condition: service_healthy
 
     db:
       container_name: "dd"
@@ -55,6 +52,11 @@
         - 5432:5432
       volumes:
         - db-data:/var/lib/postgresql/data
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
     
         
 

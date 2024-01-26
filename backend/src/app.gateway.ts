@@ -62,6 +62,7 @@ export class AppGateway {
 					}))
 
 					this.welcome(client, user)
+					console.log(user)
 				}
 				catch
 				{

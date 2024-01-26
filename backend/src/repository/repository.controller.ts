@@ -32,7 +32,7 @@ export class RepositoryController {
     const name = `/code/FileRepository/${sublocation}/` + filename
     
     if (!fs.existsSync(name))
-      throw new HttpException("File Doesnt exist", HttpStatus.BAD_GATEWAY);
+      throw new HttpException("File Doesnt exist", HttpStatus.NOT_FOUND);
     response.sendFile(name)
   }
 }

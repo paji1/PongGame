@@ -38,24 +38,34 @@ export class UsersService {
 				status: true,
 			},
 		});
-		if (!data) throw new HttpException("failed to fetch user", HttpStatus.BAD_REQUEST);
+		if (!data)
+			throw new HttpException("no user found", HttpStatus.BAD_REQUEST);
 		return data;
 	}
 	//   async validate_user()
 	
 	async getusersbyname(user: number, name: string) {
-		return await this.prisma.user.findMany({
-			where: {
-				nickname: { contains: name },
-			},
-			select: {
-				id: true,
-				nickname: true,
-				user42: true,
-				avatar: true,
-				created_at: true,
-			},
-		});
+		try
+		{
+
+			const data =  await this.prisma.user.findMany({
+				where: {
+					nickname: { contains: name },
+				},
+				select: {
+					id: true,
+					nickname: true,
+					user42: true,
+					avatar: true,
+					created_at: true,
+				},
+			});
+			return data
+		}
+		catch
+		{
+			throw new HttpException("badRequest", HttpStatus.BAD_REQUEST)
+		}
 	}
 	
 	async getUser42(user42: string) {

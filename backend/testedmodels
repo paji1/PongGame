@@ -1,0 +1,19 @@
+http ------->>>>
+
+        Users module: PASS
+        REPOSITORY: PASS
+
+        PROFILE : PASS but fladder must be when visiting another
+
+        INVITE:PASS
+
+
+
+        GAME: /GAME is not secure controler doesnt use JWT for auth ; unused controlers need to be rempved
+
+        CHAT: PASS probably????
+
+        if expects number and gets string or else
+ws: 
+    chat fix room guard sneaky roomid exeption fixed
+    

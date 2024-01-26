@@ -2,6 +2,7 @@ import { Controller, Get, Post,Delete, Query,Patch, HttpException, HttpStatus, R
 import { InviteService } from './invite.service';
 import { GetCurrentUser, GetCurrentUserId, Public } from 'src/common/decorators';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { FrienIdDto } from './Dto/friend.dto';
 
 @Controller('invite')
 export class InviteController {
@@ -19,15 +20,15 @@ export class InviteController {
 		return await this.inviteService.GetExpUser(id);
 }
   @Post('friend')
-  async Friendinvite(@GetCurrentUserId() user:number,  @Query('friend') friend: number, @Res() res)
+  async Friendinvite(@GetCurrentUserId() user:number,  @Query() friend: FrienIdDto, @Res() res)
   {
-    if (user === friend)
+    if (user === friend.friend)
     {
       res.status(400).end()
       return ;
     }
 
-    const invite =  await this.inviteService.InviteFriend(user, friend);
+    const invite =  await this.inviteService.InviteFriend(user, friend.friend);
     if (!invite)
       throw new HttpException("Failed inviting", HttpStatus.BAD_REQUEST)
     invite.issuer_id.achieved = Array.isArray(invite.issuer_id.achieved) ? invite.issuer_id.achieved : []
@@ -39,9 +40,9 @@ export class InviteController {
   }
 
   @Delete('friend')
-  async FriendRemove(@GetCurrentUserId() user:number, @Query('friend') friend: number, @Res() res, @GetCurrentUser('user42') myname:string)
+  async FriendRemove(@GetCurrentUserId() user:number, @Query() friend: FrienIdDto, @Res() res, @GetCurrentUser('user42') myname:string)
   {
-    const friendname = await this.inviteService.RemoveFriend(user, friend)
+    const friendname = await this.inviteService.RemoveFriend(user, friend.friend)
     if (friendname)
       {
         res.status(200).end();
@@ -55,9 +56,9 @@ export class InviteController {
 
 
   @Post('friend/invite')
-  async FriendAccept( @GetCurrentUserId() user:number, @Query('id') id: number,@Res() res)
+  async FriendAccept( @GetCurrentUserId() user:number, @Query()  id: FrienIdDto,@Res() res)
   {
-    const data =  await this.inviteService.AcceptFriend( user, id);
+    const data =  await this.inviteService.AcceptFriend( user, id.friend);
     let invite;
     if (Array.isArray(data))
        invite = data[0]
@@ -88,10 +89,10 @@ export class InviteController {
   
 
   @Delete('friend/invite')
-  async FriendReject( @GetCurrentUserId() user:number,@Query('id') id: number)
+  async FriendReject( @GetCurrentUserId() user:number,@Query() id: FrienIdDto)
   {
     try {
-        const invite =   await this.inviteService.RejectFriend(user, id);
+        const invite =   await this.inviteService.RejectFriend(user, id.friend);
         this.events.emit("PUSH", invite.reciever_id.user42, invite, "INVITES")
         this.events.emit("PUSH", invite.issuer_id.user42, invite, "INVITES")
     }catch{

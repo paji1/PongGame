@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpException, Res } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpException, Res, HttpStatus } from "@nestjs/common";
 import { ProfileService } from "./profile.service";
 import { CreateProfileDto } from "./dto/create-profile.dto";
 import { UpdateProfileDto } from "./dto/update-profile.dto";
@@ -16,13 +16,15 @@ export class ProfileController {
 	}
 
 	@Get("friendship/:id")
-	async handleGet(@GetCurrentUserId() id: number, @Param("id") friend: string, @Res() res: Response) {
+	async handleGet(@GetCurrentUserId() id: number, @Param("id") friend: number, @Res() res: Response) {
+		if (Number.isNaN(friend))
+			throw new HttpException("Bad id", HttpStatus.FORBIDDEN)
 		await this.profileService.getFriendship(id, +friend);
 	}
 
 	@Patch("updateStatus")
-	async update(@GetCurrentUserId() id: number, @Body() updateProfileDto: UpdateProfileDto) {
-		return await this.profileService.update(id, updateProfileDto);
+	async update(@GetCurrentUserId() id: number, @Body() status: UpdateProfileDto) {
+		return await this.profileService.update(id, status);
 	
 	}
 
@@ -34,7 +36,7 @@ export class ProfileController {
 
 	@Get(":id/GamingHistory")
 	async getData(@Param("id") id: number) {
-		if (id === undefined || id == -1)
+		if (Number.isNaN(id))
 			throw new HttpException("id not defined", 404);
 		return this.profileService.getGamingData(id);
 	}
