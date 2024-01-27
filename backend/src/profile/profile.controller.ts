@@ -28,13 +28,13 @@ export class ProfileController {
 	
 	}
 
-	@Get(":id/achieved")
+	@Get("achieved/:id")
 	async getachieved(@Param("id") nick:string ) {
 
 		return await this.profileService.getmyachivments(nick)
 	}
 
-	@Get(":id/GamingHistory")
+	@Get("/GamingHistory/:id")
 	async getData(@Param("id") id: number) {
 		if (Number.isNaN(id))
 			throw new HttpException("id not defined", 404);
@@ -42,12 +42,12 @@ export class ProfileController {
 	}
 
 
-	@Get(":id/GLadder")
+	@Get("/GLadder/:id")
 	async getGBoard(nickname: string) {
 		return await this.profileService.getGlobalBoard(nickname);
 	}
 
-	@Get(":id/FLadder")
+	@Get("/FLadder/:id")
 	async getFBoard(@GetCurrentUserId() id: number) {
 		return await this.profileService.getFriendships(id);
 	}

@@ -142,6 +142,7 @@ const GameBody = () => {
 			}
 		)
 	}, [gameContext])
+	
 
 	return (
 		<div ref={gameBodyRef} className={`border-[.5rem] border-solid border-textColor bg-textColor flex items-center justify-center
@@ -168,7 +169,6 @@ const GameFrame = () => {
 }
 
 const GameUI = () => {
-
 	return (
 		<div id="game-ui" className={`flex flex-col items-center h-auto inset-0`}>
 			<div className={`flex flex-col items-center p-1 sm:p-5 mt-6

@@ -39,9 +39,9 @@ export class ChatGateway {
 		@ConnectedSocket() client,
 		@MessageBody() room: { room: number },
 	) {
-		console.log("hi")
 		client.join(room.room.toString());
 	}
+	
 	@SubscribeMessage("CREATE")
 	async createroom(
 		@GetCurrentUser("user42") identifier: string,

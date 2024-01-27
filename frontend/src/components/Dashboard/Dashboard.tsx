@@ -10,19 +10,19 @@ import { currentUser } from "../Context/AuthContext";
 import { toast } from "react-toastify";
 import { ip } from "../../network/ipaddr";
 import IUser from "../../types/User";
-import { Histo, achived } from "../../types/yearlyres";
+import { Histo} from "../../types/yearlyres";
+import Error_Comnp from "../424comp";
 
 const useGetTrophiesData = async (settrdata: any, nickname: string | undefined) => {
 	useEffect(() => {
-		fetch(`http://${ip}3001/profile/${nickname}/achieved`, {
+		fetch(`http://${ip}3001/profile/achieved/${nickname}`, {
 			method: "GET",
 			credentials: "include",
 		})
 			.then((data) => 
 			{
-				if (data.status < 4000)
+				if (data.status < 400)
 					return data.json()
-				toast.error("Error getting achievements")
 			})
 			.then((data) => {
 				if (Array.isArray(data))
@@ -35,7 +35,7 @@ const useGetTrophiesData = async (settrdata: any, nickname: string | undefined) 
 const useGetGamingData = async (setgdata: any, user: IUser | null , id: number) => {
 
 	useEffect(() => {
-		fetch(`http://${ip}3001/profile/${(user) ? user.id : id}/GamingHistory`, {
+		fetch(`http://${ip}3001/profile/GamingHistory/${(user) ? user.id : id}`, {
 			method: "GET",
 			credentials: "include",
 		})
@@ -43,7 +43,6 @@ const useGetGamingData = async (setgdata: any, user: IUser | null , id: number) 
 			{
 				if (data.status < 400)
 					return data.json()
-				toast.error("Error getting GamingHistory")
 			})
 			.then((data) => {
 				if (Array.isArray(data))
@@ -54,14 +53,13 @@ const useGetGamingData = async (setgdata: any, user: IUser | null , id: number) 
 
 const useGetFLadderData = async (setfladder: any, nickname: string | undefined) => {
 	useEffect(() => {
-		fetch(`http://${ip}3001/profile/${nickname}/FLadder`, {
+		fetch(`http://${ip}3001/profile/FLadder/${nickname}`, {
 			method: "GET",
 			credentials: "include",
 		})
 			.then((data) => {
 				if (data.status < 400)
 					return data.json()
-				toast.error("Error getting Friends Ladder")
 			})
 			.then((data) => {
 				if (Array.isArray(data))
@@ -72,14 +70,13 @@ const useGetFLadderData = async (setfladder: any, nickname: string | undefined) 
 
 const useGetLadderData = async (setgladder: any, nickname: string | undefined) => {
 	useEffect(() => {
-		fetch(`http://${ip}3001/profile/${nickname}/GLadder`, {
+		fetch(`http://${ip}3001/profile/GLadder/${nickname}`, {
 			method: "GET",
 			credentials: "include",
 		})
 		.then((data) => {
 			if (data.status < 400)
 				return data.json()
-			toast.error("Error getting Global Ladder")
 		})
 			.then((data) => {
 				if (Array.isArray(data))
@@ -97,7 +94,6 @@ const useGetUserdata = async (setdashstate: any, nickname: string | undefined) =
 			.then((data) => {
 			if (data.status < 400)
 				return data.json()
-			toast.error("Error getting Global Ladder")
 			return null
 		})
 			.then((Response) => {
@@ -126,7 +122,7 @@ export default function Dashboard({status} : {status: Map<string, string>}) {
 		useGetFLadderData(setfladder, nickname);
 		useGetGamingData(setgdata, dashstate,(user)?  user.id : -1);
 		useGetTrophiesData(settrdata, nickname);
-	if (dashstate === null || user == undefined || setfladder === null) return null;
+	if (dashstate === null || user == undefined || setfladder === null) return <Error_Comnp />;
 	return (
 		<div className="flex flex-col gap-y-16 mt-16">
 			<ProfileDiv status={status} who={who} usr={dashstate} func={setdashstate} />

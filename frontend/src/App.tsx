@@ -62,7 +62,7 @@ const App = () => {
 
 	const [gameContext, setGameContext] = useState<IGameContext | null>(null);
 	const navigate = useNavigate();
-
+	
 	useEffect(() => {
 		socket.on("start_game", (data: any) => {
 			setGameContext({

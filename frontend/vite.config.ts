@@ -15,7 +15,7 @@ export default defineConfig({
       },
     }),
     react(),],
-    base: './',
+    base: '/',
     server: {
       host: true,
       port: 80, // This is the port which we will use in docker
