@@ -38,6 +38,8 @@ export class RoomGuard implements CanActivate {
         var roomid ;
         if (reqType === "ws")
         {
+
+            context.switchToWs().getClient().request.headers["pass"] = true
             context.switchToWs().getClient().request.headers["user"] = request.user[key2];
             roomid = +context.switchToWs().getData().room;
         }

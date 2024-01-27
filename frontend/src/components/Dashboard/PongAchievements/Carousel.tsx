@@ -45,7 +45,7 @@ export const items: achived[] = [
 
   },
   {
-    description: "win a game with the top score without conseiving a single goal",
+    description: "win a full game without recieving a goal",
     name: "THE EXECUTIONER",
 
   },

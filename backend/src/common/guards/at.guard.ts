@@ -13,6 +13,10 @@ export class AtGuard extends AuthGuard("jwt") {
 		const isPublic = this.reflector.getAllAndOverride("isPublic", [context.getHandler(), context.getClass()]);
 		if (isPublic) return true;
 		const req = context.switchToHttp().getRequest();
+		if (  context.getType() === "ws" &&  req.request.headers.pass)
+		{
+			return true;
+		}
 		if (
 			(req.cookies && "atToken" in req.cookies && req.cookies.atToken?.length > 0) ||
 			(req.request &&

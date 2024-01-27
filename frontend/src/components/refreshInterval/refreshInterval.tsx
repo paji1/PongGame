@@ -7,7 +7,6 @@ const useRefreshinterval = () => {
 	const intervalRef = useRef<NodeJS.Timer | undefined>();
 
 	const getToken = useCallback(() => {
-		console.log("refresh")
 		axios
 			.post("http://taha.redirectme.net:3001/auth/refresh", {}, { withCredentials: true })
 			.then((res: Response | any) => {
@@ -21,7 +20,7 @@ const useRefreshinterval = () => {
 
 	useEffect(() => {
 		getToken();
-		const interval = setInterval(() => getToken(), 13 * 60 * 1000);
+		const interval = setInterval(() => getToken(), 14 * 60 * 1000);
 		intervalRef.current = interval;
 
 		return () => clearInterval(interval);

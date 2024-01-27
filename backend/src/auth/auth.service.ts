@@ -317,14 +317,14 @@ export class AuthService {
 		const minute: number = 60 * 1000;
 		res.cookie("atToken", tokens.access_token, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			maxAge: 300 * minute,
+			secure: false,
+			maxAge:  15 * minute,
 			path: "/",
 		});
 
 		res.cookie("rtToken", tokens.refresh_token, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
+			secure: false,
 			maxAge: 60 * minute * 24 * 7,
 			path: "/",
 		});
