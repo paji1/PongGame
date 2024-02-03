@@ -110,7 +110,3 @@ This command will initialize the backend, frontend, and database containers, ens
 ## Contributors
 
 - [Taha El Mouhajir](https://github.com/paji1)
-- [Soufiane Elkhamlichi](https://github.com/MGS15)
-- [Mahmoud Meziani](https://github.com/7ach7ouch101)
-- [Ouail Zahir](https://github.com/waelzahir)
-- [Aeymne Echafii](https://github.com/Aymane-1)
