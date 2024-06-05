@@ -13,9 +13,5 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the front Docker image
-      run: docker build . --file frontend/Dockerfile --tag my-image-name:$(date +%s)
-    - uses: actions/checkout@v4
-    - name: Build the backend Docker image
-      run: docker build . --file backend/Dockerfile --tag my-image-name:$(date +%s)
+    - uses: hoverkraft-tech/compose-action@v2.0.0
+    - name: Docker Compose Action
